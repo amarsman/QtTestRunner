@@ -2,14 +2,14 @@
 #define TASK_H
 
 #include <QObject>
-#include <QLoggingCategory>
+#include "unittestfinder.h"
 
 /******************************************************************************/
 class MainTask : public QObject
 {
     Q_OBJECT
 public:
-    explicit MainTask(QObject *parent = 0);
+    explicit MainTask(QObject *parent, const QString &a_basepath, UnitTestFinder *a_finder);
     virtual ~MainTask();
 
 public slots:
@@ -17,9 +17,9 @@ public slots:
 
 signals:
     void finished();
-
 private:
-    QLoggingCategory category;
+    QString m_basepath;
+    UnitTestFinder *m_finder;
 };
 
 #endif // TASK_H

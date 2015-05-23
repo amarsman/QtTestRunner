@@ -1,20 +1,20 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "logging.h"
 
 /******************************************************************************/
 MainWindow::MainWindow(QWidget *parent)
  : QMainWindow(parent)
  , ui(new Ui::MainWindow)
- , category("MainWindow")
 {
-    qCDebug(category);
+    qCDebug(LogQtTestRunner);
     ui->setupUi(this);
 }
 
 /******************************************************************************/
 MainWindow::~MainWindow()
 {
-    qCDebug(category);
+    qCDebug(LogQtTestRunner);
     delete ui;
 }
 

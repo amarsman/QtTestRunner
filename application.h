@@ -1,10 +1,10 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef APPLICATION_H
+#define APPLICATION_H
 #include <QApplication>
-#include <QLoggingCategory>
 
 class TestRunnerApplication : public QApplication
 {
+    Q_OBJECT
 public:
     TestRunnerApplication(int &argc, char **argv);
     virtual ~TestRunnerApplication();
@@ -13,16 +13,17 @@ public:
 
 protected:
     void parseCommandLineOptions();
+    void checkPreconditions();
 
 private:
     QString m_basepath;
     bool m_recursive;
     bool m_graphical;
     int m_nrjobs;
-
-    QLoggingCategory category;
+    bool m_useldd;
+    bool m_isroot;
 };
 
 
-#endif // MAIN_H
+#endif // APPLICATION_H
 

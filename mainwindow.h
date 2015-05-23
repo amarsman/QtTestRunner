@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QLoggingCategory>
 
 namespace Ui {
 class MainWindow;
@@ -18,8 +17,6 @@ public:
 
 private:
     Ui::MainWindow *ui;
-
-    QLoggingCategory category;
 };
 
 #endif // MAINWINDOW_H

@@ -1,24 +1,21 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2015-05-23T10:40:56
-#
-#-------------------------------------------------
-
-QT       += core gui
-CONFIG += c++11
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
 TARGET = QtTestRunner
 TEMPLATE = app
+CONFIG += c++11
+QT     += core gui widgets
 
+SOURCES += \
+    application.cpp \
+    logging.cpp \
+    main.cpp \
+    maintask.cpp \
+    mainwindow.cpp \
+    unittestfinder.cpp
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    maintask.cpp
+HEADERS  += \
+    application.h \
+    logging.h \
+    maintask.h \
+    mainwindow.h \
+    unittestfinder.h
 
-HEADERS  += mainwindow.h \
-    main.h \
-    maintask.h
-
-FORMS    += mainwindow.ui
+FORMS += mainwindow.ui
