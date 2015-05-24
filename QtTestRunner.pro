@@ -9,13 +9,15 @@ SOURCES += \
     main.cpp \
     maintask.cpp \
     mainwindow.cpp \
-    unittestfinder.cpp
+    unittestcollector.cpp \
+    unittestrunner.cpp
 
 HEADERS  += \
     application.h \
     logging.h \
     maintask.h \
     mainwindow.h \
-    unittestfinder.h
+    unittestcollector.h \
+    unittestrunner.h
 
 FORMS += mainwindow.ui

@@ -8,7 +8,7 @@
 #include "mainwindow.h"
 #include "maintask.h"
 #include "logging.h"
-#include "unittestfinder.h"
+#include "unittestcollector.h"
 
 /******************************************************************************/
 TestRunnerApplication::TestRunnerApplication(int &argc, char **argv)
@@ -73,6 +73,12 @@ void TestRunnerApplication::parseCommandLineOptions()
     int nrjobs = parser.value(parallelOption).toInt(&valid);
     if (nrjobs < 1) valid = false;
     m_nrjobs = valid ? nrjobs : std::thread::hardware_concurrency();
+
+    //for testing
+    m_basepath = "/home/henklaak/Projects/QtCmake/build";
+    m_recursive = true;
+    m_graphical = false;
+    m_nrjobs = 1;
 }
 
 /******************************************************************************/
@@ -122,8 +128,7 @@ int TestRunnerApplication::run()
     }
     else
     {
-        UnitTestFinder finder;
-        MainTask *task = new MainTask(this, m_basepath, &finder);
+        MainTask *task = new MainTask(this, m_basepath);
         QTimer::singleShot(0, task, SLOT(run()));
         QObject::connect(task, &MainTask::finished,
                          this, &TestRunnerApplication::quit);
