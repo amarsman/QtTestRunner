@@ -1,7 +1,5 @@
-#include <QProcess>
 #include <QString>
 #include <QRegularExpression>
-#include <QSettings>
 
 #include "maintask.h"
 #include "logging.h"
@@ -9,15 +7,13 @@
 
 
 /******************************************************************************/
-MainTask::MainTask(QObject *parent)
+MainTask::MainTask(QObject *parent, const QString &a_basepath, int a_nrjobs)
     : QObject(parent)
+    , m_basepath(a_basepath)
+    , m_nrjobs(a_nrjobs)
 {
     qCDebug(LogQtTestRunner);
     m_unitTestCollector.reset(new UnitTestCollector());
-
-    QSettings settings;
-
-    m_basepath = settings.value("basepath", ".").toString();
 }
 
 
@@ -32,18 +28,18 @@ void MainTask::run()
 {
     qCDebug(LogQtTestRunner);
 
-    startCollecting();
+    startCollecting(m_basepath, m_nrjobs);
 }
 
 /******************************************************************************/
-void MainTask::startCollecting()
+void MainTask::startCollecting(QString a_basepath, int a_nrjobs)
 {
     QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unittestFound,
                      this, &MainTask::onUnitTestFound);
     QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::collectionFinished,
                      this, &MainTask::onCollectionFinished);
 
-    m_unitTestCollector->start(m_basepath);
+    m_unitTestCollector->start(a_basepath, a_nrjobs);
 }
 
 /******************************************************************************/

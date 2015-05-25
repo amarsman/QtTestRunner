@@ -6,7 +6,6 @@
 #include <QThreadPool>
 #include <QRegularExpression>
 #include <QStringList>
-#include <QSettings>
 
 #include "unittestcollector.h"
 #include "unittestrunner.h"
@@ -14,15 +13,13 @@
 
 /******************************************************************************/
 UnitTestCollector::UnitTestCollector()
-    : m_searchPath("")
-    , m_stopRequested(false)
+    : m_stopRequested(false)
     , m_running(false)
+    , m_basepath("")
+    , m_nrjobs(1)
 {
     qCDebug(LogQtTestRunner);
     setAutoDelete(false);
-    QSettings settings;
-    m_nrjobs = settings.value("nrjobs", 1).toInt();
-    sem.reset(new QSemaphore(m_nrjobs));
 }
 
 /******************************************************************************/
@@ -32,7 +29,7 @@ UnitTestCollector::~UnitTestCollector()
 }
 
 /******************************************************************************/
-void UnitTestCollector::start(const QString &a_SearchPath)
+void UnitTestCollector::start(const QString &a_basepath, int a_nrjobs)
 {
     qCDebug(LogQtTestRunner);
     if (m_running)
@@ -40,8 +37,10 @@ void UnitTestCollector::start(const QString &a_SearchPath)
         return;
     }
 
-    m_searchPath = a_SearchPath;
     m_stopRequested = false;
+    m_basepath = a_basepath;
+    m_nrjobs = a_nrjobs;
+    sem.reset(new QSemaphore(m_nrjobs));
 
     QThreadPool::globalInstance()->start(this);
 }
@@ -90,7 +89,7 @@ void UnitTestCollector::run()
     // Collect all tests executables
     QStringList m_unitTests;
 
-    QDirIterator it(m_searchPath,
+    QDirIterator it(m_basepath,
                     QStringList() << "*",
                     QDir::Files | QDir::Executable,
                     QDirIterator::Subdirectories);

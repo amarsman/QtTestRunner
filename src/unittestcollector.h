@@ -16,7 +16,7 @@ public:
     UnitTestCollector();
     ~UnitTestCollector();
 
-    void start(const QString &a_Path = ".");
+    void start(const QString &basepath, int nrjobs);
     void stop();
 
 signals:
@@ -29,11 +29,12 @@ protected:
 private:
     bool isUnitTest(const QString &filename);
 
-    QString m_searchPath;
     bool m_stopRequested;
     bool m_running;
-    int m_nrjobs;
     QSharedPointer<QSemaphore> sem;
+
+    QString m_basepath;
+    int m_nrjobs;
 };
 
 /******************************************************************************/

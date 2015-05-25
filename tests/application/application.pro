@@ -1,7 +1,7 @@
 TARGET = tst_main
 TEMPLATE = app
-CONFIG += testcase
-QT += testlib
+CONFIG += c++11 testcase
+QT += widgets testlib
 
 SOURCES += \
-    tst_main.cpp
+    tst_application.cpp
