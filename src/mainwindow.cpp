@@ -12,7 +12,9 @@ MainWindow::MainWindow(const TestSettings &a_settings, QWidget *parent)
     ui->setupUi(this);
 
     ui->treeView->setModel(&m_unittestmodel);
-    //ui->treeView->expandAll();
+    ui->treeView->expandAll();
+
+
 
     m_unitTestCollector.reset(new UnitTestCollector());
 
@@ -48,11 +50,22 @@ void MainWindow::onUnitTestResult(int jobnr,
 {
     Q_UNUSED(jobnr);
 
-    char buf[256];
-    snprintf(buf, 256, "%-10s %-20s %-20s\n",
-            testResult.toStdString().c_str(),
-            testCase.toStdString().c_str(),
-            testFunction.toStdString().c_str());
+    QList<QStandardItem *> rowitems;
+    rowitems << new QStandardItem(QString(testCase).trimmed());
+    rowitems << new QStandardItem(QString(testFunction).trimmed());
+
+    QStandardItem *item = m_unittestmodel.invisibleRootItem();
+    item->appendRow(rowitems);
+
+    QList<QStandardItem *> rowitems2;
+    rowitems2 << new QStandardItem(QString(testResult).trimmed());
+
+
+    rowitems.first()->appendRow(rowitems2);
+    QModelIndex idx = m_unittestmodel.index(item->rowCount()-1, 0);
+    ui->treeView->setExpanded(idx, (testResult == "fail"));
+    ui->treeView->resizeColumnToContents(0);
+    ui->treeView->resizeColumnToContents(1);
 
     //ui->listWidget->addItem(QString(buf).trimmed());
 }
@@ -60,7 +73,6 @@ void MainWindow::onUnitTestResult(int jobnr,
 /******************************************************************************/
 void MainWindow::onFinished()
 {
-    //ui->listWidget->addItem(QString("Finished"));
 }
 
 /******************************************************************************/

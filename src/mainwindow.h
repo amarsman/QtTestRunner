@@ -3,9 +3,11 @@
 
 #include <QMainWindow>
 #include <QScopedPointer>
+#include <QStandardItemModel>
+#include <QStandardItem>
+
 #include "unittestcollector.h"
 #include "testsettings.h"
-#include "unittestmodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -32,7 +34,7 @@ private:
     QScopedPointer<UnitTestCollector> m_unitTestCollector;
 
     TestSettings m_settings;
-    UnitTestModel m_unittestmodel;
+    QStandardItemModel m_unittestmodel;
 };
 
 #endif // MAINWINDOW_H

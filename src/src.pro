@@ -10,8 +10,7 @@ SOURCES += \
     maintask.cpp \
     mainwindow.cpp \
     unittestcollector.cpp \
-    unittestrunner.cpp \
-    unittestmodel.cpp
+    unittestrunner.cpp
 
 HEADERS  += \
     application.h \
@@ -20,7 +19,6 @@ HEADERS  += \
     mainwindow.h \
     unittestcollector.h \
     unittestrunner.h \
-    testsettings.h \
-    unittestmodel.h
+    testsettings.h
 
 FORMS += mainwindow.ui
