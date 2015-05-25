@@ -68,9 +68,12 @@ bool UnitTestCollector::isUnitTest(const QString &filename)
 }
 
 /******************************************************************************/
-void UnitTestCollector::onUnitTestResult(int jobnr, const QString &testResult, bool ok)
+void UnitTestCollector::onUnitTestResult(int jobnr,
+                                         const QString &testCase,
+                                         const QString &testFunction,
+                                         const QString &testResult)
 {
-    emit unitTestResult(jobnr, testResult, ok);
+    emit unitTestResult(jobnr, testCase, testFunction, testResult);
 }
 
 /******************************************************************************/

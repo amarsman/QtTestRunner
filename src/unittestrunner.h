@@ -5,6 +5,7 @@
 #include <QString>
 #include <QSemaphore>
 #include <QSharedPointer>
+#include <QRegularExpression>
 
 /******************************************************************************/
 class UnitTestRunner : public QObject, public QRunnable
@@ -19,17 +20,38 @@ public:
     void stop();
 
 signals:
-    void unitTestResult(int jobnr, const QString &testResult, bool ok);
+    void unitTestResult(int jobnr,
+                        const QString &testCase,
+                        const QString &testFunction,
+                        const QString &result);
 
 protected:
     void run(void);
 
 private:
+    void processXmlLine(const QString &line);
     QString m_unitTest;
     QSharedPointer<QSemaphore> m_semaphore;
     bool m_running;
     bool m_stopRequested;
     int m_jobnr;
+
+    QRegularExpression re_tc_start;
+    QRegularExpression re_tc_end;
+    QRegularExpression re_environment_start;
+    QRegularExpression re_environment_end;
+    QRegularExpression re_tf_start;
+    QRegularExpression re_tf_end;
+    QRegularExpression re_incident;
+    QRegularExpression re_incident_start;
+    QRegularExpression re_incident_end;
+    QRegularExpression re_duration;
+    bool in_testcase;
+    QString testCaseName;
+    bool in_environment;
+    bool in_testfunction;
+    QString testFunctionName;
+    bool in_incident;
 };
 
 /******************************************************************************/

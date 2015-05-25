@@ -23,13 +23,19 @@ public:
 signals:
     void unittestFound(const QString &findResult);
     void collectionFinished();
-    void unitTestResult(int jobnr, const QString &testResult, bool ok);
+    void unitTestResult(int jobnr,
+                        const QString &testCase,
+                        const QString &testFunction,
+                        const QString &testResult);
 
 protected:
     void run(void);
 
 private slots:
-    void onUnitTestResult(int jobnr, const QString &testResult, bool ok);
+    void onUnitTestResult(int jobnr,
+                          const QString &testCase,
+                          const QString &testFunction,
+                          const QString &testResult);
 
 private:
     bool isUnitTest(const QString &filename);

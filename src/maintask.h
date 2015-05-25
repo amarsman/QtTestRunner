@@ -26,7 +26,10 @@ signals:
     void finished();
 
 private slots:
-    void onUnitTestResult(int jobnr, const QString &testResult, bool ok);
+    void onUnitTestResult(int jobnr,
+                          const QString &testCase,
+                          const QString &testFunction,
+                          const QString &testResult);
 
 private:
     void startCollecting();

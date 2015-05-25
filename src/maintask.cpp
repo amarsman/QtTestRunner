@@ -57,9 +57,16 @@ void MainTask::onCollectionFinished()
 }
 
 /******************************************************************************/
-void MainTask::onUnitTestResult(int jobnr, const QString &testResult, bool ok)
+void MainTask::onUnitTestResult(int jobnr,
+                                const QString &testCase,
+                                const QString &testFunction,
+                                const QString &testResult)
 {
-    fprintf(stderr, "%d %s %s\n", jobnr, testResult.toStdString().c_str(), ok ? "OK" : "NOK");
+    fprintf(stderr, "%d %-5s %-20s %-20s\n",
+            jobnr,
+            testResult.toStdString().c_str(),
+            testCase.toStdString().c_str(),
+            testFunction.toStdString().c_str());
 }
 
 /******************************************************************************/

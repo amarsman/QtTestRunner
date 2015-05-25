@@ -31,29 +31,32 @@ TestRunnerApplication::~TestRunnerApplication()
 void TestRunnerApplication::parseCommandLineOptions()
 {
     /*
-    Usage: ./QtTestRunner [options] path
+    Usage: src/QtTestRunner [options] path
 
     Options:
-        -r, --recursive      Search recursive
-        -g, --graphical      Use graphical interface
-        -j, --jobs <nrjobs>  Use parallel jobs (default=nr_cpus)
-        -v, --version        Displays version information.
-        -h, --help           Displays this help.
+        -r, --recursive       Search recursive
+        -g, --graphical       Use graphical interface
+        -j, --jobs <nrjobs>   Use parallel jobs (default=nr_cpus)
+        -d, --debug           Produce debug output
+        -n, --repeat <count>  Repeat tests (default=1)
+        -s, --shuffle         Shuffle tests
+        -v, --version         Displays version information.
+        -h, --help            Displays this help.
 
     Arguments:
-        path                 Path or test executable. (default=cwd)
+        path                  Path or test executable. (default=cwd)
     */
     qCDebug(LogQtTestRunner);
 
     setApplicationName("QtTestRunner");
     setApplicationVersion("1.0");
 
-    QCommandLineOption recursiveOption(QStringList() << "r" << "recursive", "Search recursive");
-    QCommandLineOption graphicalOption(QStringList() << "g" << "graphical", "Use graphical interface");
-    QCommandLineOption parallelOption(QStringList() << "j" << "jobs", "Use parallel jobs (default=nr_cpus)", "nrjobs");
-    QCommandLineOption debugOption(QStringList() << "d" << "debug", "Produce debug output");
-    QCommandLineOption repeatOption(QStringList() << "n" << "repeat", "Repeat tests", "count");
-    QCommandLineOption shuffleOption(QStringList() << "s" << "shuffle", "Shuffle tests");
+    QCommandLineOption recursiveOption(QStringList() << "r" << "recursive", "Search recursive"                             );
+    QCommandLineOption graphicalOption(QStringList() << "g" << "graphical", "Use graphical interface"                      );
+    QCommandLineOption parallelOption (QStringList() << "j" << "jobs",      "Use parallel jobs (default=nr_cpus)", "nrjobs");
+    QCommandLineOption debugOption    (QStringList() << "d" << "debug",     "Produce debug output"                         );
+    QCommandLineOption repeatOption   (QStringList() << "n" << "repeat",    "Repeat tests (default=1)",            "count" );
+    QCommandLineOption shuffleOption  (QStringList() << "s" << "shuffle",   "Shuffle tests"                                );
 
     QCommandLineParser parser;
     parser.addPositionalArgument("path", "Path or test executable. (default=cwd)");
