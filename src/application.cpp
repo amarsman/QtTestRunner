@@ -52,6 +52,8 @@ void TestRunnerApplication::parseCommandLineOptions()
     QCommandLineOption graphicalOption(QStringList() << "g" << "graphical", "Use graphical interface");
     QCommandLineOption parallelOption(QStringList() << "j" << "jobs", "Use parallel jobs (default=nr_cpus)", "nrjobs");
     QCommandLineOption debugOption(QStringList() << "d" << "debug", "Produce debug output");
+    QCommandLineOption repeatOption(QStringList() << "n" << "repeat", "Repeat tests", "count");
+    QCommandLineOption shuffleOption(QStringList() << "s" << "shuffle", "Shuffle tests");
 
     QCommandLineParser parser;
     parser.addPositionalArgument("path", "Path or test executable. (default=cwd)");
@@ -59,6 +61,8 @@ void TestRunnerApplication::parseCommandLineOptions()
     parser.addOption(graphicalOption);
     parser.addOption(parallelOption);
     parser.addOption(debugOption);
+    parser.addOption(repeatOption);
+    parser.addOption(shuffleOption);
     parser.addVersionOption();
     parser.addHelpOption();
     parser.process(*this);
@@ -69,11 +73,18 @@ void TestRunnerApplication::parseCommandLineOptions()
     m_settings.basepath = (args.length() < 1) ? "/home/henklaak/Projects/QtCmake/build" : args[0];
     m_settings.recursive = parser.isSet(recursiveOption);
     m_settings.graphical = parser.isSet(graphicalOption);
+    m_settings.debug = parser.isSet(debugOption);
+    m_settings.shuffle = parser.isSet(shuffleOption);
+
     bool valid=false;
     int nrjobs = parser.value(parallelOption).toInt(&valid);
     if (nrjobs < 1) valid = false;
     m_settings.nrjobs = valid ? nrjobs : std::thread::hardware_concurrency();
-    m_settings.debug = parser.isSet(debugOption);
+
+    valid=false;
+    int nrrepeats = parser.value(repeatOption).toInt(&valid);
+    if (nrrepeats < 1) valid = false;
+    m_settings.repeat = valid ? nrrepeats : 1;
 
     if (m_settings.debug)
     {
@@ -85,6 +96,7 @@ void TestRunnerApplication::parseCommandLineOptions()
     qCDebug(LogQtTestRunner, "graphical %s", m_settings.graphical ? "yes" : "no");
     qCDebug(LogQtTestRunner, "nrjobs    %d", m_settings.nrjobs);
     qCDebug(LogQtTestRunner, "debug     %s", m_settings.debug ? "yes" : "no");
+    qCDebug(LogQtTestRunner, "shuffle   %s", m_settings.shuffle ? "yes" : "no");
 }
 
 /******************************************************************************/

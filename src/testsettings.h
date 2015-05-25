@@ -10,6 +10,8 @@ struct TestSettings
     int nrjobs;
     bool debug;
     bool useldd;
+    bool shuffle;
+    int repeat;
 };
 
 #endif // TESTSETTINGS_H

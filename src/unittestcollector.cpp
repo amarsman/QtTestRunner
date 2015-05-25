@@ -107,7 +107,7 @@ void UnitTestCollector::run()
 
         if (isUnitTest(fullPath))
         {
-            for (int i=0; i<1000; i++)
+            for (int i=0; i<m_settings.repeat; i++)
             {
                 m_unitTests.append(fullPath);
                 emit unittestFound(fullPath);
@@ -117,7 +117,15 @@ void UnitTestCollector::run()
     }
 
     qCDebug(LogQtTestRunner, "Sorting");
-    m_unitTests.sort();
+    if (m_settings.shuffle)
+    {
+        std::random_shuffle(m_unitTests.begin(), m_unitTests.end());
+    }
+    else
+    {
+        m_unitTests.sort();
+    }
+
 
     int jobnr = 1;
     // Run all test executables
