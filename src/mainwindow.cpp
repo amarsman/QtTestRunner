@@ -11,10 +11,11 @@ MainWindow::MainWindow(const TestSettings &a_settings, QWidget *parent)
     qCDebug(LogQtTestRunner);
     ui->setupUi(this);
 
+    ui->treeView->setModel(&m_unittestmodel);
+    //ui->treeView->expandAll();
+
     m_unitTestCollector.reset(new UnitTestCollector());
 
-    //QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unitTestFound,
-    //                 this, &MainTask::onUnitTestFound);
     QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::finished,
                      this, &MainWindow::onFinished);
     QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unitTestResult,
@@ -34,7 +35,8 @@ MainWindow::~MainWindow()
 /******************************************************************************/
 void MainWindow::onStartClicked()
 {
-    ui->listWidget->clear();
+    m_unittestmodel.clear();
+
     m_unitTestCollector->start(m_settings);
 }
 
@@ -52,13 +54,13 @@ void MainWindow::onUnitTestResult(int jobnr,
             testCase.toStdString().c_str(),
             testFunction.toStdString().c_str());
 
-    ui->listWidget->addItem(QString(buf).trimmed());
+    //ui->listWidget->addItem(QString(buf).trimmed());
 }
 
 /******************************************************************************/
 void MainWindow::onFinished()
 {
-    ui->listWidget->addItem(QString("Finished"));
+    //ui->listWidget->addItem(QString("Finished"));
 }
 
 /******************************************************************************/

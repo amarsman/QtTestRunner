@@ -5,6 +5,7 @@
 #include <QScopedPointer>
 #include "unittestcollector.h"
 #include "testsettings.h"
+#include "unittestmodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,6 +32,7 @@ private:
     QScopedPointer<UnitTestCollector> m_unitTestCollector;
 
     TestSettings m_settings;
+    UnitTestModel m_unittestmodel;
 };
 
 #endif // MAINWINDOW_H
