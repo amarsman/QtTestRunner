@@ -1,35 +1,39 @@
-#ifndef UNIT_TEST_FINDER_H
-#define UNIT_TEST_FINDER_H
+#ifndef UNIT_TEST_RUNNER_H
+#define UNIT_TEST_RUNNER_H
 #include <QObject>
 #include <QRunnable>
 #include <QString>
+#include <QStringList>
 #include <QSemaphore>
 #include <QSharedPointer>
 
 /******************************************************************************/
-class UnitTestRunner : public QObject, public QRunnable
+class UnitTestCollector : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
 
-    UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore);
-    ~UnitTestRunner();
+    UnitTestCollector();
+    ~UnitTestCollector();
 
-    void start(const QString &a_unitTest);
+    void start(const QString &a_Path = ".");
     void stop();
 
 signals:
-    void unittestResult(const QString &testResult);
-    void testingFinished();
+    void unittestFound(const QString &findResult);
+    void collectionFinished();
 
 protected:
     void run(void);
 
 private:
-    QString m_unitTest;
+    bool isUnitTest(const QString &filename);
+
+    QString m_searchPath;
     bool m_stopRequested;
     bool m_running;
-    QSharedPointer<QSemaphore> m_semaphore;
+    int m_nrjobs;
+    QSharedPointer<QSemaphore> sem;
 };
 
 /******************************************************************************/

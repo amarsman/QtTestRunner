@@ -14,14 +14,6 @@ public:
 protected:
     void parseCommandLineOptions();
     void checkPreconditions();
-
-private:
-    QString m_basepath;
-    bool m_recursive;
-    bool m_graphical;
-    int m_nrjobs;
-    bool m_useldd;
-    bool m_isroot;
 };
 
 

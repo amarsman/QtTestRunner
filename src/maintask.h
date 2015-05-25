@@ -13,7 +13,7 @@ class MainTask : public QObject
 {
     Q_OBJECT
 public:
-    explicit MainTask(QObject *parent, const QString &a_basepath);
+    explicit MainTask(QObject *parent);
     virtual ~MainTask();
 
 public slots:

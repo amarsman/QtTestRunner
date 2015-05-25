@@ -1,6 +1,7 @@
 #include <QProcess>
 #include <QString>
 #include <QRegularExpression>
+#include <QSettings>
 
 #include "maintask.h"
 #include "logging.h"
@@ -8,12 +9,15 @@
 
 
 /******************************************************************************/
-MainTask::MainTask(QObject *parent, const QString &a_basepath)
+MainTask::MainTask(QObject *parent)
     : QObject(parent)
-    , m_basepath(a_basepath)
 {
     qCDebug(LogQtTestRunner);
     m_unitTestCollector.reset(new UnitTestCollector());
+
+    QSettings settings;
+
+    m_basepath = settings.value("basepath", ".").toString();
 }
 
 

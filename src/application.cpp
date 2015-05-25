@@ -1,4 +1,5 @@
 #include <QCommandLineParser>
+#include <QSettings>
 #include <QTimer>
 #include <thread>
 #include <unistd.h>
@@ -13,14 +14,11 @@
 /******************************************************************************/
 TestRunnerApplication::TestRunnerApplication(int &argc, char **argv)
     : QApplication(argc, argv)
-    , m_basepath(".")
-    , m_recursive(false)
-    , m_graphical(false)
-    , m_nrjobs(4)
-    , m_useldd(false)
-    , m_isroot(false)
 {
     qCDebug(LogQtTestRunner);
+    setOrganizationName("LSI");
+    setApplicationName("QtTestRunner"),
+    setApplicationVersion("1.0");
 }
 
 /******************************************************************************/
@@ -66,19 +64,20 @@ void TestRunnerApplication::parseCommandLineOptions()
     QStringList args = parser.positionalArguments();
     if (args.length() > 1) { parser.showHelp(-1); }
 
-    m_basepath  = (args.length() < 1) ? "." : args[0];
-    m_recursive = parser.isSet(recursiveOption);
-    m_graphical = parser.isSet(graphicalOption);
+    QSettings settings;
+    settings.setValue("basepath", (args.length() < 1) ? "." : args[0]);
+    settings.setValue("recursive", parser.isSet(recursiveOption));
+    settings.setValue("graphical", parser.isSet(graphicalOption));
     bool valid=false;
     int nrjobs = parser.value(parallelOption).toInt(&valid);
     if (nrjobs < 1) valid = false;
-    m_nrjobs = valid ? nrjobs : std::thread::hardware_concurrency();
+    settings.setValue("nrjobs", valid ? nrjobs : std::thread::hardware_concurrency());
 
     //for testing
-    m_basepath = "/home/henklaak/Projects/QtCmake/build";
-    m_recursive = true;
-    m_graphical = false;
-    m_nrjobs = 1;
+    settings.setValue("basepath", "/home/henklaak/Projects/QtCmake/build");
+    settings.setValue("recursive", true);
+    settings.setValue("graphical", false);
+    settings.setValue("nrjobs", 8);
 }
 
 /******************************************************************************/
@@ -89,16 +88,17 @@ void TestRunnerApplication::checkPreconditions()
     // Find out if user is root
     {
         // Check dat ldd can be run
-        m_isroot = (0 == geteuid());
-        if (!m_isroot)
+        bool isroot = (0 == geteuid());
+        if (!isroot)
         {
             fprintf(stderr, "Not root, only accessible tests will be run.\n");
         }
-        qCDebug(LogQtTestRunner, "isroot: %d", m_isroot);
+        qCDebug(LogQtTestRunner, "isroot: %d", isroot);
     }
 
     // Find out if ldd works
     {
+        bool useldd=false;
         FILE *pipe = popen("ldd /bin/ls", "r");
         if (pipe)
         {
@@ -107,9 +107,12 @@ void TestRunnerApplication::checkPreconditions()
             {
                 fgets(buffer, 256, pipe);
             }
-            m_useldd = (0 == pclose(pipe)); //no errors
+            useldd = (0 == pclose(pipe)); // no errors
         }
-        qCDebug(LogQtTestRunner, "useldd: %d", m_useldd);
+
+        QSettings settings;
+        settings.setValue("useldd", useldd);
+        qCDebug(LogQtTestRunner, "useldd: %d", useldd);
     }
 }
 
@@ -120,7 +123,9 @@ int TestRunnerApplication::run()
     parseCommandLineOptions();
     checkPreconditions();
 
-    if (m_graphical)
+    QSettings settings;
+
+    if (settings.value("graphical", false).toBool())
     {
         MainWindow w;
         w.show();
@@ -128,7 +133,7 @@ int TestRunnerApplication::run()
     }
     else
     {
-        MainTask *task = new MainTask(this, m_basepath);
+        MainTask *task = new MainTask(this);
         QTimer::singleShot(0, task, SLOT(run()));
         QObject::connect(task, &MainTask::finished,
                          this, &TestRunnerApplication::quit);

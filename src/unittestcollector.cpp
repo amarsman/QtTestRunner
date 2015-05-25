@@ -6,6 +6,7 @@
 #include <QThreadPool>
 #include <QRegularExpression>
 #include <QStringList>
+#include <QSettings>
 
 #include "unittestcollector.h"
 #include "unittestrunner.h"
@@ -19,7 +20,9 @@ UnitTestCollector::UnitTestCollector()
 {
     qCDebug(LogQtTestRunner);
     setAutoDelete(false);
-    sem.reset(new QSemaphore(8));
+    QSettings settings;
+    m_nrjobs = settings.value("nrjobs", 1).toInt();
+    sem.reset(new QSemaphore(m_nrjobs));
 }
 
 /******************************************************************************/
@@ -77,6 +80,8 @@ void UnitTestCollector::run()
 
     if (m_running)
     {
+        qCDebug(LogQtTestRunner, "Finished");
+        emit collectionFinished();
         return;
     }
 
@@ -94,6 +99,9 @@ void UnitTestCollector::run()
     {
         it.next();
         QDir dir(it.filePath());
+
+        qCDebug(LogQtTestRunner, "%s", dir.absolutePath().toStdString().c_str());
+
         QString fullPath = dir.absolutePath();
 
         if (isUnitTest(fullPath))
@@ -103,6 +111,7 @@ void UnitTestCollector::run()
         }
     }
 
+    qCDebug(LogQtTestRunner, "Sorting");
     m_unitTests.sort();
 
     // Run all test executables
@@ -112,14 +121,15 @@ void UnitTestCollector::run()
 
         qCDebug(LogQtTestRunner, "Acquiring");
         sem->acquire();
-        qCDebug(LogQtTestRunner, "Acquired--------------------------------------");
+        qCDebug(LogQtTestRunner, "Acquired");
 
 
         UnitTestRunner *runner = new UnitTestRunner(sem);
         runner->start(filename);
     }
 
-    while (sem->available() != 4)
+    qCDebug(LogQtTestRunner, "Waiting for runners to finish");
+    while (sem->available() != m_nrjobs)
     {
         QThread::msleep(100);
     }

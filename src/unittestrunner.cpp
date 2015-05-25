@@ -7,7 +7,7 @@
 
 /******************************************************************************/
 UnitTestRunner::UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore)
- : m_semaphore(a_semaphore), m_running(false), m_stopRequested(false)
+    : m_semaphore(a_semaphore), m_running(false), m_stopRequested(false)
 {
     qCDebug(LogQtTestRunner);
 }
@@ -43,6 +43,12 @@ void UnitTestRunner::stop()
 }
 
 /******************************************************************************/
+void UnitTestRunner::onReadyRead()
+{
+    qCDebug(LogQtTestRunner, "onReadyRead");
+}
+
+/******************************************************************************/
 void UnitTestRunner::run()
 {
     qCDebug(LogQtTestRunner, "Starting");
@@ -54,24 +60,28 @@ void UnitTestRunner::run()
 
     m_running = true;
 
-        qCDebug(LogQtTestRunner, "%s ", m_unitTest.toStdString().c_str());
+    qCDebug(LogQtTestRunner, "%s ", m_unitTest.toStdString().c_str());
 
-        QScopedPointer<QProcess> process(new QProcess());
-        process->start(m_unitTest);//, QStringList() << "-datatags");
-        process->waitForFinished();
+    QScopedPointer<QProcess> process(new QProcess());
 
-        QString data = QString(process->readAllStandardOutput());
-        QStringList lines = data.split(QRegularExpression("\n|\r\n|\r"));
-        for (auto it2 = lines.constBegin(); it2 != lines.constEnd(); ++it2)
+    QObject::connect(process.data(), &QProcess::started,
+                     this, &UnitTestRunner::onReadyRead);
+    process->start(m_unitTest);//, QStringList() << "-datatags");
+    process->waitForStarted();
+    while (process->waitForReadyRead())
+    {
+        while (process->canReadLine())
         {
-            const QString &line = *it2;
+            QString line = QString(process->readLine());
             if (line.startsWith("******")) continue;
             if (line.startsWith("Config")) continue;
             if (line.startsWith("Totals")) continue;
             if (line.isEmpty()) continue;
-
-            fprintf(stderr, "%s\n", line.toStdString().c_str());
+            fprintf(stderr, "%s", line.toStdString().c_str());
         }
+    }
+
+    process->waitForFinished();
 
     m_running = false;
     qCDebug(LogQtTestRunner, "Finished");
