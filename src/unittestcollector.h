@@ -17,12 +17,13 @@ public:
     UnitTestCollector();
     ~UnitTestCollector();
 
+public slots:
     void start(const TestSettings &settings);
     void stop();
 
 signals:
-    void unittestFound(const QString &findResult);
-    void collectionFinished();
+    void unitTestFound(const QString &findResult);
+    void finished();
     void unitTestResult(int jobnr,
                         const QString &testCase,
                         const QString &testFunction,

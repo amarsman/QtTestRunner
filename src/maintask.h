@@ -18,7 +18,7 @@ public:
     virtual ~MainTask();
 
 public slots:
-    void run();
+    void onRun();
     void onUnitTestFound(const QString &a_path);
     void onCollectionFinished();
 

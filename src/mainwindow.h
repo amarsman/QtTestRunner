@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QScopedPointer>
+#include "unittestcollector.h"
+#include "testsettings.h"
 
 namespace Ui {
 class MainWindow;
@@ -12,11 +15,22 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(const TestSettings &a_settings, QWidget *parent = 0);
     ~MainWindow();
+
+private slots:
+    void onStartClicked();
+    void onUnitTestResult(int jobnr,
+                          const QString &testCase,
+                          const QString &testFunction,
+                          const QString &testResult);
+    void onFinished();
 
 private:
     Ui::MainWindow *ui;
+    QScopedPointer<UnitTestCollector> m_unitTestCollector;
+
+    TestSettings m_settings;
 };
 
 #endif // MAINWINDOW_H

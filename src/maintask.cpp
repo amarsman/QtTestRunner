@@ -23,7 +23,7 @@ MainTask::~MainTask()
 }
 
 /******************************************************************************/
-void MainTask::run()
+void MainTask::onRun()
 {
     qCDebug(LogQtTestRunner);
 
@@ -33,9 +33,9 @@ void MainTask::run()
 /******************************************************************************/
 void MainTask::startCollecting()
 {
-    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unittestFound,
+    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unitTestFound,
                      this, &MainTask::onUnitTestFound);
-    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::collectionFinished,
+    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::finished,
                      this, &MainTask::onCollectionFinished);
     QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unitTestResult,
                      this, &MainTask::onUnitTestResult);
@@ -47,12 +47,14 @@ void MainTask::startCollecting()
 void MainTask::onUnitTestFound(const QString &a_path)
 {
     qCDebug(LogQtTestRunner, "%s", a_path.toStdString().c_str());
+    fprintf(stderr, "%s\n", a_path.toStdString().c_str());
 }
 
 /******************************************************************************/
 void MainTask::onCollectionFinished()
 {
     qCDebug(LogQtTestRunner);
+    fprintf(stderr, "Finished\n");
     emit finished();
 }
 
@@ -62,8 +64,9 @@ void MainTask::onUnitTestResult(int jobnr,
                                 const QString &testFunction,
                                 const QString &testResult)
 {
-    fprintf(stderr, "%d %-5s %-20s %-20s\n",
-            jobnr,
+    Q_UNUSED(jobnr);
+
+    fprintf(stderr, "%-10s %-20s %-20s\n",
             testResult.toStdString().c_str(),
             testCase.toStdString().c_str(),
             testFunction.toStdString().c_str());

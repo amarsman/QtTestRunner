@@ -84,7 +84,7 @@ void UnitTestCollector::run()
     if (m_running)
     {
         qCDebug(LogQtTestRunner, "Finished");
-        emit collectionFinished();
+        emit finished();
         return;
     }
 
@@ -113,7 +113,7 @@ void UnitTestCollector::run()
             for (int i=0; i<m_settings.repeat; i++)
             {
                 m_unitTests.append(fullPath);
-                emit unittestFound(fullPath);
+                emit unitTestFound(fullPath);
             }
         }
     }
@@ -157,7 +157,7 @@ void UnitTestCollector::run()
 
     m_running = false;
     qCDebug(LogQtTestRunner, "Finished");
-    emit collectionFinished();
+    emit finished();
 }
 
 /******************************************************************************/

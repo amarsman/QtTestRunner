@@ -11,23 +11,23 @@ UnitTestRunner::UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore)
 {
     qCDebug(LogQtTestRunner);
 
-    re_tc_start.setPattern("<TestCase name=\"(.*?)\">");
-    re_tc_end.setPattern("<\\/TestCase>");
+    re_tc_start         .setPattern("<TestCase name=\"(.*?)\">");
+    re_tc_end           .setPattern("<\\/TestCase>");
     re_environment_start.setPattern("<Environment>");
-    re_environment_end.setPattern("<\\/Environment>");
-    re_tf_start.setPattern("<TestFunction name=\"(.*?)\">");
-    re_tf_end.setPattern("<\\/TestFunction>");
-    re_incident.setPattern("<Incident\\s+type=\"(.*?)\".*?\\/>");
-    re_incident_start.setPattern("<Incident\\s+type=\"(.*?)\".*?[^\\/]>");
-    re_incident_end.setPattern("<\\/Incident>");
-    re_duration.setPattern("<Duration.*?\\/>");
+    re_environment_end  .setPattern("<\\/Environment>");
+    re_tf_start         .setPattern("<TestFunction name=\"(.*?)\">");
+    re_tf_end           .setPattern("<\\/TestFunction>");
+    re_incident         .setPattern("<Incident\\s+type=\"(.*?)\".*?\\/>");
+    re_incident_start   .setPattern("<Incident\\s+type=\"(.*?)\".*?[^\\/]>");
+    re_incident_end     .setPattern("<\\/Incident>");
+    re_duration         .setPattern("<Duration.*?\\/>");
 
-    in_testcase = false;
-    testCaseName = "";
-    in_environment = false;
-    in_testfunction = false;
+    in_testcase      = false;
+    testCaseName     = "";
+    in_environment   = false;
+    in_testfunction  = false;
     testFunctionName = "";
-    in_incident = false;
+    in_incident      = false;
 }
 
 /******************************************************************************/

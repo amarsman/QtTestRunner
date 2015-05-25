@@ -82,7 +82,7 @@ void TestRunnerApplication::parseCommandLineOptions()
     bool valid=false;
     int nrjobs = parser.value(parallelOption).toInt(&valid);
     if (nrjobs < 1) valid = false;
-    m_settings.nrjobs = valid ? nrjobs : std::thread::hardware_concurrency();
+    m_settings.nrjobs = valid ? nrjobs : 1; //std::thread::hardware_concurrency();
 
     valid=false;
     int nrrepeats = parser.value(repeatOption).toInt(&valid);
@@ -136,14 +136,14 @@ int TestRunnerApplication::run()
 
     if (m_settings.graphical)
     {
-        MainWindow w;
+        MainWindow w(m_settings);
         w.show();
         return exec();
     }
     else
     {
         MainTask *task = new MainTask(this, m_settings);
-        QTimer::singleShot(0, task, SLOT(run()));
+        QTimer::singleShot(0, task, &MainTask::onRun);
         QObject::connect(task, &MainTask::finished,
                          this, &TestRunnerApplication::quit);
         return exec();
