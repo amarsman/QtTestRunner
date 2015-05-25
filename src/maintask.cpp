@@ -7,10 +7,9 @@
 
 
 /******************************************************************************/
-MainTask::MainTask(QObject *parent, const QString &a_basepath, int a_nrjobs)
+MainTask::MainTask(QObject *parent, const TestSettings &a_settings)
     : QObject(parent)
-    , m_basepath(a_basepath)
-    , m_nrjobs(a_nrjobs)
+    , m_settings(a_settings)
 {
     qCDebug(LogQtTestRunner);
     m_unitTestCollector.reset(new UnitTestCollector());
@@ -28,18 +27,20 @@ void MainTask::run()
 {
     qCDebug(LogQtTestRunner);
 
-    startCollecting(m_basepath, m_nrjobs);
+    startCollecting();
 }
 
 /******************************************************************************/
-void MainTask::startCollecting(QString a_basepath, int a_nrjobs)
+void MainTask::startCollecting()
 {
     QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unittestFound,
                      this, &MainTask::onUnitTestFound);
     QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::collectionFinished,
                      this, &MainTask::onCollectionFinished);
+    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unitTestResult,
+                     this, &MainTask::onUnitTestResult);
 
-    m_unitTestCollector->start(a_basepath, a_nrjobs);
+    m_unitTestCollector->start(m_settings);
 }
 
 /******************************************************************************/
@@ -53,6 +54,12 @@ void MainTask::onCollectionFinished()
 {
     qCDebug(LogQtTestRunner);
     emit finished();
+}
+
+/******************************************************************************/
+void MainTask::onUnitTestResult(int jobnr, const QString &testResult, bool ok)
+{
+    fprintf(stderr, "%d %s %s\n", jobnr, testResult.toStdString().c_str(), ok ? "OK" : "NOK");
 }
 
 /******************************************************************************/

@@ -1,6 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 #include <QApplication>
+#include "testsettings.h"
 
 class TestRunnerApplication : public QApplication
 {
@@ -15,12 +16,7 @@ protected:
     void parseCommandLineOptions();
     void checkPreconditions();
 
-    QString m_basepath;
-    bool m_recursive;
-    bool m_graphical;
-    int m_nrjobs;
-    bool m_debug;
-    bool m_useldd;
+    TestSettings m_settings;
 };
 
 

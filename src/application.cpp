@@ -14,12 +14,6 @@
 /******************************************************************************/
 TestRunnerApplication::TestRunnerApplication(int &argc, char **argv)
     : QApplication(argc, argv)
-    , m_basepath("")
-    , m_recursive(false)
-    , m_graphical(false)
-    , m_nrjobs(1)
-    , m_debug(false)
-    , m_useldd(true)
 {
     qCDebug(LogQtTestRunner);
     setOrganizationName("LSI");
@@ -72,25 +66,25 @@ void TestRunnerApplication::parseCommandLineOptions()
     QStringList args = parser.positionalArguments();
     if (args.length() > 1) { parser.showHelp(-1); }
 
-    m_basepath = (args.length() < 1) ? "/home/henklaak/Projects/QtCmake/build" : args[0];
-    m_recursive = parser.isSet(recursiveOption);
-    m_graphical = parser.isSet(graphicalOption);
+    m_settings.basepath = (args.length() < 1) ? "/home/henklaak/Projects/QtCmake/build" : args[0];
+    m_settings.recursive = parser.isSet(recursiveOption);
+    m_settings.graphical = parser.isSet(graphicalOption);
     bool valid=false;
     int nrjobs = parser.value(parallelOption).toInt(&valid);
     if (nrjobs < 1) valid = false;
-    m_nrjobs = valid ? nrjobs : std::thread::hardware_concurrency();
-    m_debug = parser.isSet(debugOption);
+    m_settings.nrjobs = valid ? nrjobs : std::thread::hardware_concurrency();
+    m_settings.debug = parser.isSet(debugOption);
 
-    if (m_debug)
+    if (m_settings.debug)
     {
         QLoggingCategory::setFilterRules("QtTestRunner.debug=true");
     }
 
-    qCDebug(LogQtTestRunner, "basepath  %s", m_basepath.toStdString().c_str());
-    qCDebug(LogQtTestRunner, "recursive %s", m_recursive ? "yes" : "no");
-    qCDebug(LogQtTestRunner, "graphical %s", m_graphical ? "yes" : "no");
-    qCDebug(LogQtTestRunner, "nrjobs    %d", m_nrjobs);
-    qCDebug(LogQtTestRunner, "debug     %s", m_debug ? "yes" : "no");
+    qCDebug(LogQtTestRunner, "basepath  %s", m_settings.basepath.toStdString().c_str());
+    qCDebug(LogQtTestRunner, "recursive %s", m_settings.recursive ? "yes" : "no");
+    qCDebug(LogQtTestRunner, "graphical %s", m_settings.graphical ? "yes" : "no");
+    qCDebug(LogQtTestRunner, "nrjobs    %d", m_settings.nrjobs);
+    qCDebug(LogQtTestRunner, "debug     %s", m_settings.debug ? "yes" : "no");
 }
 
 /******************************************************************************/
@@ -113,8 +107,8 @@ void TestRunnerApplication::checkPreconditions()
         QScopedPointer<QProcess> process(new QProcess());
 
         process->start("ldd", QStringList() << "/bin/ls");
-        m_useldd = process->waitForFinished();
-        qCDebug(LogQtTestRunner, "useldd: %d", m_useldd);
+        m_settings.useldd = process->waitForFinished();
+        qCDebug(LogQtTestRunner, "useldd: %d", m_settings.useldd);
     }
 }
 
@@ -125,7 +119,7 @@ int TestRunnerApplication::run()
     parseCommandLineOptions();
     checkPreconditions();
 
-    if (m_graphical)
+    if (m_settings.graphical)
     {
         MainWindow w;
         w.show();
@@ -133,7 +127,7 @@ int TestRunnerApplication::run()
     }
     else
     {
-        MainTask *task = new MainTask(this, m_basepath, m_nrjobs);
+        MainTask *task = new MainTask(this, m_settings);
         QTimer::singleShot(0, task, SLOT(run()));
         QObject::connect(task, &MainTask::finished,
                          this, &TestRunnerApplication::quit);

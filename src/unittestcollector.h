@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QSemaphore>
 #include <QSharedPointer>
+#include "testsettings.h"
 
 /******************************************************************************/
 class UnitTestCollector : public QObject, public QRunnable
@@ -16,15 +17,19 @@ public:
     UnitTestCollector();
     ~UnitTestCollector();
 
-    void start(const QString &basepath, int nrjobs);
+    void start(const TestSettings &settings);
     void stop();
 
 signals:
     void unittestFound(const QString &findResult);
     void collectionFinished();
+    void unitTestResult(int jobnr, const QString &testResult, bool ok);
 
 protected:
     void run(void);
+
+private slots:
+    void onUnitTestResult(int jobnr, const QString &testResult, bool ok);
 
 private:
     bool isUnitTest(const QString &filename);
@@ -33,8 +38,7 @@ private:
     bool m_running;
     QSharedPointer<QSemaphore> sem;
 
-    QString m_basepath;
-    int m_nrjobs;
+    TestSettings m_settings;
 };
 
 /******************************************************************************/

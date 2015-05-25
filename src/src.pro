@@ -18,6 +18,7 @@ HEADERS  += \
     maintask.h \
     mainwindow.h \
     unittestcollector.h \
-    unittestrunner.h
+    unittestrunner.h \
+    testsettings.h
 
 FORMS += mainwindow.ui

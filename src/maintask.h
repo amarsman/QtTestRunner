@@ -5,6 +5,7 @@
 #include <QString>
 #include <QStringList>
 #include <QScopedPointer>
+#include "testsettings.h"
 
 class UnitTestCollector; //forward
 
@@ -13,7 +14,7 @@ class MainTask : public QObject
 {
     Q_OBJECT
 public:
-    explicit MainTask(QObject *parent, const QString &a_basepath, int a_nrjobs);
+    explicit MainTask(QObject *parent, const TestSettings &a_settings);
     virtual ~MainTask();
 
 public slots:
@@ -24,12 +25,14 @@ public slots:
 signals:
     void finished();
 
+private slots:
+    void onUnitTestResult(int jobnr, const QString &testResult, bool ok);
+
 private:
-    void startCollecting(QString a_basepath, int a_nrjobs);
+    void startCollecting();
 
     QScopedPointer<UnitTestCollector> m_unitTestCollector;
-    QString m_basepath;
-    int m_nrjobs;
+    TestSettings m_settings;
 };
 
 #endif // MAIN_TASK_H

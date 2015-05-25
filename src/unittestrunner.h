@@ -15,24 +15,21 @@ public:
     UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore);
     ~UnitTestRunner();
 
-    void start(const QString &a_unitTest);
+    void start(int jobnr, const QString &a_unitTest);
     void stop();
 
 signals:
-    void unittestResult(const QString &testResult);
-    void testingFinished();
+    void unitTestResult(int jobnr, const QString &testResult, bool ok);
 
 protected:
     void run(void);
-
-private slots:
-    void onReadyRead();
 
 private:
     QString m_unitTest;
     QSharedPointer<QSemaphore> m_semaphore;
     bool m_running;
     bool m_stopRequested;
+    int m_jobnr;
 };
 
 /******************************************************************************/

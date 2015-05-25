@@ -15,8 +15,6 @@
 UnitTestCollector::UnitTestCollector()
     : m_stopRequested(false)
     , m_running(false)
-    , m_basepath("")
-    , m_nrjobs(1)
 {
     qCDebug(LogQtTestRunner);
     setAutoDelete(false);
@@ -29,18 +27,15 @@ UnitTestCollector::~UnitTestCollector()
 }
 
 /******************************************************************************/
-void UnitTestCollector::start(const QString &a_basepath, int a_nrjobs)
+void UnitTestCollector::start(const TestSettings &a_settings)
 {
     qCDebug(LogQtTestRunner);
     if (m_running)
     {
         return;
     }
-
-    m_stopRequested = false;
-    m_basepath = a_basepath;
-    m_nrjobs = a_nrjobs;
-    sem.reset(new QSemaphore(m_nrjobs));
+    m_settings = a_settings;
+    sem.reset(new QSemaphore(m_settings.nrjobs));
 
     QThreadPool::globalInstance()->start(this);
 }
@@ -73,6 +68,12 @@ bool UnitTestCollector::isUnitTest(const QString &filename)
 }
 
 /******************************************************************************/
+void UnitTestCollector::onUnitTestResult(int jobnr, const QString &testResult, bool ok)
+{
+    emit unitTestResult(jobnr, testResult, ok);
+}
+
+/******************************************************************************/
 void UnitTestCollector::run()
 {
     qCDebug(LogQtTestRunner, "Starting");
@@ -89,7 +90,8 @@ void UnitTestCollector::run()
     // Collect all tests executables
     QStringList m_unitTests;
 
-    QDirIterator it(m_basepath,
+    {
+    QDirIterator it(m_settings.basepath,
                     QStringList() << "*",
                     QDir::Files | QDir::Executable,
                     QDirIterator::Subdirectories);
@@ -105,14 +107,19 @@ void UnitTestCollector::run()
 
         if (isUnitTest(fullPath))
         {
-            m_unitTests.append(fullPath);
-            emit unittestFound(fullPath);
+            for (int i=0; i<1000; i++)
+            {
+                m_unitTests.append(fullPath);
+                emit unittestFound(fullPath);
+            }
         }
+    }
     }
 
     qCDebug(LogQtTestRunner, "Sorting");
     m_unitTests.sort();
 
+    int jobnr = 1;
     // Run all test executables
     for (auto it = m_unitTests.constBegin(); !m_stopRequested && it != m_unitTests.constEnd(); ++it)
     {
@@ -124,11 +131,15 @@ void UnitTestCollector::run()
 
 
         UnitTestRunner *runner = new UnitTestRunner(sem);
-        runner->start(filename);
+
+        QObject::connect(runner, &UnitTestRunner::unitTestResult,
+                         this, &UnitTestCollector::onUnitTestResult);
+        runner->start(jobnr, filename);
+        jobnr++;
     }
 
     qCDebug(LogQtTestRunner, "Waiting for runners to finish");
-    while (sem->available() != m_nrjobs)
+    while (sem->available() != m_settings.nrjobs)
     {
         QThread::msleep(100);
     }
