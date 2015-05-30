@@ -1,49 +1,46 @@
-#include "mainwindow.h"
+#include "gui_runner.h"
 #include "ui_mainwindow.h"
 #include "logging.h"
 
 /******************************************************************************/
-MainWindow::MainWindow(const TestSettings &a_settings, QWidget *parent)
- : QMainWindow(parent)
+GuiRunner::GuiRunner(TestManager *a_testManager,
+                     TestSettings *a_settings)
+ : QMainWindow()
  , ui(new Ui::MainWindow)
+ , m_testManager(a_testManager)
  , m_settings(a_settings)
 {
     qCDebug(LogQtTestRunner);
     ui->setupUi(this);
 
+    QObject::connect(ui->pbStart, &QPushButton::clicked,
+                     this, &GuiRunner::onStartClicked);
+
     ui->treeView->setModel(&m_unittestmodel);
     ui->treeView->expandAll();
 
-
-
-    m_unitTestCollector.reset(new UnitTestCollector());
-
-    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::finished,
-                     this, &MainWindow::onFinished);
-    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unitTestResult,
-                     this, &MainWindow::onUnitTestResult);
-
-    QObject::connect(ui->pbStart, &QPushButton::clicked,
-                     this, &MainWindow::onStartClicked);
+    QObject::connect(m_testManager, &TestManager::finished,
+                     this, &GuiRunner::onFinished);
+    QObject::connect(m_testManager, &TestManager::unitTestResult,
+                     this, &GuiRunner::onUnitTestResult);
 }
 
 /******************************************************************************/
-MainWindow::~MainWindow()
+GuiRunner::~GuiRunner()
 {
     qCDebug(LogQtTestRunner);
     delete ui;
 }
 
 /******************************************************************************/
-void MainWindow::onStartClicked()
+void GuiRunner::onStartClicked()
 {
     m_unittestmodel.clear();
-
-    m_unitTestCollector->start(m_settings);
+    m_testManager->start(m_settings);
 }
 
 /******************************************************************************/
-void MainWindow::onUnitTestResult(int jobnr,
+void GuiRunner::onUnitTestResult(int jobnr,
                                   const QString &testCase,
                                   const QString &testFunction,
                                   const QString &testResult)
@@ -71,7 +68,7 @@ void MainWindow::onUnitTestResult(int jobnr,
 }
 
 /******************************************************************************/
-void MainWindow::onFinished()
+void GuiRunner::onFinished()
 {
 }
 

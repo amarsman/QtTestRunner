@@ -6,20 +6,21 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 
-#include "unittestcollector.h"
+#include "testmanager.h"
 #include "testsettings.h"
 
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class GuiRunner : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(const TestSettings &a_settings, QWidget *parent = 0);
-    ~MainWindow();
+    GuiRunner(TestManager *a_testManager,
+              TestSettings *a_settings);
+    ~GuiRunner();
 
 private slots:
     void onStartClicked();
@@ -31,9 +32,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QScopedPointer<UnitTestCollector> m_unitTestCollector;
-
-    TestSettings m_settings;
+    TestManager *m_testManager;
+    TestSettings *m_settings;
     QStandardItemModel m_unittestmodel;
 };
 

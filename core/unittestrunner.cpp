@@ -9,7 +9,7 @@
 UnitTestRunner::UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore)
     : m_semaphore(a_semaphore), m_running(false), m_stopRequested(false), m_jobnr(0)
 {
-    qCDebug(LogQtTestRunner);
+    qCDebug(LogQtTestRunnerCore);
 
     re_tc_start         .setPattern("<TestCase name=\"(.*?)\">");
     re_tc_end           .setPattern("<\\/TestCase>");
@@ -22,24 +22,24 @@ UnitTestRunner::UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore)
     re_incident_end     .setPattern("<\\/Incident>");
     re_duration         .setPattern("<Duration.*?\\/>");
 
-    in_testcase      = false;
-    testCaseName     = "";
-    in_environment   = false;
-    in_testfunction  = false;
-    testFunctionName = "";
-    in_incident      = false;
+    m_inTestcase      = false;
+    m_testCaseName     = "";
+    m_inEnvironment   = false;
+    m_inTestFunction  = false;
+    m_testFunctionName = "";
+    m_inIncident      = false;
 }
 
 /******************************************************************************/
 UnitTestRunner::~UnitTestRunner()
 {
-    qCDebug(LogQtTestRunner);
+    qCDebug(LogQtTestRunnerCore);
 }
 
 /******************************************************************************/
 void UnitTestRunner::start(int a_jobnr, const QString &a_unitTest)
 {
-    qCDebug(LogQtTestRunner);
+    qCDebug(LogQtTestRunnerCore);
     if (m_running)
     {
         return;
@@ -54,7 +54,7 @@ void UnitTestRunner::start(int a_jobnr, const QString &a_unitTest)
 /******************************************************************************/
 void UnitTestRunner::stop()
 {
-    qCDebug(LogQtTestRunner);
+    qCDebug(LogQtTestRunnerCore);
     if (!m_running) return;
 
     qDebug("FileFinder Stopping...");
@@ -69,13 +69,20 @@ void UnitTestRunner::processXmlLine(const QString &line)
 
     QRegularExpressionMatch match;
 
-    if (!in_testcase)
+    if (!m_inTestcase)
     {
         match = re_tc_start.match(line);
         if (match.hasMatch())
         {
-            testCaseName = match.captured(1);
-            in_testcase = true;
+            m_testCaseName = match.captured(1);
+            m_inTestcase = true;
+            return;
+        }
+
+        match = re_duration.match(line);
+        if (match.hasMatch())
+        {
+            qCDebug(LogQtTestRunnerCore, "Duration");
             return;
         }
     }
@@ -84,99 +91,112 @@ void UnitTestRunner::processXmlLine(const QString &line)
         match = re_tc_end.match(line);
         if (match.hasMatch())
         {
-            testCaseName = "";
-            in_testcase = false;
+            m_testCaseName = "";
+            m_inTestcase = false;
             return;
         }
-    }
 
-    if (!in_environment)
-    {
-        match = re_environment_start.match(line);
-        if (match.hasMatch())
+        if (!m_inEnvironment)
         {
-            in_environment = true;
-            return;
-        }
-    }
-    else // in_environment
-    {
-        match = re_environment_end.match(line);
-        if (match.hasMatch())
-        {
-            in_environment = false;
-        }
-        return;
-    }
-
-    if (!in_testfunction)
-    {
-        match = re_tf_start.match(line);
-        if (match.hasMatch())
-        {
-            testFunctionName = match.captured(1);
-
-            in_testfunction = true;
-            return;
-        }
-    }
-    else // in testfunction
-    {
-        if (!in_incident)
-        {
-            match = re_tf_end.match(line);
+            match = re_environment_start.match(line);
             if (match.hasMatch())
             {
-                testFunctionName = "";
-                in_testfunction = false;
+                m_inEnvironment = true;
+                return;
+            }
+        }
+        else // in_environment
+        {
+            match = re_environment_end.match(line);
+            if (match.hasMatch())
+            {
+                m_inEnvironment = false;
+                return;
+            }
+            return; // ignore anything else
+        }
+
+        if (!m_inTestFunction)
+        {
+            match = re_tf_start.match(line);
+            if (match.hasMatch())
+            {
+                m_testFunctionName = match.captured(1);
+
+                m_inTestFunction = true;
                 return;
             }
 
-            // Single line incident
-            match = re_incident.match(line);
-            if (match.hasMatch())
-            {
-                result = match.captured(1);
-                qCDebug(LogQtTestRunner, "Incident");
-
-                emit unitTestResult(m_jobnr, testCaseName, testFunctionName, result);
-            }
-
-            match = re_incident_start.match(line);
-            if (match.hasMatch())
-            {
-                result = match.captured(1);
-                in_incident = true;
-
-                emit unitTestResult(m_jobnr, testCaseName, testFunctionName, result);
-
-                return;
-            }
-
-            // Single line duration
             match = re_duration.match(line);
             if (match.hasMatch())
             {
-                qCDebug(LogQtTestRunner, "Duration");
+                qCDebug(LogQtTestRunnerCore, "Duration");
+                return;
             }
         }
-        else // in incident
+        else // in testfunction
         {
-                match = re_incident_end.match(line);
+            if (!m_inIncident)
+            {
+                match = re_tf_end.match(line);
                 if (match.hasMatch())
                 {
-                    in_incident = false;
+                    m_testFunctionName = "";
+                    m_inTestFunction = false;
+                    return;
+                }
+
+                // Single line incident
+                match = re_incident.match(line);
+                if (match.hasMatch())
+                {
+                    result = match.captured(1);
+                    qCDebug(LogQtTestRunnerCore, "Incident");
+
+                    emit unitTestResult(m_jobnr, m_testCaseName, m_testFunctionName, result);
+                    return;
+                }
+
+                match = re_incident_start.match(line);
+                if (match.hasMatch())
+                {
+                    result = match.captured(1);
+                    m_inIncident = true;
+
+                    emit unitTestResult(m_jobnr, m_testCaseName, m_testFunctionName, result);
 
                     return;
                 }
+
+                // Single line duration
+                match = re_duration.match(line);
+                if (match.hasMatch())
+                {
+                    qCDebug(LogQtTestRunnerCore, "Duration");
+                    return;
+                }
+            }
+            else // in incident
+            {
+                match = re_incident_end.match(line);
+                if (match.hasMatch())
+                {
+                    m_inIncident = false;
+
+                    return;
+                }
+            }
         }
     }
+
+    //not processed
+    //qDebug(line.toStdString().c_str());
 }
 
 /******************************************************************************/
 void UnitTestRunner::run()
 {
-    qCDebug(LogQtTestRunner, "Starting");
+    qCDebug(LogQtTestRunnerCore, "Starting");
 
     if (m_running)
     {
@@ -185,7 +205,7 @@ void UnitTestRunner::run()
 
     m_running = true;
 
-    qCDebug(LogQtTestRunner, "%s ", m_unitTest.toStdString().c_str());
+    qCDebug(LogQtTestRunnerCore, "%s ", m_unitTest.toStdString().c_str());
 
     QScopedPointer<QProcess> process(new QProcess());
 
@@ -214,7 +234,7 @@ void UnitTestRunner::run()
     }
 
     m_running = false;
-    qCDebug(LogQtTestRunner, "Finished %s", result_ok ? "OK":"NOK");
+    qCDebug(LogQtTestRunnerCore, "Finished %s", result_ok ? "OK":"NOK");
     m_semaphore->release();
 }
 

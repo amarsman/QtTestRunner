@@ -46,12 +46,12 @@ private:
     QRegularExpression re_incident_start;
     QRegularExpression re_incident_end;
     QRegularExpression re_duration;
-    bool in_testcase;
-    QString testCaseName;
-    bool in_environment;
-    bool in_testfunction;
-    QString testFunctionName;
-    bool in_incident;
+    bool m_inTestcase;
+    QString m_testCaseName;
+    bool m_inEnvironment;
+    bool m_inTestFunction;
+    QString m_testFunctionName;
+    bool m_inIncident;
 };
 
 /******************************************************************************/

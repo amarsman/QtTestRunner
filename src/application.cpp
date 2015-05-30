@@ -9,7 +9,7 @@
 #include "mainwindow.h"
 #include "maintask.h"
 #include "logging.h"
-#include "unittestcollector.h"
+#include "testmanager.h"
 
 /******************************************************************************/
 TestRunnerApplication::TestRunnerApplication(int &argc, char **argv)
@@ -73,7 +73,7 @@ void TestRunnerApplication::parseCommandLineOptions()
     QStringList args = parser.positionalArguments();
     if (args.length() > 1) { parser.showHelp(-1); }
 
-    m_settings.basepath = (args.length() < 1) ? "/home/henklaak/Projects/QtCmake/build" : args[0];
+    m_settings.basepath = (args.length() < 1) ? "/home/henklaak/Projects/QtTestRunner" : args[0];
     m_settings.recursive = parser.isSet(recursiveOption);
     m_settings.graphical = parser.isSet(graphicalOption);
     m_settings.debug = parser.isSet(debugOption);

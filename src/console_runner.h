@@ -7,15 +7,16 @@
 #include <QScopedPointer>
 #include "testsettings.h"
 
-class UnitTestCollector; //forward
+class TestManager; //forward
 
 /******************************************************************************/
-class MainTask : public QObject
+class ConsoleRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit MainTask(QObject *parent, const TestSettings &a_settings);
-    virtual ~MainTask();
+    explicit ConsoleRunner(TestManager *a_testManager,
+                           TestSettings *a_settings);
+    virtual ~ConsoleRunner();
 
 public slots:
     void onRun();
@@ -34,8 +35,8 @@ private slots:
 private:
     void startCollecting();
 
-    QScopedPointer<UnitTestCollector> m_unitTestCollector;
-    TestSettings m_settings;
+    TestManager *m_testManager;
+    TestSettings *m_settings;
 };
 
 #endif // MAIN_TASK_H

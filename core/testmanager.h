@@ -9,16 +9,16 @@
 #include "testsettings.h"
 
 /******************************************************************************/
-class UnitTestCollector : public QObject, public QRunnable
+class TestManager : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
 
-    UnitTestCollector();
-    ~UnitTestCollector();
+    TestManager();
+    ~TestManager();
 
 public slots:
-    void start(const TestSettings &settings);
+    void start(TestSettings *a_settings);
     void stop();
 
 signals:
@@ -41,11 +41,10 @@ private slots:
 private:
     bool isUnitTest(const QString &filename);
 
+    TestSettings *m_settings;
     bool m_stopRequested;
     bool m_running;
     QSharedPointer<QSemaphore> sem;
-
-    TestSettings m_settings;
 };
 
 /******************************************************************************/

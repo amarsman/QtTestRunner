@@ -1,29 +1,30 @@
 #include <QString>
 #include <QRegularExpression>
 
-#include "maintask.h"
+#include "console_runner.h"
 #include "logging.h"
-#include "unittestcollector.h"
+#include "testmanager.h"
 
 
 /******************************************************************************/
-MainTask::MainTask(QObject *parent, const TestSettings &a_settings)
-    : QObject(parent)
+ConsoleRunner::ConsoleRunner(TestManager *a_testManager,
+                             TestSettings *a_settings)
+    : QObject()
+    , m_testManager(a_testManager)
     , m_settings(a_settings)
 {
     qCDebug(LogQtTestRunner);
-    m_unitTestCollector.reset(new UnitTestCollector());
 }
 
 
 /******************************************************************************/
-MainTask::~MainTask()
+ConsoleRunner::~ConsoleRunner()
 {
     qCDebug(LogQtTestRunner);
 }
 
 /******************************************************************************/
-void MainTask::onRun()
+void ConsoleRunner::onRun()
 {
     qCDebug(LogQtTestRunner);
 
@@ -31,27 +32,27 @@ void MainTask::onRun()
 }
 
 /******************************************************************************/
-void MainTask::startCollecting()
+void ConsoleRunner::startCollecting()
 {
-    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unitTestFound,
-                     this, &MainTask::onUnitTestFound);
-    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::finished,
-                     this, &MainTask::onCollectionFinished);
-    QObject::connect(m_unitTestCollector.data(), &UnitTestCollector::unitTestResult,
-                     this, &MainTask::onUnitTestResult);
+    QObject::connect(m_testManager, &TestManager::unitTestFound,
+                     this, &ConsoleRunner::onUnitTestFound);
+    QObject::connect(m_testManager, &TestManager::finished,
+                     this, &ConsoleRunner::onCollectionFinished);
+    QObject::connect(m_testManager, &TestManager::unitTestResult,
+                     this, &ConsoleRunner::onUnitTestResult);
 
-    m_unitTestCollector->start(m_settings);
+    m_testManager->start(m_settings);
 }
 
 /******************************************************************************/
-void MainTask::onUnitTestFound(const QString &a_path)
+void ConsoleRunner::onUnitTestFound(const QString &a_path)
 {
     qCDebug(LogQtTestRunner, "%s", a_path.toStdString().c_str());
     fprintf(stderr, "%s\n", a_path.toStdString().c_str());
 }
 
 /******************************************************************************/
-void MainTask::onCollectionFinished()
+void ConsoleRunner::onCollectionFinished()
 {
     qCDebug(LogQtTestRunner);
     fprintf(stderr, "Finished\n");
@@ -59,7 +60,7 @@ void MainTask::onCollectionFinished()
 }
 
 /******************************************************************************/
-void MainTask::onUnitTestResult(int jobnr,
+void ConsoleRunner::onUnitTestResult(int jobnr,
                                 const QString &testCase,
                                 const QString &testFunction,
                                 const QString &testResult)

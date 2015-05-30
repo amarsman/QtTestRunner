@@ -7,43 +7,43 @@
 #include <QRegularExpression>
 #include <QStringList>
 
-#include "unittestcollector.h"
+#include "testmanager.h"
 #include "unittestrunner.h"
 #include "logging.h"
 
 /******************************************************************************/
-UnitTestCollector::UnitTestCollector()
+TestManager::TestManager()
     : m_stopRequested(false)
     , m_running(false)
 {
-    qCDebug(LogQtTestRunner);
+    qCDebug(LogQtTestRunnerCore);
     setAutoDelete(false);
 }
 
 /******************************************************************************/
-UnitTestCollector::~UnitTestCollector()
+TestManager::~TestManager()
 {
-    qCDebug(LogQtTestRunner);
+    qCDebug(LogQtTestRunnerCore);
 }
 
 /******************************************************************************/
-void UnitTestCollector::start(const TestSettings &a_settings)
+void TestManager::start(TestSettings *a_settings)
 {
-    qCDebug(LogQtTestRunner);
+    qCDebug(LogQtTestRunnerCore);
     if (m_running)
     {
         return;
     }
     m_settings = a_settings;
-    sem.reset(new QSemaphore(m_settings.nrjobs));
+    sem.reset(new QSemaphore(m_settings->nrjobs));
 
     QThreadPool::globalInstance()->start(this);
 }
 
 /******************************************************************************/
-void UnitTestCollector::stop()
+void TestManager::stop()
 {
-    qCDebug(LogQtTestRunner);
+    qCDebug(LogQtTestRunnerCore);
     if (!m_running) return;
 
     qDebug("FileFinder Stopping...");
@@ -51,7 +51,7 @@ void UnitTestCollector::stop()
 }
 
 /******************************************************************************/
-bool UnitTestCollector::isUnitTest(const QString &filename)
+bool TestManager::isUnitTest(const QString &filename)
 {
     Q_UNUSED(filename);
 
@@ -68,7 +68,7 @@ bool UnitTestCollector::isUnitTest(const QString &filename)
 }
 
 /******************************************************************************/
-void UnitTestCollector::onUnitTestResult(int jobnr,
+void TestManager::onUnitTestResult(int jobnr,
                                          const QString &testCase,
                                          const QString &testFunction,
                                          const QString &testResult)
@@ -77,13 +77,13 @@ void UnitTestCollector::onUnitTestResult(int jobnr,
 }
 
 /******************************************************************************/
-void UnitTestCollector::run()
+void TestManager::run()
 {
-    qCDebug(LogQtTestRunner, "Starting");
+    qCDebug(LogQtTestRunnerCore, "Starting");
 
     if (m_running)
     {
-        qCDebug(LogQtTestRunner, "Finished");
+        qCDebug(LogQtTestRunnerCore, "Finished");
         emit finished();
         return;
     }
@@ -94,7 +94,7 @@ void UnitTestCollector::run()
     QStringList m_unitTests;
 
     {
-    QDirIterator it(m_settings.basepath,
+    QDirIterator it(m_settings->basepath,
                     QStringList() << "*",
                     QDir::Files | QDir::Executable,
                     QDirIterator::Subdirectories);
@@ -104,13 +104,13 @@ void UnitTestCollector::run()
         it.next();
         QDir dir(it.filePath());
 
-        qCDebug(LogQtTestRunner, "%s", dir.absolutePath().toStdString().c_str());
+        qCDebug(LogQtTestRunnerCore, "%s", dir.absolutePath().toStdString().c_str());
 
         QString fullPath = dir.absolutePath();
 
         if (isUnitTest(fullPath))
         {
-            for (int i=0; i<m_settings.repeat; i++)
+            for (int i=0; i<m_settings->repeat; i++)
             {
                 m_unitTests.append(fullPath);
                 emit unitTestFound(fullPath);
@@ -119,8 +119,8 @@ void UnitTestCollector::run()
     }
     }
 
-    qCDebug(LogQtTestRunner, "Sorting");
-    if (m_settings.shuffle)
+    qCDebug(LogQtTestRunnerCore, "Sorting");
+    if (m_settings->shuffle)
     {
         std::random_shuffle(m_unitTests.begin(), m_unitTests.end());
     }
@@ -136,27 +136,27 @@ void UnitTestCollector::run()
     {
         QString filename = (*it);
 
-        qCDebug(LogQtTestRunner, "Acquiring");
+        qCDebug(LogQtTestRunnerCore, "Acquiring");
         sem->acquire();
-        qCDebug(LogQtTestRunner, "Acquired");
+        qCDebug(LogQtTestRunnerCore, "Acquired");
 
 
         UnitTestRunner *runner = new UnitTestRunner(sem);
 
         QObject::connect(runner, &UnitTestRunner::unitTestResult,
-                         this, &UnitTestCollector::onUnitTestResult);
+                         this, &TestManager::onUnitTestResult);
         runner->start(jobnr, filename);
         jobnr++;
     }
 
-    qCDebug(LogQtTestRunner, "Waiting for runners to finish");
-    while (sem->available() != m_settings.nrjobs)
+    qCDebug(LogQtTestRunnerCore, "Waiting for runners to finish");
+    while (sem->available() != m_settings->nrjobs)
     {
         QThread::msleep(100);
     }
 
     m_running = false;
-    qCDebug(LogQtTestRunner, "Finished");
+    qCDebug(LogQtTestRunnerCore, "Finished");
     emit finished();
 }
 

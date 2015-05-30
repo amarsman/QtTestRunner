@@ -2,23 +2,23 @@ TARGET = QtTestRunner
 TEMPLATE = app
 CONFIG += c++11
 QT     += core gui widgets
+DESTDIR = $${PWD}/../bin
 
 SOURCES += \
-    application.cpp \
     logging.cpp \
     main.cpp \
-    maintask.cpp \
-    mainwindow.cpp \
-    unittestcollector.cpp \
-    unittestrunner.cpp
+    console_runner.cpp \
+    gui_runner.cpp
 
 HEADERS  += \
-    application.h \
     logging.h \
-    maintask.h \
-    mainwindow.h \
-    unittestcollector.h \
-    unittestrunner.h \
+    gui_runner.h \
+    console_runner.h
     testsettings.h
 
 FORMS += mainwindow.ui
+
+DEPENDPATH += $$PWD/../core
+INCLUDEPATH += $$PWD/../core
+LIBS += -L$$OUT_PWD/../core/ -lcore
+

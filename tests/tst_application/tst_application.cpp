@@ -16,4 +16,5 @@ void tst_main::myTest()
 
 /******************************************************************************/
 QTEST_APPLESS_MAIN(tst_main)
-#include "tst_main.moc"
+
+#include "tst_application.moc"
