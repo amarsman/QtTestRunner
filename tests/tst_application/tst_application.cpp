@@ -1,20 +1,20 @@
-#include <QtTest/QtTest>
+#include <QTest>
 
 /******************************************************************************/
-class tst_main : public QObject
+class tst_application : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void myTest();
+    void passtest();
 };
 
 /******************************************************************************/
-void tst_main::myTest()
+void tst_application::passtest()
 {
 }
 
 /******************************************************************************/
-QTEST_APPLESS_MAIN(tst_main)
+QTEST_APPLESS_MAIN(tst_application)
 
 #include "tst_application.moc"

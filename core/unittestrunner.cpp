@@ -1,9 +1,13 @@
 #include <QThreadPool>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QXmlSimpleReader>
+#include <QXmlInputSource>
+#include <QFileInfo>
 
 #include "unittestrunner.h"
 #include "logging.h"
+#include "unittestoutputhandler.h"
 
 /******************************************************************************/
 UnitTestRunner::UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore)
@@ -64,133 +68,8 @@ void UnitTestRunner::stop()
 /******************************************************************************/
 void UnitTestRunner::processXmlLine(const QString &line)
 {
-    QString result = "";
-
-
-    QRegularExpressionMatch match;
-
-    if (!m_inTestcase)
-    {
-        match = re_tc_start.match(line);
-        if (match.hasMatch())
-        {
-            m_testCaseName = match.captured(1);
-            m_inTestcase = true;
-            return;
-        }
-
-        match = re_duration.match(line);
-        if (match.hasMatch())
-        {
-            qCDebug(LogQtTestRunnerCore, "Duration");
-            return;
-        }
-    }
-    else // in testcase
-    {
-        match = re_tc_end.match(line);
-        if (match.hasMatch())
-        {
-            m_testCaseName = "";
-            m_inTestcase = false;
-            return;
-        }
-
-        if (!m_inEnvironment)
-        {
-            match = re_environment_start.match(line);
-            if (match.hasMatch())
-            {
-                m_inEnvironment = true;
-                return;
-            }
-        }
-        else // in_environment
-        {
-            match = re_environment_end.match(line);
-            if (match.hasMatch())
-            {
-                m_inEnvironment = false;
-                return;
-            }
-            return; // ignore anything else
-        }
-
-        if (!m_inTestFunction)
-        {
-            match = re_tf_start.match(line);
-            if (match.hasMatch())
-            {
-                m_testFunctionName = match.captured(1);
-
-                m_inTestFunction = true;
-                return;
-            }
-
-            match = re_duration.match(line);
-            if (match.hasMatch())
-            {
-                qCDebug(LogQtTestRunnerCore, "Duration");
-                return;
-            }
-        }
-        else // in testfunction
-        {
-            if (!m_inIncident)
-            {
-                match = re_tf_end.match(line);
-                if (match.hasMatch())
-                {
-                    m_testFunctionName = "";
-                    m_inTestFunction = false;
-                    return;
-                }
-
-                // Single line incident
-                match = re_incident.match(line);
-                if (match.hasMatch())
-                {
-                    result = match.captured(1);
-                    qCDebug(LogQtTestRunnerCore, "Incident");
-
-                    emit unitTestResult(m_jobnr, m_testCaseName, m_testFunctionName, result);
-                    return;
-                }
-
-                match = re_incident_start.match(line);
-                if (match.hasMatch())
-                {
-                    result = match.captured(1);
-                    m_inIncident = true;
-
-                    emit unitTestResult(m_jobnr, m_testCaseName, m_testFunctionName, result);
-
-                    return;
-                }
-
-                // Single line duration
-                match = re_duration.match(line);
-                if (match.hasMatch())
-                {
-                    qCDebug(LogQtTestRunnerCore, "Duration");
-                    return;
-                }
-            }
-            else // in incident
-            {
-                match = re_incident_end.match(line);
-                if (match.hasMatch())
-                {
-                    m_inIncident = false;
-
-                    return;
-                }
-            }
-        }
-    }
-
-    //not processed
-    //qDebug(line.toStdString().c_str());
+   //qCDebug(LogQtTestRunnerCore, "%s", line.toStdString().c_str());
+   fprintf(stderr, "%s", line.toStdString().c_str());
 }
 
 /******************************************************************************/
@@ -209,7 +88,19 @@ void UnitTestRunner::run()
 
     QScopedPointer<QProcess> process(new QProcess());
 
+    QFileInfo info(m_unitTest);
+    QString testpath = info.absolutePath();
+
+
+    QScopedPointer<QXmlSimpleReader> parser(new QXmlSimpleReader());
+    QScopedPointer<UnitTestOutputHandler> handler(new UnitTestOutputHandler(this, testpath));
+
+    parser->setContentHandler(handler.data());
+
     process->start(m_unitTest, QStringList() << "-xml");//, QStringList() << "-datatags");
+#if 1
+    parser->parse(new QXmlInputSource(process.data()));
+#else
     process->waitForStarted();
     while (process->waitForReadyRead())
     {
@@ -219,6 +110,7 @@ void UnitTestRunner::run()
             processXmlLine(line);
         }
     }
+#endif
 
     process->waitForFinished();
 

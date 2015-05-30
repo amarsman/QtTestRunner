@@ -1,7 +1,7 @@
 TARGET = QtTestRunner
 TEMPLATE = app
-CONFIG += c++11
-QT     += core gui widgets
+CONFIG += c++11 link_prl
+QT     += core gui widgets xml
 DESTDIR = $${PWD}/../bin
 
 SOURCES += \
@@ -22,3 +22,4 @@ DEPENDPATH += $$PWD/../core
 INCLUDEPATH += $$PWD/../core
 LIBS += -L$$OUT_PWD/../core/ -lcore
 
+TARGETDEPS += $$OUT_PWD/../core/libcore.a

@@ -7,6 +7,7 @@
 #include <QSemaphore>
 #include <QSharedPointer>
 #include "testsettings.h"
+#include "unittestoutputhandler.h"
 
 /******************************************************************************/
 class TestManager : public QObject, public QRunnable
@@ -24,19 +25,13 @@ public slots:
 signals:
     void unitTestFound(const QString &findResult);
     void finished();
-    void unitTestResult(int jobnr,
-                        const QString &testCase,
-                        const QString &testFunction,
-                        const QString &testResult);
+    void unitTestResult(const TestFunctionResult &result);
 
 protected:
     void run(void);
 
 private slots:
-    void onUnitTestResult(int jobnr,
-                          const QString &testCase,
-                          const QString &testFunction,
-                          const QString &testResult);
+    void onUnitTestResult(const TestFunctionResult &result);
 
 private:
     bool isUnitTest(const QString &filename);

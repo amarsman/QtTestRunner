@@ -7,6 +7,8 @@
 #include <QSharedPointer>
 #include <QRegularExpression>
 
+class TestFunctionResult;
+
 /******************************************************************************/
 class UnitTestRunner : public QObject, public QRunnable
 {
@@ -20,10 +22,7 @@ public:
     void stop();
 
 signals:
-    void unitTestResult(int jobnr,
-                        const QString &testCase,
-                        const QString &testFunction,
-                        const QString &result);
+    void unitTestResult(const TestFunctionResult &result);
 
 protected:
     void run(void);

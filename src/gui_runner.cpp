@@ -40,13 +40,9 @@ void GuiRunner::onStartClicked()
 }
 
 /******************************************************************************/
-void GuiRunner::onUnitTestResult(int jobnr,
-                                  const QString &testCase,
-                                  const QString &testFunction,
-                                  const QString &testResult)
+void GuiRunner::onUnitTestResult(const TestFunctionResult &result)
 {
-    Q_UNUSED(jobnr);
-
+#if 0
     QList<QStandardItem *> rowitems;
     rowitems << new QStandardItem(QString(testCase).trimmed());
     rowitems << new QStandardItem(QString(testFunction).trimmed());
@@ -65,6 +61,7 @@ void GuiRunner::onUnitTestResult(int jobnr,
     ui->treeView->resizeColumnToContents(1);
 
     //ui->listWidget->addItem(QString(buf).trimmed());
+#endif
 }
 
 /******************************************************************************/

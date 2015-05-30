@@ -158,39 +158,35 @@ static void checkPreconditions(TestSettings &a_settings)
     }
 }
 
-
 /******************************************************************************/
 int main(int argc, char *argv[])
 {
-    QLoggingCategory::setFilterRules("QtTestRunner.debug=false");
     qInstallMessageHandler(LogHandler);
+    QLoggingCategory::setFilterRules("QtTestRunner.debug=false\n"
+                                     "QtTestRunnerCore.debug=false");
 
     QApplication app(argc, argv);
-    app.setOrganizationName("LSI");
+    app.setOrganizationName("Heidenhain");
     app.setApplicationName("QtTestRunner"),
     app.setApplicationVersion("1.0");
 
     TestSettings test_settings;
-
     parseCommandLineOptions(app, test_settings);
     checkPreconditions(test_settings);
 
     TestManager test_manager;
-
     if (test_settings.graphical)
     {
-        GuiRunner runner(&test_manager,
-                         &test_settings);
+        GuiRunner runner(&test_manager, &test_settings);
         runner.show();
         return app.exec();
     }
     else
     {
-        ConsoleRunner *runner = new ConsoleRunner(&test_manager,
-                                                  &test_settings);
-        QTimer::singleShot(0, runner, &ConsoleRunner::onRun);
+        ConsoleRunner *runner = new ConsoleRunner(&test_manager, &test_settings);
         QObject::connect(runner, &ConsoleRunner::finished,
                          &app, &TestRunnerApplication::quit);
+        QTimer::singleShot(0, runner, &ConsoleRunner::onRun);
         return app.exec();
     }
 }

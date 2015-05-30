@@ -4,6 +4,17 @@
 
 struct TestSettings
 {
+    TestSettings() {
+        recursive = false;
+        graphical = false;
+        basepath = ".";
+        nrjobs = 1;
+        debug = false;
+        useldd = true;
+        shuffle = false;
+        repeat = 1;
+    }
+
     bool recursive;
     bool graphical;
     QString basepath;

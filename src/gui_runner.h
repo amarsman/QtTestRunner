@@ -8,6 +8,7 @@
 
 #include "testmanager.h"
 #include "testsettings.h"
+#include "unittestoutputhandler.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,10 +25,7 @@ public:
 
 private slots:
     void onStartClicked();
-    void onUnitTestResult(int jobnr,
-                          const QString &testCase,
-                          const QString &testFunction,
-                          const QString &testResult);
+    void onUnitTestResult(const TestFunctionResult &result);
     void onFinished();
 
 private:

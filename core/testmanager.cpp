@@ -68,12 +68,9 @@ bool TestManager::isUnitTest(const QString &filename)
 }
 
 /******************************************************************************/
-void TestManager::onUnitTestResult(int jobnr,
-                                         const QString &testCase,
-                                         const QString &testFunction,
-                                         const QString &testResult)
+void TestManager::onUnitTestResult(const TestFunctionResult &result)
 {
-    emit unitTestResult(jobnr, testCase, testFunction, testResult);
+    emit unitTestResult(result);
 }
 
 /******************************************************************************/

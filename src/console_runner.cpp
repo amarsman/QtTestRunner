@@ -60,17 +60,32 @@ void ConsoleRunner::onCollectionFinished()
 }
 
 /******************************************************************************/
-void ConsoleRunner::onUnitTestResult(int jobnr,
-                                const QString &testCase,
-                                const QString &testFunction,
-                                const QString &testResult)
+void ConsoleRunner::onUnitTestResult(const TestFunctionResult &result)
 {
-    Q_UNUSED(jobnr);
+    if (result.busy) return;
 
-    fprintf(stderr, "%-10s %-20s %-20s\n",
-            testResult.toStdString().c_str(),
-            testCase.toStdString().c_str(),
-            testFunction.toStdString().c_str());
+    if (result.type == "pass")
+    {
+        fprintf(stderr, "PASS %s::%s\n",
+                result.testcasename.toStdString().c_str(),
+                result.testfunctionname.toStdString().c_str());
+    }
+    else
+    {
+        fprintf(stderr, "FAIL %s::%s  file=%s   line=%s\n",
+                result.testcasename.toStdString().c_str(),
+                result.testfunctionname.toStdString().c_str(),
+                result.file.toStdString().c_str(),
+                result.line.toStdString().c_str());
+    }
+    for (auto it = result.incidents.begin(); it != result.incidents.end(); ++it)
+    {
+        //fprintf(stderr, "INC  %s %s\n", it->msg_class.toStdString().c_str(), it->message.toStdString().c_str());
+    }
+    for (auto it = result.messages.begin(); it != result.messages.end(); ++it)
+    {
+        //fprintf(stderr, "MSG  %s %s\n", it->msg_class.toStdString().c_str(), it->message.toStdString().c_str());
+    }
 }
 
 /******************************************************************************/

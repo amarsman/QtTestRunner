@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QScopedPointer>
 #include "testsettings.h"
+#include "unittestoutputhandler.h"
 
 class TestManager; //forward
 
@@ -27,10 +28,7 @@ signals:
     void finished();
 
 private slots:
-    void onUnitTestResult(int jobnr,
-                          const QString &testCase,
-                          const QString &testFunction,
-                          const QString &testResult);
+    void onUnitTestResult(const TestFunctionResult &result);
 
 private:
     void startCollecting();
