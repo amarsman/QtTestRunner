@@ -3,7 +3,7 @@
 
 QT_USE_NAMESPACE
 
-const int WAITTIME = 1000;
+const int WAITTIME = 0;
 
 /******************************************************************************/
 class tst_main : public QObject

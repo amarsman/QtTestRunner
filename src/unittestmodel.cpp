@@ -1,7 +1,7 @@
 #include "unittestmodel.h"
 
 /******************************************************************************/
-UnitTestModel::UnitTestModel() : QAbstractItemModel(), m_nrrows(0)
+UnitTestModel::UnitTestModel() : QStandardItemModel(), m_nrrows(0)
 {
 
 }
@@ -15,66 +15,54 @@ UnitTestModel::~UnitTestModel()
 /******************************************************************************/
 void UnitTestModel::refresh(const TestCase &a_testcase)
 {
-    m_testcase = a_testcase;
+    clear();
+    QStandardItem *rootItem = invisibleRootItem();
+    QStandardItem *testcaseItem = new QStandardItem(a_testcase.m_name);
+    rootItem->appendRow(testcaseItem);
 
-    Q_UNUSED(a_testcase);
-    fprintf(stderr,"%s\n", a_testcase.m_name.toStdString().c_str());
-
-    beginResetModel();
-
-    m_nrrows = a_testcase.m_testfunctions.count();
-
-    endResetModel();
-}
-
-/******************************************************************************/
-QModelIndex UnitTestModel::index(int row, int column, const QModelIndex & parent) const
-{
-    if (!parent.isValid()) // top level
+    const QList<TestFunction> &functions = a_testcase.m_testfunctions;
+    for (auto it=functions.begin(); it!=functions.end(); ++it)
     {
-        return createIndex(row, column);
-    }
-    return QModelIndex();
-}
+        const TestFunction &function = *it;
 
-/******************************************************************************/
-QModelIndex UnitTestModel::parent(const QModelIndex & index) const
-{
-    Q_UNUSED(index);
-    return QModelIndex();
-}
+        QStandardItem *functionItem = new QStandardItem(function.m_name);
+        testcaseItem->appendRow(functionItem);
 
-/******************************************************************************/
-int UnitTestModel::rowCount(const QModelIndex & parent) const
-{
-    Q_UNUSED(parent);
-    return m_nrrows;
-}
+        bool pass = true;
 
-/******************************************************************************/
-int UnitTestModel::columnCount(const QModelIndex & parent) const
-{
-    Q_UNUSED(parent);
-    return 1;
-}
+        for (auto it = function.m_incidents.begin(); it != function.m_incidents.end(); ++it)
+        {
+            const Incident &incident = *it;
+            if (!incident.m_done ||
+                    incident.m_type == "fail" ||
+                    incident.m_type == "xpass")
+            {
+                pass = false;
+            }
+        }
 
-/******************************************************************************/
-QVariant UnitTestModel::data(const QModelIndex & index, int role) const
-{
-    Q_UNUSED(index);
-    Q_UNUSED(role);
-    switch (role)
-    {
-    case Qt::DisplayRole:
-    {
-        int rownr = index.row();
-        QString name = m_testcase.m_testfunctions[rownr].m_name;
+        if (!pass)
+        {
+            const QList<Message> &messages = function.m_messages;
+            for (auto it=messages.begin(); it!=messages.end(); ++it)
+            {
+                const Message &message = *it;
 
-        return QVariant(name);
-    }
+                QStandardItem *messageItem = new QStandardItem(message.m_type);
+                functionItem->appendRow(messageItem);
+            }
+
+            const QList<Incident> &incidents = function.m_incidents;
+            for (auto it=incidents.begin(); it!=incidents.end(); ++it)
+            {
+                const Incident &incident = *it;
+
+                QStandardItem *incidentItem = new QStandardItem(incident.m_type);
+                functionItem->appendRow(incidentItem);
+            }
+        }
     }
 
-    return QVariant();
+    emit refreshDone();
 }
-
 /******************************************************************************/
