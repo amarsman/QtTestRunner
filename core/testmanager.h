@@ -1,5 +1,5 @@
-#ifndef UNIT_TEST_RUNNER_H
-#define UNIT_TEST_RUNNER_H
+#ifndef TEST_MANAGER_H
+#define TEST_MANAGER_H
 #include <QObject>
 #include <QRunnable>
 #include <QString>
@@ -25,13 +25,18 @@ public slots:
 signals:
     void unitTestFound(const QString &findResult);
     void finished();
-    void unitTestResult(const TestFunctionResult &result);
+    void unitTestResult(const TestCase &result);
+
+    void endTestCase(const TestCase &result);
+    void endTestFunction(const TestFunction &result);
 
 protected:
     void run(void);
 
 private slots:
-    void onUnitTestResult(const TestFunctionResult &result);
+    void onTestCaseChanged(const TestCase &result);
+    void onEndTestFunction(const TestFunction &result);
+    void onEndTestCase(const TestCase &result);
 
 private:
     bool isUnitTest(const QString &filename);
@@ -44,5 +49,5 @@ private:
 
 /******************************************************************************/
 
-#endif // UNIT_TEST_FINDER_H
+#endif // TEST_MANAGER_H
 

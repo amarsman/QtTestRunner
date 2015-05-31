@@ -68,9 +68,21 @@ bool TestManager::isUnitTest(const QString &filename)
 }
 
 /******************************************************************************/
-void TestManager::onUnitTestResult(const TestFunctionResult &result)
+void TestManager::onTestCaseChanged(const TestCase &result)
 {
     emit unitTestResult(result);
+}
+
+/******************************************************************************/
+void TestManager::onEndTestFunction(const TestFunction &result)
+{
+    emit endTestFunction(result);
+}
+
+/******************************************************************************/
+void TestManager::onEndTestCase(const TestCase &result)
+{
+    emit endTestCase(result);
 }
 
 /******************************************************************************/
@@ -140,8 +152,13 @@ void TestManager::run()
 
         UnitTestRunner *runner = new UnitTestRunner(sem);
 
-        QObject::connect(runner, &UnitTestRunner::unitTestResult,
-                         this, &TestManager::onUnitTestResult);
+        QObject::connect(runner, &UnitTestRunner::testCaseChanged,
+                         this, &TestManager::onTestCaseChanged);
+        QObject::connect(runner, &UnitTestRunner::endTestCase,
+                         this, &TestManager::onEndTestCase);
+        QObject::connect(runner, &UnitTestRunner::endTestFunction,
+                         this, &TestManager::onEndTestFunction);
+
         runner->start(jobnr, filename);
         jobnr++;
     }

@@ -1,5 +1,5 @@
-#ifndef UNIT_TEST_FINDER_H
-#define UNIT_TEST_FINDER_H
+#ifndef UNIT_TEST_RUNNER_H
+#define UNIT_TEST_RUNNER_H
 #include <QObject>
 #include <QRunnable>
 #include <QString>
@@ -7,7 +7,8 @@
 #include <QSharedPointer>
 #include <QRegularExpression>
 
-class TestFunctionResult;
+class TestCase; // forward
+class TestFunction;
 
 /******************************************************************************/
 class UnitTestRunner : public QObject, public QRunnable
@@ -18,11 +19,13 @@ public:
     UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore);
     ~UnitTestRunner();
 
-    void start(int jobnr, const QString &a_unitTest);
-    void stop();
+    bool start(int jobnr, const QString &a_unitTest);
+    bool stop();
 
 signals:
-    void unitTestResult(const TestFunctionResult &result);
+    void testCaseChanged(const TestCase &result);
+    void endTestCase(const TestCase &result);
+    void endTestFunction(const TestFunction &result);
 
 protected:
     void run(void);
@@ -34,26 +37,9 @@ private:
     bool m_running;
     bool m_stopRequested;
     int m_jobnr;
-
-    QRegularExpression re_tc_start;
-    QRegularExpression re_tc_end;
-    QRegularExpression re_environment_start;
-    QRegularExpression re_environment_end;
-    QRegularExpression re_tf_start;
-    QRegularExpression re_tf_end;
-    QRegularExpression re_incident;
-    QRegularExpression re_incident_start;
-    QRegularExpression re_incident_end;
-    QRegularExpression re_duration;
-    bool m_inTestcase;
-    QString m_testCaseName;
-    bool m_inEnvironment;
-    bool m_inTestFunction;
-    QString m_testFunctionName;
-    bool m_inIncident;
 };
 
 /******************************************************************************/
 
-#endif // UNIT_TEST_FINDER_H
+#endif // UNIT_TEST_RUNNER_H
 

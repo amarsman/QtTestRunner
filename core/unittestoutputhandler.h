@@ -6,108 +6,67 @@
 #include <QXmlAttributes>
 #include "unittestrunner.h"
 
-/******************************************************************************/
-class TestCaseResult
-{
-public:
-    TestCaseResult()
-        : testcasename("") { }
-    QString testcasename;
-    double duration;
-
-    void print()
-    {
-        fprintf(stderr, "%-40s %12.3lf\n",
-                testcasename.toStdString().c_str(),
-                duration);
-    }};
-
-/******************************************************************************/
-class TestMessage
-{
-public:
-    TestMessage()
-      : msg_class("")
-      , message("")
-      , empty(true) {}
-
-    void reset()
-    {
-        msg_class = "";
-        message = "";
-        empty = true;
-    }
-
-    QString msg_class;
-    QString message;
-    bool empty;
-};
-
-/******************************************************************************/
-class TestFunctionResult
-{
-public:
-    TestFunctionResult()
-        : testcasename("")
-        , testfunctionname("")
-        , type("")
-        , file("")
-        , line("")
-        , busy(false)
-        , duration(0)
-    { }
-
-    void reset()
-    {
-        testcasename = "";
-        testfunctionname = "";
-        type = "";
-        file = "";
-        line = "";
-        busy = false;
-        duration = 0;
-        messages.clear();
-        incidents.clear();
-    };
-    QString testcasename;
-    QString testfunctionname;
-    QString type;
-    QString file;
-    QString line;
-    bool busy;
-    double duration;
-    QList<TestMessage> messages;
-    QList<TestMessage> incidents;
-
-    void print() const
-    {
-        fprintf(stderr, "testcase=%s\n"
-                        "function=%s\n"
-                        "type=%s\n"
-                        "file=%s\n"
-                        "line=%s\n"
-                        "duration=%g\n"
-                        "busy=%d\n\n",
-                testcasename.toStdString().c_str(),
-                testfunctionname.toStdString().c_str(),
-                type.toStdString().c_str(),
-                file.toStdString().c_str(),
-                line.toStdString().c_str(),
-                duration,
-                busy);
-
-        for (auto it = messages.begin(); it != messages.end(); ++it)
-        {
-            fprintf(stderr, "%s %s", it->msg_class.toStdString().c_str(), it->message.toStdString().c_str());
-        }
-        for (auto it = incidents.begin(); it != incidents.end(); ++it)
-        {
-            fprintf(stderr, "%s %s", it->msg_class.toStdString().c_str(), it->message.toStdString().c_str());
-        }
-    }
-};
-
 class UnitTestRunner; //forward
+
+/******************************************************************************/
+class Message
+{
+public:
+    Message() { reset(); }
+    void reset() { m_type=""; m_file=""; m_line="";  m_description=""; m_done=false; }
+
+    QString m_type;
+    QString m_file;
+    QString m_line;
+    QString m_description;
+    bool    m_done;
+};
+
+/******************************************************************************/
+class Incident
+{
+public:
+    Incident() { reset(); }
+    void reset() { m_type=""; m_file=""; m_line="";  m_datatag=""; m_description=""; m_done=false; }
+
+    QString m_type;
+    QString m_file;
+    QString m_line;
+    QString m_datatag;
+    QString m_description;
+    bool    m_done;
+};
+
+/******************************************************************************/
+class TestFunction
+{
+public:
+    TestFunction() { reset(); }
+    void reset() { m_name=""; m_messages.clear(); m_incidents.clear(); m_duration=0; m_done=false; }
+
+    QString         m_casename;
+    QString         m_name;
+    QList<Message>  m_messages;
+    QList<Incident> m_incidents;
+    // todo         m_benchmarks
+    double          m_duration;
+    bool            m_done;
+};
+
+/******************************************************************************/
+class TestCase
+{
+public:
+    TestCase() { reset(); }
+    void reset() { m_name=""; m_testfunctions.clear(); m_duration=0; m_done=false; }
+
+    QString             m_name;
+    // todo             m_environment
+    QList<TestFunction> m_testfunctions;
+    double              m_duration;
+    bool                m_done;
+};
+
 
 /******************************************************************************/
 class UnitTestOutputHandler : public QObject, public QXmlDefaultHandler
@@ -130,9 +89,8 @@ protected:
 
 private:
     UnitTestRunner *m_runner;
-    TestCaseResult     m_testCaseResult;
-    TestFunctionResult m_testFunctionResult;
-    TestMessage m_testMessage;
+    TestCase        m_testCase;
+
     bool m_inTestCase;
     bool m_inEnvironment;
     bool m_inTestFunction;

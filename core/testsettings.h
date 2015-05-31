@@ -1,5 +1,5 @@
-#ifndef TESTSETTINGS_H
-#define TESTSETTINGS_H
+#ifndef TEST_SETTINGS_H
+#define TEST_SETTINGS_H
 #include <QString>
 
 struct TestSettings
@@ -25,4 +25,4 @@ struct TestSettings
     int repeat;
 };
 
-#endif // TESTSETTINGS_H
+#endif // TEST_SETTINGS_H

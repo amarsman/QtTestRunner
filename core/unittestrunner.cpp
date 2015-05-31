@@ -14,24 +14,6 @@ UnitTestRunner::UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore)
     : m_semaphore(a_semaphore), m_running(false), m_stopRequested(false), m_jobnr(0)
 {
     qCDebug(LogQtTestRunnerCore);
-
-    re_tc_start         .setPattern("<TestCase name=\"(.*?)\">");
-    re_tc_end           .setPattern("<\\/TestCase>");
-    re_environment_start.setPattern("<Environment>");
-    re_environment_end  .setPattern("<\\/Environment>");
-    re_tf_start         .setPattern("<TestFunction name=\"(.*?)\">");
-    re_tf_end           .setPattern("<\\/TestFunction>");
-    re_incident         .setPattern("<Incident\\s+type=\"(.*?)\".*?\\/>");
-    re_incident_start   .setPattern("<Incident\\s+type=\"(.*?)\".*?[^\\/]>");
-    re_incident_end     .setPattern("<\\/Incident>");
-    re_duration         .setPattern("<Duration.*?\\/>");
-
-    m_inTestcase      = false;
-    m_testCaseName     = "";
-    m_inEnvironment   = false;
-    m_inTestFunction  = false;
-    m_testFunctionName = "";
-    m_inIncident      = false;
 }
 
 /******************************************************************************/
@@ -41,34 +23,38 @@ UnitTestRunner::~UnitTestRunner()
 }
 
 /******************************************************************************/
-void UnitTestRunner::start(int a_jobnr, const QString &a_unitTest)
+bool UnitTestRunner::start(int a_jobnr, const QString &a_unitTest)
 {
     qCDebug(LogQtTestRunnerCore);
     if (m_running)
     {
-        return;
+        return false;
     }
 
     m_unitTest = a_unitTest;
     m_stopRequested = false;
     m_jobnr = a_jobnr;
 
-    QThreadPool::globalInstance()->start(this);}
+    QThreadPool::globalInstance()->start(this);
+
+    return true;
+}
 
 /******************************************************************************/
-void UnitTestRunner::stop()
+bool UnitTestRunner::stop()
 {
     qCDebug(LogQtTestRunnerCore);
-    if (!m_running) return;
+    if (!m_running) return false;
 
     qDebug("FileFinder Stopping...");
     m_stopRequested = true;
+
+    return true;
 }
 
 /******************************************************************************/
 void UnitTestRunner::processXmlLine(const QString &line)
 {
-   //qCDebug(LogQtTestRunnerCore, "%s", line.toStdString().c_str());
    fprintf(stderr, "%s", line.toStdString().c_str());
 }
 
@@ -99,7 +85,8 @@ void UnitTestRunner::run()
 
     process->start(m_unitTest, QStringList() << "-xml");//, QStringList() << "-datatags");
 #if 1
-    parser->parse(new QXmlInputSource(process.data()));
+    QXmlInputSource source(process.data());
+    parser->parse(&source);
 #else
     process->waitForStarted();
     while (process->waitForReadyRead())

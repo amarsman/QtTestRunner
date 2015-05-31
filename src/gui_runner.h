@@ -25,7 +25,7 @@ public:
 
 private slots:
     void onStartClicked();
-    void onUnitTestResult(const TestFunctionResult &result);
+    void onUnitTestResult(const TestCase &result);
     void onFinished();
 
 private:

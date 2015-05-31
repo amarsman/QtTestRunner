@@ -16,7 +16,8 @@ UnitTestOutputHandler::UnitTestOutputHandler(UnitTestRunner *a_runner, QString a
     , m_inBenchmarkResult(false)
     , m_testpath(a_testpath)
 {
-    qRegisterMetaType<TestFunctionResult>("TestFunctionResult");
+    qRegisterMetaType<TestCase>("TestCase");
+    qRegisterMetaType<TestFunction>("TestFunction");
 }
 
 /******************************************************************************/
@@ -36,7 +37,10 @@ bool UnitTestOutputHandler::startElement(const QString & namespaceURI,
 
     if (!m_inTestCase && qName == "TestCase")
     {
-        m_testCaseResult.testcasename = atts.value("name");
+        m_testCase.reset();
+        m_testCase.m_name = atts.value("name");
+        emit m_runner->testCaseChanged(m_testCase);
+
         m_inTestCase = true;
         return true;
     }
@@ -55,21 +59,25 @@ bool UnitTestOutputHandler::startElement(const QString & namespaceURI,
 
     if (!m_inTestFunction && qName == "TestFunction")
     {
-        m_testFunctionResult.testcasename = m_testCaseResult.testcasename;
-        m_testFunctionResult.testfunctionname = atts.value("name");
-        m_testFunctionResult.busy = true;
-        emit m_runner->unitTestResult(m_testFunctionResult);
+        m_testCase.m_testfunctions.append(TestFunction());
+        TestFunction &testfunction = m_testCase.m_testfunctions.last();
+        testfunction.m_name = atts.value("name");
+        testfunction.m_casename = m_testCase.m_name;
+        emit m_runner->testCaseChanged(m_testCase);
+
         m_inTestFunction = true;
         return true;
     }
 
     if (!m_inIncident && qName == "Incident")
     {
-        QString filepath = QFileInfo(m_testpath + atts.value("file")).absoluteFilePath();
-        m_testFunctionResult.type = atts.value("type");
-        m_testFunctionResult.file = atts.value("file");
-        m_testFunctionResult.line = atts.value("line");
-        emit m_runner->unitTestResult(m_testFunctionResult);
+        TestFunction &testfunction = m_testCase.m_testfunctions.last();
+        testfunction.m_incidents.append(Incident());
+        Incident &incident = testfunction.m_incidents.last();
+        incident.m_type = atts.value("type");
+        incident.m_file = atts.value("file");
+        incident.m_line = atts.value("line");
+        emit m_runner->testCaseChanged(m_testCase);
 
         m_inIncident = true;
         return true;
@@ -79,21 +87,30 @@ bool UnitTestOutputHandler::startElement(const QString & namespaceURI,
     {
         if (m_inTestFunction)
         {
-            m_testFunctionResult.duration = atts.value("msecs").toDouble();
-            emit m_runner->unitTestResult(m_testFunctionResult);
+            TestFunction &testfunction = m_testCase.m_testfunctions.last();
+            testfunction.m_duration = atts.value("msecs").toDouble();
         }
         else if (m_inTestCase)
         {
-            m_testCaseResult.duration = atts.value("msecs").toDouble();
+            m_testCase.m_duration = atts.value("msecs").toDouble();
         }
+        emit m_runner->testCaseChanged(m_testCase);
+
         m_inDuration = true;
         return true;
     }
 
     if (!m_inMessage && qName == "Message")
     {
+        TestFunction &testfunction = m_testCase.m_testfunctions.last();
+        testfunction.m_messages.append(Message());
+        Message &message = testfunction.m_messages.last();
+        message.m_type = atts.value("type");
+        message.m_file = atts.value("file");
+        message.m_line = atts.value("line");
+        emit m_runner->testCaseChanged(m_testCase);
+
         m_inMessage = true;
-        m_testMessage.msg_class = atts.value("type");
         return true;
     }
 
@@ -115,14 +132,6 @@ bool UnitTestOutputHandler::startElement(const QString & namespaceURI,
         return true;
     }
 
-    fprintf(stderr,"Elem: %s\n", qName.toStdString().c_str());
-
-    for (int i=0; i<atts.count(); i++)
-    {
-        fprintf(stderr,"Attr: %s = %s\n", atts.qName(i).toStdString().c_str(),
-                atts.value(i).toStdString().c_str());
-    }
-
     return true;
 }
 
@@ -136,6 +145,10 @@ bool UnitTestOutputHandler::endElement(const QString & namespaceURI,
 
     if (m_inTestCase && qName == "TestCase")
     {
+        m_testCase.m_done = true;
+        emit m_runner->testCaseChanged(m_testCase);
+        emit m_runner->endTestCase(m_testCase);
+
         m_inTestCase = false;
         return true;
     }
@@ -154,21 +167,21 @@ bool UnitTestOutputHandler::endElement(const QString & namespaceURI,
 
     if (m_inTestFunction && qName == "TestFunction")
     {
+        TestFunction &testfunction = m_testCase.m_testfunctions.last();
+        testfunction.m_done = true;
+        emit m_runner->testCaseChanged(m_testCase);
+        emit m_runner->endTestFunction(testfunction);
+
         m_inTestFunction = false;
-        m_testFunctionResult.busy = false;
-        emit m_runner->unitTestResult(m_testFunctionResult);
-        m_testFunctionResult.reset();
         return true;
     }
 
     if (m_inIncident && qName == "Incident")
     {
-        if (!m_testMessage.empty)
-        {
-            m_testFunctionResult.incidents.append(m_testMessage);
-            emit m_runner->unitTestResult(m_testFunctionResult);
-            m_testMessage.reset();
-        }
+        Incident &incident = m_testCase.m_testfunctions.last().m_incidents.last();
+        incident.m_done = true;
+        emit m_runner->testCaseChanged(m_testCase);
+
         m_inIncident = false;
         return true;
     }
@@ -187,12 +200,10 @@ bool UnitTestOutputHandler::endElement(const QString & namespaceURI,
 
     if (m_inMessage && qName == "Message")
     {
-        if (!m_testMessage.empty)
-        {
-            m_testFunctionResult.messages.append(m_testMessage);
-            emit m_runner->unitTestResult(m_testFunctionResult);
-            m_testMessage.reset();
-        }
+        Message &message = m_testCase.m_testfunctions.last().m_messages.last();
+        message.m_done = true;
+        emit m_runner->testCaseChanged(m_testCase);
+
         m_inMessage = false;
         return true;
     }
@@ -209,8 +220,6 @@ bool UnitTestOutputHandler::endElement(const QString & namespaceURI,
         return true;
     }
 
-    fprintf(stderr,"/Elem: %s\n", qName.toStdString().c_str());
-
     return true;
 }
 
@@ -226,14 +235,22 @@ bool UnitTestOutputHandler::characters(const QString & ch)
 
     if (!txt.isEmpty())
     {
-        if ((m_inMessage && m_inDescription) ||
-                (m_inIncident && m_inDescription))
+        if (m_inMessage)
         {
-            m_testMessage.message = txt;
-            m_testMessage.empty = false;
+            Message &message = m_testCase.m_testfunctions.last().m_messages.last();
+            message.m_description = txt;
             return true;
         }
-        //fprintf(stderr,"Characters: %s\n", ch.toStdString().c_str());
+        if (m_inIncident)
+        {
+            Incident &incident = m_testCase.m_testfunctions.last().m_incidents.last();
+            if (m_inDescription)
+                incident.m_description = txt;
+            if (m_inDataTag)
+                incident.m_datatag = txt;
+
+            return true;
+        }
     }
     return true;
 }

@@ -3,7 +3,7 @@
 
 QT_USE_NAMESPACE
 
-const int WAITTIME = 10;
+const int WAITTIME = 50;
 
 /******************************************************************************/
 class tst_main : public QObject
@@ -16,6 +16,9 @@ private slots:
 
     void failtest();
     void failloggingtest();
+
+    void xfailtest();
+    void xpasstest();
 
     void datatest_data();
     void datatest();
@@ -61,6 +64,22 @@ void tst_main::failloggingtest()
     qCritical("Some critical");
     QThread::msleep(WAITTIME);
     QCOMPARE(1,0);
+}
+
+/******************************************************************************/
+void tst_main::xfailtest()
+{
+    QEXPECT_FAIL("","This will go wrong", Continue);
+    QCOMPARE(1,0);
+
+}
+
+/******************************************************************************/
+void tst_main::xpasstest()
+{
+    QEXPECT_FAIL("","This will go right", Continue);
+    QCOMPARE(0,0);
+
 }
 
 /******************************************************************************/

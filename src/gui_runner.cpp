@@ -40,8 +40,10 @@ void GuiRunner::onStartClicked()
 }
 
 /******************************************************************************/
-void GuiRunner::onUnitTestResult(const TestFunctionResult &result)
+void GuiRunner::onUnitTestResult(const TestCase &result)
 {
+    Q_UNUSED(result);
+
 #if 0
     QList<QStandardItem *> rowitems;
     rowitems << new QStandardItem(QString(testCase).trimmed());

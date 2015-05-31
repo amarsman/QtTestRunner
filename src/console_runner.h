@@ -28,7 +28,8 @@ signals:
     void finished();
 
 private slots:
-    void onUnitTestResult(const TestFunctionResult &result);
+    void onEndTestCase(const TestCase &result);
+    void onEndTestFunction(const TestFunction &result);
 
 private:
     void startCollecting();

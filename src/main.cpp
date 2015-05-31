@@ -183,10 +183,10 @@ int main(int argc, char *argv[])
     }
     else
     {
-        ConsoleRunner *runner = new ConsoleRunner(&test_manager, &test_settings);
-        QObject::connect(runner, &ConsoleRunner::finished,
+        ConsoleRunner runner(&test_manager, &test_settings);
+        QObject::connect(&runner, &ConsoleRunner::finished,
                          &app, &TestRunnerApplication::quit);
-        QTimer::singleShot(0, runner, &ConsoleRunner::onRun);
+        QTimer::singleShot(0, &runner, &ConsoleRunner::onRun);
         return app.exec();
     }
 }
