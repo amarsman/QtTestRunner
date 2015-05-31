@@ -1,5 +1,6 @@
 #include <QFileInfo>
 #include "unittestoutputhandler.h"
+#include "logging.h"
 
 /******************************************************************************/
 UnitTestOutputHandler::UnitTestOutputHandler(UnitTestRunner *a_runner, QString a_testpath)
@@ -41,6 +42,7 @@ bool UnitTestOutputHandler::startElement(const QString & namespaceURI,
         m_testCase.m_name = atts.value("name");
         emit m_runner->testCaseChanged(m_testCase);
 
+        qCDebug(LogQtTestRunnerCore, "TestCase %s started", m_testCase.m_name.toStdString().c_str());
         m_inTestCase = true;
         return true;
     }
@@ -65,6 +67,7 @@ bool UnitTestOutputHandler::startElement(const QString & namespaceURI,
         testfunction.m_casename = m_testCase.m_name;
         emit m_runner->testCaseChanged(m_testCase);
 
+        qCDebug(LogQtTestRunnerCore, "TestCase %s started", testfunction.m_name.toStdString().c_str());
         m_inTestFunction = true;
         return true;
     }
@@ -149,6 +152,7 @@ bool UnitTestOutputHandler::endElement(const QString & namespaceURI,
         emit m_runner->testCaseChanged(m_testCase);
         emit m_runner->endTestCase(m_testCase);
 
+        qCDebug(LogQtTestRunnerCore, "TestCase %s finished", m_testCase.m_name.toStdString().c_str());
         m_inTestCase = false;
         return true;
     }
@@ -172,6 +176,7 @@ bool UnitTestOutputHandler::endElement(const QString & namespaceURI,
         emit m_runner->testCaseChanged(m_testCase);
         emit m_runner->endTestFunction(testfunction);
 
+        qCDebug(LogQtTestRunnerCore, "TestCase %s finished", testfunction.m_name.toStdString().c_str());
         m_inTestFunction = false;
         return true;
     }

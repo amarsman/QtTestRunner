@@ -3,7 +3,7 @@
 
 QT_USE_NAMESPACE
 
-const int WAITTIME = 50;
+const int WAITTIME = 1000;
 
 /******************************************************************************/
 class tst_main : public QObject
@@ -11,6 +11,12 @@ class tst_main : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void init();
+    void cleanup();
+
     void passtest();
     void passloggingtest();
 
@@ -27,6 +33,30 @@ private slots:
     void benchmarkpassloggingtest();
 private:
 };
+
+/******************************************************************************/
+void tst_main::initTestCase()
+{
+    QThread::msleep(WAITTIME);
+}
+
+/******************************************************************************/
+void tst_main::cleanupTestCase()
+{
+    QThread::msleep(WAITTIME);
+}
+
+/******************************************************************************/
+void tst_main::init()
+{
+    QThread::msleep(WAITTIME);
+}
+
+/******************************************************************************/
+void tst_main::cleanup()
+{
+    QThread::msleep(WAITTIME);
+}
 
 /******************************************************************************/
 void tst_main::passtest()
@@ -90,7 +120,7 @@ void tst_main::datatest_data()
 
     QTest::newRow("positive") << "42" << 42;
     QTest::newRow("negative") << "-42" << -42;
-    QTest::newRow("zero") << "0" << 1;
+    QTest::newRow("zero") << "0" << 0;
 }
 
 /******************************************************************************/

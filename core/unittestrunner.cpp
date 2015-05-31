@@ -53,12 +53,6 @@ bool UnitTestRunner::stop()
 }
 
 /******************************************************************************/
-void UnitTestRunner::processXmlLine(const QString &line)
-{
-   fprintf(stderr, "%s", line.toStdString().c_str());
-}
-
-/******************************************************************************/
 void UnitTestRunner::run()
 {
     qCDebug(LogQtTestRunnerCore, "Starting");
@@ -84,21 +78,9 @@ void UnitTestRunner::run()
     parser->setContentHandler(handler.data());
 
     process->start(m_unitTest, QStringList() << "-xml");//, QStringList() << "-datatags");
-#if 1
+
     QXmlInputSource source(process.data());
     parser->parse(&source);
-#else
-    process->waitForStarted();
-    while (process->waitForReadyRead())
-    {
-        while (process->canReadLine())
-        {
-            QString line = QString(process->readLine());
-            processXmlLine(line);
-        }
-    }
-#endif
-
     process->waitForFinished();
 
     bool result_ok = true;

@@ -21,7 +21,7 @@ public:
 
 public slots:
     void onRun();
-    void onUnitTestFound(const QString &a_path);
+    void onUnitTestFound(const QString &a_path, int a_nrtests);
     void onCollectionFinished();
 
 signals:

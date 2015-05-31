@@ -143,7 +143,7 @@ static void checkPreconditions(TestSettings &a_settings)
         bool isroot = (0 == geteuid());
         if (!isroot)
         {
-            fprintf(stderr, "Not root, only accessible tests will be run.\n");
+            fprintf(stdout, "Not root, only accessible tests will be run.\n");
         }
         qCDebug(LogQtTestRunner, "isroot: %d", isroot);
     }

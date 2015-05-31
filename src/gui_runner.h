@@ -9,6 +9,7 @@
 #include "testmanager.h"
 #include "testsettings.h"
 #include "unittestoutputhandler.h"
+#include "unittestmodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -25,14 +26,14 @@ public:
 
 private slots:
     void onStartClicked();
-    void onUnitTestResult(const TestCase &result);
+    void onTestCaseChanged(const TestCase &result);
     void onFinished();
 
 private:
     Ui::MainWindow *ui;
     TestManager *m_testManager;
     TestSettings *m_settings;
-    QStandardItemModel m_unittestmodel;
+    UnitTestModel m_unittestmodel;
 };
 
 #endif // MAINWINDOW_H

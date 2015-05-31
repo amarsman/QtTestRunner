@@ -21,8 +21,8 @@ GuiRunner::GuiRunner(TestManager *a_testManager,
 
     QObject::connect(m_testManager, &TestManager::finished,
                      this, &GuiRunner::onFinished);
-    QObject::connect(m_testManager, &TestManager::unitTestResult,
-                     this, &GuiRunner::onUnitTestResult);
+    QObject::connect(m_testManager, &TestManager::testCaseChanged,
+                     this, &GuiRunner::onTestCaseChanged);
 }
 
 /******************************************************************************/
@@ -35,14 +35,13 @@ GuiRunner::~GuiRunner()
 /******************************************************************************/
 void GuiRunner::onStartClicked()
 {
-    m_unittestmodel.clear();
     m_testManager->start(m_settings);
 }
 
 /******************************************************************************/
-void GuiRunner::onUnitTestResult(const TestCase &result)
+void GuiRunner::onTestCaseChanged(const TestCase &a_testcase)
 {
-    Q_UNUSED(result);
+    m_unittestmodel.refresh(a_testcase);
 
 #if 0
     QList<QStandardItem *> rowitems;

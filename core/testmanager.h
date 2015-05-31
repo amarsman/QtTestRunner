@@ -23,12 +23,13 @@ public slots:
     void stop();
 
 signals:
-    void unitTestFound(const QString &findResult);
-    void finished();
-    void unitTestResult(const TestCase &result);
+    void unitTestFound(const QString &findResult, int nr_tests);
 
+    void testCaseChanged(const TestCase &result);
     void endTestCase(const TestCase &result);
     void endTestFunction(const TestFunction &result);
+
+    void finished();
 
 protected:
     void run(void);
@@ -40,6 +41,7 @@ private slots:
 
 private:
     bool isUnitTest(const QString &filename);
+    int countTests(const QString &filename);
 
     TestSettings *m_settings;
     bool m_stopRequested;

@@ -53,14 +53,11 @@ void TestManager::stop()
 /******************************************************************************/
 bool TestManager::isUnitTest(const QString &filename)
 {
-    Q_UNUSED(filename);
-
     QScopedPointer<QProcess> process(new QProcess());
 
     process->start("ldd",QStringList() << filename);
     process->waitForFinished();
     QString data = QString(process->readAllStandardOutput());
-
 
     QRegularExpression re("libQt5Test");
 
@@ -68,9 +65,29 @@ bool TestManager::isUnitTest(const QString &filename)
 }
 
 /******************************************************************************/
+int TestManager::countTests(const QString &filename)
+{
+    QScopedPointer<QProcess> process(new QProcess());
+
+    process->start(filename, QStringList() << "-functions");
+    process->waitForFinished();
+
+    QStringList data = QString(process->readAllStandardOutput()).split('\n');
+
+    int count=0;
+    for (auto it = data.begin(); it != data.end(); ++it)
+    {
+        QString &line = *it;
+
+        if (line.contains("()")) count++;
+    }
+    return count + 2; //init and cleanup are not outputted by -functions
+}
+
+/******************************************************************************/
 void TestManager::onTestCaseChanged(const TestCase &result)
 {
-    emit unitTestResult(result);
+    emit testCaseChanged(result);
 }
 
 /******************************************************************************/
@@ -102,7 +119,6 @@ void TestManager::run()
     // Collect all tests executables
     QStringList m_unitTests;
 
-    {
     QDirIterator it(m_settings->basepath,
                     QStringList() << "*",
                     QDir::Files | QDir::Executable,
@@ -119,14 +135,16 @@ void TestManager::run()
 
         if (isUnitTest(fullPath))
         {
+            int nr_tests = countTests(fullPath);
+
             for (int i=0; i<m_settings->repeat; i++)
             {
                 m_unitTests.append(fullPath);
-                emit unitTestFound(fullPath);
+                emit unitTestFound(fullPath, nr_tests);
             }
         }
     }
-    }
+
 
     qCDebug(LogQtTestRunnerCore, "Sorting");
     if (m_settings->shuffle)

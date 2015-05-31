@@ -55,23 +55,22 @@ void ConsoleRunner::startCollecting()
 }
 
 /******************************************************************************/
-void ConsoleRunner::onUnitTestFound(const QString &a_path)
+void ConsoleRunner::onUnitTestFound(const QString &a_path, int a_nrtests)
 {
-    qCDebug(LogQtTestRunner, "%s", a_path.toStdString().c_str());
-    fprintf(stderr, "%s\n", a_path.toStdString().c_str());
+    qCDebug(LogQtTestRunner, "%s %d", a_path.toStdString().c_str(), a_nrtests);
 }
 
 /******************************************************************************/
 void ConsoleRunner::onCollectionFinished()
 {
-    qCDebug(LogQtTestRunner);
-    fprintf(stderr, "Finished\n");
+    qCDebug(LogQtTestRunner, "Finished");
     emit finished();
 }
 
 /******************************************************************************/
 void ConsoleRunner::onEndTestCase(const TestCase &testcase)
 {
+    Q_UNUSED(testcase);
 }
 
 /******************************************************************************/
@@ -92,7 +91,7 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
             }
         }
 
-        fprintf(stderr, "%s%-35s%-35s%-10s%s\n",
+        fprintf(stdout, "%s%-35s%-35s%-10s%s\n",
                 pass ? STYLE_GREEN : STYLE_RED,
                 testfunction.m_casename.toStdString().c_str(),
                 testfunction.m_name.toStdString().c_str(),
@@ -101,14 +100,15 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
 
         for (auto it = testfunction.m_messages.begin(); it != testfunction.m_messages.end(); ++it)
         {
-            if (it->m_done)
+            const Message &message= *it;
+
+            if (message.m_done && !pass)
             {
-                fprintf(stderr, "%s%s: %s%s\n",
-                        STYLE_DEFAULT,
-                        it->m_type.toStdString().c_str(),
-                        //it->m_file.toStdString().c_str(),
-                        //it->m_line.toStdString().c_str(),
-                        it->m_description.toStdString().c_str(),
+                fprintf(stdout, "%s%s: %s%s\n",
+                        STYLE_BLUE,
+                        message.
+                        m_type.toStdString().c_str(),
+                        message.m_description.toStdString().c_str(),
                         STYLE_DEFAULT);
             }
         }
@@ -123,8 +123,8 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
                             incident.m_type == "fail" ||
                             incident.m_type == "xpass"))
                 {
-                    fprintf(stderr, "%s%s%s\n\n",
-                            STYLE_BLUE,
+                    fprintf(stdout, "%s%s%s\n\n",
+                            STYLE_DEFAULT,
                             incident.m_description.toStdString().c_str(),
                             STYLE_DEFAULT);
                 }
@@ -132,32 +132,5 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
         }
     }
 }
-
-#if 0
-/******************************************************************************/
-void ConsoleRunner::onUnitTestResult(const TestCase &result)
-{
-    if (result.busy) return;
-
-    fprintf(stderr, "%s %s::%s\n",
-            result.type.toStdString().c_str(),
-            result.name.toStdString().c_str(),
-            result.testfunctionname.toStdString().c_str());
-
-
-    for (auto it = result.incidents.begin(); it != result.incidents.end(); ++it)
-    {
-        const Incident &ref = *it;
-
-        if (ref.type != "pass")
-        {
-            fprintf(stderr, "%s %s\n%s\n",
-                    ref.file.toStdString().c_str(),
-                    ref.line.toStdString().c_str(),
-                    ref.message.toStdString().c_str());
-        }
-    }
-}
-#endif
 
 /******************************************************************************/

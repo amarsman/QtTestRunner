@@ -31,7 +31,6 @@ protected:
     void run(void);
 
 private:
-    void processXmlLine(const QString &line);
     QString m_unitTest;
     QSharedPointer<QSemaphore> m_semaphore;
     bool m_running;
