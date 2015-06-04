@@ -2,8 +2,8 @@
 #define MYXMLCONTENTHANDLER_H
 
 #include <QString>
-#include <QXmlDefaultHandler>
-#include <QXmlAttributes>
+#include <QObject>
+#include <QRegularExpression>
 #include "unittestrunner.h"
 
 class UnitTestRunner; //forward
@@ -69,27 +69,31 @@ public:
 
 
 /******************************************************************************/
-class UnitTestOutputHandler : public QObject, public QXmlDefaultHandler
+class UnitTestOutputHandler : public QObject
 {
     Q_OBJECT
 public:
     UnitTestOutputHandler(UnitTestRunner *a_handler, QString a_testpath);
     virtual ~UnitTestOutputHandler();
-
-protected:
-    bool startElement(const QString & namespaceURI,
-                      const QString & localName,
-                      const QString & qName,
-                      const QXmlAttributes & atts);
-    bool endElement(const QString & namespaceURI,
-                    const QString & localName,
-                    const QString & qName);
-
-    bool characters(const QString & ch);
+    void processXmlLine(const QString &line);
 
 private:
     UnitTestRunner *m_runner;
     TestCase        m_testCase;
+
+    QRegularExpression re_xml;
+    QRegularExpression re_tc_start;
+    QRegularExpression re_tc_end;
+    QRegularExpression re_environment_start;
+    QRegularExpression re_environment_end;
+    QRegularExpression re_tf_start;
+    QRegularExpression re_tf_end;
+    QRegularExpression re_incident;
+    QRegularExpression re_incident_start;
+    QRegularExpression re_incident_end;
+    QRegularExpression re_message_start;
+    QRegularExpression re_message_end;
+    QRegularExpression re_duration;
 
     bool m_inTestCase;
     bool m_inEnvironment;

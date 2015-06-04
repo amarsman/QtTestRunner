@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS += tst_application #tst_main
+SUBDIRS += tst_application tst_main

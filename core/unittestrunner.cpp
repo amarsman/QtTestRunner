@@ -66,21 +66,23 @@ void UnitTestRunner::run()
 
     qCDebug(LogQtTestRunnerCore, "%s ", m_unitTest.toStdString().c_str());
 
-    QScopedPointer<QProcess> process(new QProcess());
-
     QFileInfo info(m_unitTest);
     QString testpath = info.absolutePath();
 
-
-    QScopedPointer<QXmlSimpleReader> parser(new QXmlSimpleReader());
     QScopedPointer<UnitTestOutputHandler> handler(new UnitTestOutputHandler(this, testpath));
 
-    parser->setContentHandler(handler.data());
-
+    QScopedPointer<QProcess> process(new QProcess());
     process->start(m_unitTest, QStringList() << "-xml");//, QStringList() << "-datatags");
+    process->waitForStarted();
+    while (process->waitForReadyRead())
+    {
+        while (process->canReadLine())
+        {
+            QString line = QString(process->readLine());
+            handler->processXmlLine(line.trimmed());
+        }
+    }
 
-    QXmlInputSource source(process.data());
-    parser->parse(&source);
     process->waitForFinished();
 
     bool result_ok = true;

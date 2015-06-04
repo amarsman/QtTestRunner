@@ -4,7 +4,7 @@
 
 /******************************************************************************/
 UnitTestOutputHandler::UnitTestOutputHandler(UnitTestRunner *a_runner, QString a_testpath)
-    : QObject(), QXmlDefaultHandler()
+    : QObject()
     , m_runner(a_runner)
     , m_inTestCase(false)
     , m_inEnvironment(false)
@@ -19,6 +19,20 @@ UnitTestOutputHandler::UnitTestOutputHandler(UnitTestRunner *a_runner, QString a
 {
     qRegisterMetaType<TestCase>("TestCase");
     qRegisterMetaType<TestFunction>("TestFunction");
+
+    re_xml              .setPattern("<\\?xml.*\\?>");
+    re_tc_start         .setPattern("<TestCase name=\"(.*?)\">");
+    re_tc_end           .setPattern("<\\/TestCase>");
+    re_environment_start.setPattern("<Environment>");
+    re_environment_end  .setPattern("<\\/Environment>");
+    re_tf_start         .setPattern("<TestFunction name=\"(.*?)\">");
+    re_tf_end           .setPattern("<\\/TestFunction>");
+    re_incident         .setPattern("<Incident\\s+type=\"(.*?)\".*?\\/>");
+    re_incident_start   .setPattern("<Incident\\s+type=\"(.*?)\".*?[^\\/]>");
+    re_incident_end     .setPattern("<\\/Incident>");
+    re_message_start   .setPattern("<Message\\s+type=\"(.*?)\".*?[^\\/]>");
+    re_message_end     .setPattern("<\\/Message>");
+    re_duration         .setPattern("<Duration.*?\\/>");
 }
 
 /******************************************************************************/
@@ -28,236 +42,162 @@ UnitTestOutputHandler::~UnitTestOutputHandler()
 }
 
 /******************************************************************************/
-bool UnitTestOutputHandler::startElement(const QString & namespaceURI,
-                                         const QString & localName,
-                                         const QString & qName,
-                                         const QXmlAttributes & atts)
+void UnitTestOutputHandler::processXmlLine(const QString &line)
 {
-    Q_UNUSED(namespaceURI);
-    Q_UNUSED(localName);
+    QString result = "";
 
-    if (!m_inTestCase && qName == "TestCase")
+    QRegularExpressionMatch match;
+
+    if (!m_inTestCase)
     {
-        m_testCase.reset();
-        m_testCase.m_name = atts.value("name");
-        emit m_runner->testCaseChanged(m_testCase);
-
-        qCDebug(LogQtTestRunnerCore, "TestCase %s started", m_testCase.m_name.toStdString().c_str());
-        m_inTestCase = true;
-        return true;
-    }
-
-    if (!m_inEnvironment && qName == "Environment")
-    {
-        m_inEnvironment = true;
-        return true;
-    }
-
-    if (m_inEnvironment)
-    {
-        // ignore all
-        return true;
-    }
-
-    if (!m_inTestFunction && qName == "TestFunction")
-    {
-        m_testCase.m_testfunctions.append(TestFunction());
-        TestFunction &testfunction = m_testCase.m_testfunctions.last();
-        testfunction.m_name = atts.value("name");
-        testfunction.m_casename = m_testCase.m_name;
-        emit m_runner->testCaseChanged(m_testCase);
-
-        qCDebug(LogQtTestRunnerCore, "TestCase %s started", testfunction.m_name.toStdString().c_str());
-        m_inTestFunction = true;
-        return true;
-    }
-
-    if (!m_inIncident && qName == "Incident")
-    {
-        TestFunction &testfunction = m_testCase.m_testfunctions.last();
-        testfunction.m_incidents.append(Incident());
-        Incident &incident = testfunction.m_incidents.last();
-        incident.m_type = atts.value("type");
-        incident.m_file = atts.value("file");
-        incident.m_line = atts.value("line");
-        emit m_runner->testCaseChanged(m_testCase);
-
-        m_inIncident = true;
-        return true;
-    }
-
-    if (!m_inDuration && qName == "Duration")
-    {
-        if (m_inTestFunction)
+        // xml line
+        match = re_xml.match(line);
+        if (match.hasMatch())
         {
-            TestFunction &testfunction = m_testCase.m_testfunctions.last();
-            testfunction.m_duration = atts.value("msecs").toDouble();
+            qCDebug(LogQtTestRunnerCore, "---- XML ----");
+            return;
         }
-        else if (m_inTestCase)
+
+        // start testcase
+        match = re_tc_start.match(line);
+        if (match.hasMatch())
         {
-            m_testCase.m_duration = atts.value("msecs").toDouble();
+            //m_testCaseName = match.captured(1);
+            qCDebug(LogQtTestRunnerCore, "---- TC: %s----", match.captured(1).toStdString().c_str());
+            m_inTestCase = true;
+            return;
         }
-        emit m_runner->testCaseChanged(m_testCase);
 
-        m_inDuration = true;
-        return true;
     }
-
-    if (!m_inMessage && qName == "Message")
+    else
     {
-        TestFunction &testfunction = m_testCase.m_testfunctions.last();
-        testfunction.m_messages.append(Message());
-        Message &message = testfunction.m_messages.last();
-        message.m_type = atts.value("type");
-        message.m_file = atts.value("file");
-        message.m_line = atts.value("line");
-        emit m_runner->testCaseChanged(m_testCase);
-
-        m_inMessage = true;
-        return true;
-    }
-
-    if (!m_inDescription && qName == "Description")
-    {
-        m_inDescription = true;
-        return true;
-    }
-
-    if (!m_inDataTag && qName == "DataTag")
-    {
-        m_inDataTag = true;
-        return true;
-    }
-
-    if (!m_inBenchmarkResult && qName == "BenchmarkResult")
-    {
-        m_inBenchmarkResult = true;
-        return true;
-    }
-
-    return true;
-}
-
-/******************************************************************************/
-bool UnitTestOutputHandler::endElement(const QString & namespaceURI,
-                                       const QString & localName,
-                                       const QString & qName)
-{
-    Q_UNUSED(namespaceURI);
-    Q_UNUSED(localName);
-
-    if (m_inTestCase && qName == "TestCase")
-    {
-        m_testCase.m_done = true;
-        emit m_runner->testCaseChanged(m_testCase);
-        emit m_runner->endTestCase(m_testCase);
-
-        qCDebug(LogQtTestRunnerCore, "TestCase %s finished", m_testCase.m_name.toStdString().c_str());
-        m_inTestCase = false;
-        return true;
-    }
-
-    if (m_inEnvironment && qName == "Environment")
-    {
-        m_inEnvironment = false;
-        return true;
-    }
-
-    if (m_inEnvironment)
-    {
-        // ignore all;
-        return true;
-    }
-
-    if (m_inTestFunction && qName == "TestFunction")
-    {
-        TestFunction &testfunction = m_testCase.m_testfunctions.last();
-        testfunction.m_done = true;
-        emit m_runner->testCaseChanged(m_testCase);
-        emit m_runner->endTestFunction(testfunction);
-
-        qCDebug(LogQtTestRunnerCore, "TestCase %s finished", testfunction.m_name.toStdString().c_str());
-        m_inTestFunction = false;
-        return true;
-    }
-
-    if (m_inIncident && qName == "Incident")
-    {
-        Incident &incident = m_testCase.m_testfunctions.last().m_incidents.last();
-        incident.m_done = true;
-        emit m_runner->testCaseChanged(m_testCase);
-
-        m_inIncident = false;
-        return true;
-    }
-
-    if (m_inDuration && qName == "Duration")
-    {
-        m_inDuration = false;
-        return true;
-    }
-
-    if (m_inDescription && qName == "Description")
-    {
-        m_inDescription = false;
-        return true;
-    }
-
-    if (m_inMessage && qName == "Message")
-    {
-        Message &message = m_testCase.m_testfunctions.last().m_messages.last();
-        message.m_done = true;
-        emit m_runner->testCaseChanged(m_testCase);
-
-        m_inMessage = false;
-        return true;
-    }
-
-    if (m_inDataTag && qName == "DataTag")
-    {
-        m_inDataTag = false;
-        return true;
-    }
-
-    if (m_inBenchmarkResult && qName == "BenchmarkResult")
-    {
-        m_inBenchmarkResult = false;
-        return true;
-    }
-
-    return true;
-}
-
-/******************************************************************************/
-bool UnitTestOutputHandler::characters(const QString & ch)
-{
-    QString txt = ch.trimmed();
-
-    if (m_inEnvironment)
-    {
-        return true;
-    }
-
-    if (!txt.isEmpty())
-    {
-        if (m_inMessage)
+        if (m_inEnvironment)
         {
-            Message &message = m_testCase.m_testfunctions.last().m_messages.last();
-            message.m_description = txt;
-            return true;
+            // end environment
+            match = re_environment_end.match(line);
+            if (match.hasMatch())
+            {
+                m_inEnvironment = false;
+                qCDebug(LogQtTestRunnerCore, "---- ~ENV ----");
+                return;
+            }
+
+            return; // ignore anything else
         }
-        if (m_inIncident)
+        else if (m_inTestFunction)
         {
-            Incident &incident = m_testCase.m_testfunctions.last().m_incidents.last();
-            if (m_inDescription)
-                incident.m_description = txt;
-            if (m_inDataTag)
-                incident.m_datatag = txt;
+            if (m_inMessage)
+            {
+                match = re_message_end.match(line);
+                if (match.hasMatch())
+                {
+                    qCDebug(LogQtTestRunnerCore, "---- ~MSG ----");
+                    m_inMessage= false;
+                    return;
+                }
+            }
+            else  if (m_inIncident)
+            {
+                match = re_incident_end.match(line);
+                if (match.hasMatch())
+                {
+                    qCDebug(LogQtTestRunnerCore, "---- ~INC ----");
+                    m_inIncident = false;
+                    return;
+                }
+            }
+            else
+            {
+                match = re_tf_end.match(line);
+                if (match.hasMatch())
+                {
+                    //m_testFunctionName = "";
+                    qCDebug(LogQtTestRunnerCore, "---- ~TF ----");
+                    m_inTestFunction = false;
+                    return;
+                }
 
-            return true;
+                // start message
+                match = re_message_start.match(line);
+                if (match.hasMatch())
+                {
+                    result = match.captured(1);
+                    qCDebug(LogQtTestRunnerCore, "---- MSG: %s ----", match.captured(1).toStdString().c_str());
+                    m_inMessage = true;
+                    return;
+                }
+
+                // Single line incident
+                match = re_incident.match(line);
+                if (match.hasMatch())
+                {
+                    result = match.captured(1);
+                    qCDebug(LogQtTestRunnerCore, "---- INC: %s ----", match.captured(1).toStdString().c_str());
+                    return;
+                }
+
+                // start incident
+                match = re_incident_start.match(line);
+                if (match.hasMatch())
+                {
+                    result = match.captured(1);
+                    qCDebug(LogQtTestRunnerCore, "---- INC: %s ----", match.captured(1).toStdString().c_str());
+                    m_inIncident = true;
+                    return;
+                }
+
+                // Single line duration
+                match = re_duration.match(line);
+                if (match.hasMatch())
+                {
+                    qCDebug(LogQtTestRunnerCore, "---- DUR ----");
+                    return;
+                }
+            }
+        }
+        else
+        {
+            // start environment
+            match = re_environment_start.match(line);
+            if (match.hasMatch())
+            {
+                m_inEnvironment = true;
+                qCDebug(LogQtTestRunnerCore, "---- ENV ----");
+                return;
+            }
+
+            // start test function
+            match = re_tf_start.match(line);
+            if (match.hasMatch())
+            {
+                //m_testFunctionName = match.captured(1);
+                qCDebug(LogQtTestRunnerCore, "---- TF: %s ----", match.captured(1).toStdString().c_str());
+                m_inTestFunction = true;
+                return;
+            }
+
+            // duration
+            match = re_duration.match(line);
+            if (match.hasMatch())
+            {
+                qCDebug(LogQtTestRunnerCore, "---- Duration ----");
+                return;
+            }
+
+            // end testcase
+            match = re_tc_end.match(line);
+            if (match.hasMatch())
+            {
+                //m_testCaseName = "";
+                qCDebug(LogQtTestRunnerCore, "---- ~TC ----");
+                m_inTestCase = false;
+                return;
+            }
         }
     }
-    return true;
+
+    //not processed
+    qCDebug(LogQtTestRunnerCore, "%s", line.toStdString().c_str());
 }
 
 /******************************************************************************/
