@@ -49,6 +49,60 @@ void tst_application::passtest()
 }
 
 /******************************************************************************/
-QTEST_APPLESS_MAIN(tst_application)
+class tst_application2 : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void init();
+    void cleanup();
+
+    void passtest2();
+};
+
+/******************************************************************************/
+void tst_application2::initTestCase()
+{
+    QThread::msleep(WAITTIME);
+}
+
+/******************************************************************************/
+void tst_application2::cleanupTestCase()
+{
+    QThread::msleep(WAITTIME);
+}
+
+/******************************************************************************/
+void tst_application2::init()
+{
+    QThread::msleep(WAITTIME);
+}
+
+/******************************************************************************/
+void tst_application2::cleanup()
+{
+    QThread::msleep(WAITTIME);
+}
+
+/******************************************************************************/
+void tst_application2::passtest2()
+{
+    QThread::msleep(WAITTIME);
+}
+
+/******************************************************************************/
+int main(int argc, char *argv[])
+{
+    tst_application tc;
+    QTest::qExec(&tc, argc, argv);
+
+    tst_application2 tc2;
+    QTest::qExec(&tc2, argc, argv);
+
+    return 0;
+}
 
 #include "tst_application.moc"
