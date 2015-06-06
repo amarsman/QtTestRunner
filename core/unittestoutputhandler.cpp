@@ -185,6 +185,8 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     match = re_description.match(line);
                     if (match.hasMatch())
                     {
+                        QString text = match.captured(1);
+                        m_incident->m_description.append(text);
                         qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
                                 match.captured(1).toStdString().c_str());
                         return;

@@ -235,7 +235,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[0].m_file,         QString("../../../tests/tst_main/tst_main.cpp"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[0].m_line,         QString("103"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[0].m_datatag,      QString(""));
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[0].m_description,  QString(""));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[0].m_description,  QString("This will go wrong"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[0].m_done,         true);
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[1].m_type,         QString("pass"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[1].m_file,         QString(""));
@@ -254,7 +254,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_incidents[0].m_file,         QString("../../../tests/tst_main/tst_main.cpp"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_incidents[0].m_line,         QString("111"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_incidents[0].m_datatag,      QString(""));
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_incidents[0].m_description,  QString(""));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_incidents[0].m_description,  QString("QCOMPARE(0, 0) returned TRUE unexpectedly."));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_incidents[0].m_done,         true);
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_duration,                    QString("0.114149"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_done,                        true);
