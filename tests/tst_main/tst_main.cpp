@@ -3,7 +3,7 @@
 
 QT_USE_NAMESPACE
 
-const int WAITTIME = 0;
+const int WAITTIME = 100;
 
 /******************************************************************************/
 class tst_main : public QObject
@@ -49,13 +49,11 @@ void tst_main::cleanupTestCase()
 /******************************************************************************/
 void tst_main::init()
 {
-    QThread::msleep(WAITTIME);
 }
 
 /******************************************************************************/
 void tst_main::cleanup()
 {
-    QThread::msleep(WAITTIME);
 }
 
 /******************************************************************************/
@@ -69,17 +67,19 @@ void tst_main::passloggingtest()
 {
     QThread::msleep(WAITTIME);
     qDebug("Some debug");
+
     QThread::msleep(WAITTIME);
     qWarning("Some warning");
+
     QThread::msleep(WAITTIME);
     qCritical("Some critical");
-    QThread::msleep(WAITTIME);
 }
 
 /******************************************************************************/
 void tst_main::failtest()
 {
     QThread::msleep(WAITTIME);
+
     QCOMPARE(1,0);
 }
 
@@ -88,10 +88,13 @@ void tst_main::failloggingtest()
 {
     QThread::msleep(WAITTIME);
     qDebug("Some debug");
+
     QThread::msleep(WAITTIME);
     qWarning("Some warning");
+
     QThread::msleep(WAITTIME);
     qCritical("Some critical");
+
     QThread::msleep(WAITTIME);
     QCOMPARE(1,0);
 }
@@ -99,17 +102,19 @@ void tst_main::failloggingtest()
 /******************************************************************************/
 void tst_main::xfailtest()
 {
+    QThread::msleep(WAITTIME);
+
     QEXPECT_FAIL("","This will go wrong", Continue);
     QCOMPARE(1,0);
-
 }
 
 /******************************************************************************/
 void tst_main::xpasstest()
 {
+    QThread::msleep(WAITTIME);
+
     QEXPECT_FAIL("","This will go right", Continue);
     QCOMPARE(0,0);
-
 }
 
 /******************************************************************************/
@@ -126,32 +131,26 @@ void tst_main::datatest_data()
 /******************************************************************************/
 void tst_main::datatest()
 {
+    QThread::msleep(WAITTIME);
+
     QFETCH(QString, aString);
     QFETCH(int, expected);
-    QThread::msleep(WAITTIME);
     QCOMPARE(aString.toInt(), expected);
-    QThread::msleep(WAITTIME);
 }
 
 /******************************************************************************/
 void tst_main::benchmarkpasstest()
 {
-    QThread::msleep(WAITTIME);
-
     QString a("42");
     QBENCHMARK
     {
         QCOMPARE(a.toInt(), 42);
     }
-
-    QThread::msleep(WAITTIME);
 }
 
 /******************************************************************************/
 void tst_main::benchmarkpassloggingtest()
 {
-    QThread::msleep(WAITTIME);
-
     QString a("42");
     //qDebug("Some debug");
     //qWarning("Some warning");
@@ -161,8 +160,6 @@ void tst_main::benchmarkpassloggingtest()
     {
         QCOMPARE(a.toInt(), 42);
     }
-
-    QThread::msleep(WAITTIME);
 }
 
 

@@ -1,7 +1,7 @@
 #include <QTest>
 #include <QThread>
 
-const int WAITTIME = 0;
+const int WAITTIME = 100;
 
 /******************************************************************************/
 class tst_application : public QObject
@@ -33,13 +33,11 @@ void tst_application::cleanupTestCase()
 /******************************************************************************/
 void tst_application::init()
 {
-    QThread::msleep(WAITTIME);
 }
 
 /******************************************************************************/
 void tst_application::cleanup()
 {
-    QThread::msleep(WAITTIME);
 }
 
 /******************************************************************************/
@@ -78,13 +76,11 @@ void tst_application2::cleanupTestCase()
 /******************************************************************************/
 void tst_application2::init()
 {
-    QThread::msleep(WAITTIME);
 }
 
 /******************************************************************************/
 void tst_application2::cleanup()
 {
-    QThread::msleep(WAITTIME);
 }
 
 /******************************************************************************/

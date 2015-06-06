@@ -26,8 +26,7 @@ GuiRunner::GuiRunner(TestManager *a_testManager,
     QObject::connect(&m_unittestmodel, &UnitTestModel::refreshDone,
                      this, &GuiRunner::onRefreshDone);
 
-    void refreshDone();
-
+    m_testManager->start(m_settings);
 }
 
 /******************************************************************************/
@@ -40,7 +39,7 @@ GuiRunner::~GuiRunner()
 /******************************************************************************/
 void GuiRunner::onStartClicked()
 {
-    ui->pbStart->setEnabled(true);
+    ui->pbStart->setEnabled(false);
     m_testManager->start(m_settings);
 }
 
@@ -61,6 +60,7 @@ void GuiRunner::onRefreshDone()
 void GuiRunner::onFinished()
 {
     ui->pbStart->setEnabled(true);
+    close();
 }
 
 /******************************************************************************/
