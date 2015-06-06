@@ -84,8 +84,6 @@ void UnitTestRunner::run()
         {
             QString line = QString(process->readLine());
             handler->processXmlLine(line.trimmed());
-
-            fprintf(stderr,"%s done\n", line.trimmed().toLocal8Bit().data());
         }
     }
 

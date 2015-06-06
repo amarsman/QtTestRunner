@@ -140,9 +140,10 @@ public:
 
     void setUnitTestRunner(UnitTestRunner *a_runner);
 
+    TestSuite m_testSuite;
+
 private:
     UnitTestRunner *m_runner;
-    TestSuite m_testSuite;
 
     TestCase *m_testCase;
     TestFunction *m_testFunction;

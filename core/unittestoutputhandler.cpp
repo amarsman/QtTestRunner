@@ -49,13 +49,12 @@ UnitTestOutputHandler::~UnitTestOutputHandler()
 /******************************************************************************/
 void UnitTestOutputHandler::setUnitTestRunner(UnitTestRunner *a_runner)
 {
-    //m_runner = a_runner;
+    m_runner = a_runner;
 }
 
 /******************************************************************************/
 void UnitTestOutputHandler::processXmlLine(const QString &line)
 {
-    fprintf(stderr,"%s\n", line.toLocal8Bit().data());
     QRegularExpressionMatch match;
 
     if (!m_inTestCase)
@@ -85,7 +84,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
 
             return;
         }
-
     }
     else
     {
@@ -147,18 +145,11 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     }
 
                     // end of message
-                    fprintf(stderr,"bla");
                     match = re_message_end.match(line);
-                    fprintf(stderr,"bla");
                     if (match.hasMatch())
                     {
-                        fprintf(stderr,"bla");
                         qCDebug(LogQtTestRunnerCore, "---- ~MSG ----");
-                        fprintf(stderr,"bla");
                         m_inMessage= false;
-                        fprintf(stderr,"bla");
-
-                        fprintf(stderr,"bla");
                         m_message->m_done = true;
                         return;
                     }
@@ -231,6 +222,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                         m_inIncident = false;
 
                         m_incident->m_done = true;
+                        m_incident = 0;
 
                         return;
                     }
@@ -246,7 +238,8 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     m_inTestFunction = false;
 
                     m_testFunction->m_done = true;
-                    if (0) m_runner->endTestFunction(*m_testFunction);
+                    if (m_runner) emit m_runner->endTestFunction(*m_testFunction);
+                    m_testFunction = 0;
                     return;
                 }
 
@@ -388,7 +381,8 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 m_inTestCase = false;
 
                 m_testCase->m_done = true;
-                if (0) m_runner->endTestCase(*m_testCase);
+                if (m_runner) emit m_runner->endTestCase(*m_testCase);
+                m_testCase = 0;
                 return;
             }
         }

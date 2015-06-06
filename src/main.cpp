@@ -166,8 +166,8 @@ static void checkPreconditions(TestSettings &a_settings)
 int main(int argc, char *argv[])
 {
     qInstallMessageHandler(LogHandler);
-    QLoggingCategory::setFilterRules("QtTestRunner.debug=true\n"
-                                     "QtTestRunnerCore.debug=true");
+    QLoggingCategory::setFilterRules("QtTestRunner.debug=false\n"
+                                     "QtTestRunnerCore.debug=false");
 
     QApplication app(argc, argv);
     app.setOrganizationName("Heidenhain");
