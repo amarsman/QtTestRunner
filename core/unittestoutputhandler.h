@@ -9,6 +9,31 @@
 class UnitTestRunner; //forward
 
 /******************************************************************************/
+class Benchmark
+{
+public:
+    Benchmark()
+    {
+        reset();
+    }
+
+    void reset()
+    {
+        m_metric="";
+        m_tag="";
+        m_value="";
+        m_iterations="";
+        m_done=false;
+    }
+
+    QString m_metric;
+    QString m_tag;
+    QString m_value;
+    QString m_iterations;
+    bool    m_done;
+};
+
+/******************************************************************************/
 class Message
 {
 public:
@@ -78,13 +103,13 @@ public:
         m_done=false;
     }
 
-    QString         m_casename;
-    QString         m_name;
-    QList<Message>  m_messages;
-    QList<Incident> m_incidents;
-    // todo         m_benchmarks
-    QString         m_duration;
-    bool            m_done;
+    QString          m_casename;
+    QString          m_name;
+    QList<Message>   m_messages;
+    QList<Incident>  m_incidents;
+    QList<Benchmark> m_benchmarks;
+    QString          m_duration;
+    bool             m_done;
 };
 
 /******************************************************************************/
@@ -149,6 +174,7 @@ private:
     TestFunction *m_testFunction;
     Incident *m_incident;
     Message *m_message;
+    Benchmark *m_benchmark;
 
     QRegularExpression re_xml;
     QRegularExpression re_tc_start;

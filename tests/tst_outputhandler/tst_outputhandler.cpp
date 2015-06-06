@@ -56,6 +56,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[0].m_testfunctions[0].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[0].m_testfunctions[0].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[0].m_testfunctions[0].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[0].m_testfunctions[0].m_duration,                    QString("0.069897"));
     QCOMPARE(suite.m_testCases[0].m_testfunctions[0].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[0].m_testfunctions[1].m_casename,                    QString("tst_application"));
@@ -68,6 +69,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[0].m_testfunctions[1].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[0].m_testfunctions[1].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[0].m_testfunctions[1].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[0].m_testfunctions[1].m_duration,                    QString("0.185100"));
     QCOMPARE(suite.m_testCases[0].m_testfunctions[1].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[0].m_testfunctions[2].m_casename,                    QString("tst_application"));
@@ -80,7 +82,9 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[0].m_testfunctions[2].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[0].m_testfunctions[2].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[0].m_testfunctions[2].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[0].m_testfunctions[2].m_duration,                    QString("0.061839"));
     QCOMPARE(suite.m_testCases[0].m_testfunctions[2].m_done,                        true);
+    QCOMPARE(suite.m_testCases[0].m_duration,                                       QString("0.349517"));
     QCOMPARE(suite.m_testCases[0].m_done,                                           true);
 
     QCOMPARE(suite.m_testCases[1].m_testfunctions.length(),                         3);
@@ -95,6 +99,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[1].m_testfunctions[0].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[1].m_testfunctions[0].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[1].m_testfunctions[0].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[1].m_testfunctions[0].m_duration,                    QString("0.066109"));
     QCOMPARE(suite.m_testCases[1].m_testfunctions[0].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[1].m_testfunctions[1].m_casename,                    QString("tst_application2"));
@@ -107,6 +112,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[1].m_testfunctions[1].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[1].m_testfunctions[1].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[1].m_testfunctions[1].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[1].m_testfunctions[1].m_duration,                    QString("0.178758"));
     QCOMPARE(suite.m_testCases[1].m_testfunctions[1].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[1].m_testfunctions[2].m_casename,                    QString("tst_application2"));
@@ -119,7 +125,9 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[1].m_testfunctions[2].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[1].m_testfunctions[2].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[1].m_testfunctions[2].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[1].m_testfunctions[2].m_duration,                    QString("0.061087"));
     QCOMPARE(suite.m_testCases[1].m_testfunctions[2].m_done,                        true);
+    QCOMPARE(suite.m_testCases[1].m_duration,                                       QString("0.329975"));
     QCOMPARE(suite.m_testCases[1].m_done,                                           true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions.length(),                         11);
@@ -134,6 +142,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[0].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[0].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[0].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[0].m_duration,                    QString("0.070264"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[0].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions[1].m_casename,                    QString("tst_main"));
@@ -146,6 +155,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[1].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[1].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[1].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[1].m_duration,                    QString("0.169987"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[1].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions[2].m_casename,                    QString("tst_main"));
@@ -173,6 +183,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[2].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[2].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[2].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[2].m_duration,                    QString("0.546089"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[2].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions[3].m_casename,                    QString("tst_main"));
@@ -185,6 +196,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[3].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[3].m_incidents[0].m_description,  QString("Compared values are not the same\nActual   (1): 1\nExpected (0): 0"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[3].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[3].m_duration,                    QString("0.178844"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[3].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions[4].m_casename,                    QString("tst_main"));
@@ -212,6 +224,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[4].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[4].m_incidents[0].m_description,  QString("Compared values are not the same\nActual   (1): 1\nExpected (0): 0"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[4].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[4].m_duration,                    QString("0.331859"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[4].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_casename,                    QString("tst_main"));
@@ -230,6 +243,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[1].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[1].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_incidents[1].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_duration,                    QString("0.112643"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[5].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_casename,                    QString("tst_main"));
@@ -242,6 +256,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_duration,                    QString("0.114149"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[6].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions[7].m_casename,                    QString("tst_main"));
@@ -266,6 +281,7 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[7].m_incidents[2].m_datatag,      QString("zero"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[7].m_incidents[2].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[7].m_incidents[2].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[7].m_duration,                    QString("0.662028"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[7].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_casename,                    QString("tst_main"));
@@ -278,6 +294,13 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_benchmarks.length(),         1);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_benchmarks[0].m_metric,      QString("WalltimeMilliseconds"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_benchmarks[0].m_tag,         QString(""));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_benchmarks[0].m_value,       QString("0.000869751"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_benchmarks[0].m_iterations,  QString("65536"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_benchmarks[0].m_done,        true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_duration,                    QString("249.393234"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_done,                        true);
 
     QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_casename,                    QString("tst_main"));
@@ -290,19 +313,28 @@ void tst_outputhandler::test()
     QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_incidents[0].m_datatag,      QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_incidents[0].m_description,  QString(""));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_incidents[0].m_done,         true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[8].m_benchmarks.length(),         1);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_benchmarks[0].m_metric,      QString("WalltimeMilliseconds"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_benchmarks[0].m_tag,         QString(""));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_benchmarks[0].m_value,       QString("0.00088501"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_benchmarks[0].m_iterations,  QString("65536"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_benchmarks[0].m_done,        true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_duration,                    QString("250.894301"));
     QCOMPARE(suite.m_testCases[2].m_testfunctions[9].m_done,                        true);
 
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_casename,                    QString("tst_main"));
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_name,                        QString("cleanupTestCase"));
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_messages.length(),           0);
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents.length(),          1);
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_type,         QString("pass"));
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_file,         QString(""));
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_line,         QString("0"));
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_datatag,      QString(""));
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_description,  QString(""));
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_done,         true);
-    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_done,                        true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_casename,                   QString("tst_main"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_name,                       QString("cleanupTestCase"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_messages.length(),          0);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents.length(),         1);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_type,        QString("pass"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_file,        QString(""));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_line,        QString("0"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_datatag,     QString(""));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_description, QString(""));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_incidents[0].m_done,        true);
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_duration,                   QString("0.055129"));
+    QCOMPARE(suite.m_testCases[2].m_testfunctions[10].m_done,                       true);
+    QCOMPARE(suite.m_testCases[2].m_duration,                                       QString("502.599485"));
     QCOMPARE(suite.m_testCases[2].m_done,                                           true);
 }
 

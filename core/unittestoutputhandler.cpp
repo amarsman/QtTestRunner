@@ -37,7 +37,7 @@ UnitTestOutputHandler::UnitTestOutputHandler()
     re_description_start.setPattern("<Description><!\\[CDATA\\[(.*)");
     re_description_end  .setPattern("(.*)]]><\\/Description>");
     re_datatag          .setPattern("<DataTag><!\\[CDATA\\[(.*)\\]\\]><\\/DataTag>");
-    re_benchmark        .setPattern("<BenchmarkResult.*?value=\"(.*?)\".*?\\/>");
+    re_benchmark        .setPattern("<BenchmarkResult\\s+metric=\"(.*?)\"\\s+tag=\"(.*?)\"\\s+value=\"(.*?)\"\\s+iterations=\"(.*?)\".*?\\/>");
 }
 
 /******************************************************************************/
@@ -312,8 +312,23 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 match = re_benchmark.match(line);
                 if (match.hasMatch())
                 {
+                    QString metric = match.captured(1);
+                    QString tag = match.captured(2);
+                    QString value = match.captured(3);
+                    QString iterations = match.captured(4);
+
                     qCDebug(LogQtTestRunnerCore, "---- BENCH %s ----",
                             match.captured(1).toStdString().c_str());
+
+                    Benchmark benchmark;
+                    m_testFunction->m_benchmarks.append(benchmark);
+                    m_benchmark = &(m_testFunction->m_benchmarks.last());
+                    m_benchmark->m_metric = metric;
+                    m_benchmark->m_tag = tag;
+                    m_benchmark->m_value = value;
+                    m_benchmark->m_iterations = iterations;
+                    m_benchmark->m_done = true;
+
                     return;
                 }
 

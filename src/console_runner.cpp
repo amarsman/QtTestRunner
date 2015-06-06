@@ -93,10 +93,11 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
             }
         }
 
-        fprintf(stderr, "%s%-35s%-35s%-10s%s\n",
+        fprintf(stderr, "%s%-35s%-35s%12.1lf  %s%s\n",
                 pass ? STYLE_GREEN : STYLE_RED,
                 testfunction.m_casename.toStdString().c_str(),
                 testfunction.m_name.toStdString().c_str(),
+                testfunction.m_duration.toDouble(),
                 pass ? "OK" : "FAIL",
                 STYLE_DEFAULT);
 
