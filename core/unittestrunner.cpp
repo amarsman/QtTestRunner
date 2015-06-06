@@ -11,7 +11,10 @@
 
 /******************************************************************************/
 UnitTestRunner::UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore)
-    : m_semaphore(a_semaphore), m_running(false), m_stopRequested(false), m_jobnr(0)
+    : m_semaphore(a_semaphore)
+    , m_running(false)
+    , m_stopRequested(false)
+    , m_jobnr(0)
 {
     qCDebug(LogQtTestRunnerCore);
 }
@@ -69,10 +72,11 @@ void UnitTestRunner::run()
     QFileInfo info(m_unitTest);
     QString testpath = info.absolutePath();
 
-    QScopedPointer<UnitTestOutputHandler> handler(new UnitTestOutputHandler(this, testpath));
+    QScopedPointer<UnitTestOutputHandler> handler(new UnitTestOutputHandler());
+    handler->setUnitTestRunner(this);
 
     QScopedPointer<QProcess> process(new QProcess());
-    process->start(m_unitTest, QStringList() << "-xml");//, QStringList() << "-datatags");
+    process->start(m_unitTest, QStringList() << "-xml");
     process->waitForStarted();
     while (process->waitForReadyRead())
     {
@@ -80,6 +84,8 @@ void UnitTestRunner::run()
         {
             QString line = QString(process->readLine());
             handler->processXmlLine(line.trimmed());
+
+            fprintf(stderr,"%s done\n", line.trimmed().toLocal8Bit().data());
         }
     }
 

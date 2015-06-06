@@ -136,7 +136,8 @@ void TestManager::run()
         it.next();
         QDir dir(it.filePath());
 
-        qCDebug(LogQtTestRunnerCore, "%s", dir.absolutePath().toStdString().c_str());
+        qCDebug(LogQtTestRunnerCore, "%s",
+                dir.absolutePath().toStdString().c_str());
 
         QString fullPath = dir.absolutePath();
 
@@ -166,7 +167,9 @@ void TestManager::run()
 
     int jobnr = 1;
     // Run all test executables
-    for (auto it = m_unitTests.constBegin(); !m_stopRequested && it != m_unitTests.constEnd(); ++it)
+    for (auto it = m_unitTests.constBegin();
+         !m_stopRequested && it != m_unitTests.constEnd();
+         ++it)
     {
         QString filename = (*it);
 

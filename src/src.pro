@@ -15,13 +15,12 @@ HEADERS  += \
     logging.h \
     gui_runner.h \
     console_runner.h \
-    unittestmodel.h \
-    testsettings.h
+    unittestmodel.h
 
 FORMS += mainwindow.ui
 
-DEPENDPATH += $$PWD/../core
-INCLUDEPATH += $$PWD/../core
-LIBS += -L$$OUT_PWD/../core/ -lcore
+INCLUDEPATH += ../core
+DEPENDPATH += ../core
+LIBS += -L$$DESTDIR -lcore
 
-TARGETDEPS += $$OUT_PWD/../core/libcore.a
+TARGETDEPS += $$DESTDIR/libcore.a

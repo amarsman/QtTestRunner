@@ -11,10 +11,12 @@
 #include "unittestoutputhandler.h"
 #include "unittestmodel.h"
 
+/******************************************************************************/
 namespace Ui {
 class MainWindow;
 }
 
+/******************************************************************************/
 class GuiRunner : public QMainWindow
 {
     Q_OBJECT
@@ -36,5 +38,7 @@ private:
     TestSettings *m_settings;
     UnitTestModel m_unittestmodel;
 };
+
+/******************************************************************************/
 
 #endif // MAINWINDOW_H

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="tst_application">
+<Environment>
+<QtVersion>5.4.2</QtVersion>
+<QtBuild>Qt 5.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 4.6.1)</QtBuild>
+<QTestVersion>5.4.2</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.069897"/>
+</TestFunction>
+<TestFunction name="passtest">
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.185100"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.061839"/>
+</TestFunction>
+<Duration msecs="0.349517"/>
+</TestCase>
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="tst_application2">
+<Environment>
+<QtVersion>5.4.2</QtVersion>
+<QtBuild>Qt 5.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 4.6.1)</QtBuild>
+<QTestVersion>5.4.2</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.066109"/>
+</TestFunction>
+<TestFunction name="passtest2">
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.178758"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.061087"/>
+</TestFunction>
+<Duration msecs="0.329975"/>
+</TestCase>
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCase name="tst_main">
+<Environment>
+<QtVersion>5.4.2</QtVersion>
+<QtBuild>Qt 5.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 4.6.1)</QtBuild>
+<QTestVersion>5.4.2</QTestVersion>
+</Environment>
+<TestFunction name="initTestCase">
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.070264"/>
+</TestFunction>
+<TestFunction name="passtest">
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.169987"/>
+</TestFunction>
+<TestFunction name="passloggingtest">
+<Message type="qdebug" file="" line="0">
+<Description><![CDATA[Some debug]]></Description>
+</Message>
+<Message type="qwarn" file="" line="0">
+<Description><![CDATA[Some warning]]></Description>
+</Message>
+<Message type="system" file="" line="0">
+<Description><![CDATA[Some critical]]></Description>
+</Message>
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.546089"/>
+</TestFunction>
+<TestFunction name="failtest">
+<Incident type="fail" file="../../../tests/tst_main/tst_main.cpp" line="83">
+<Description><![CDATA[Compared values are not the same
+Actual   (1): 1
+Expected (0): 0]]></Description>
+</Incident>
+<Duration msecs="0.178844"/>
+</TestFunction>
+<TestFunction name="failloggingtest">
+<Message type="qdebug" file="" line="0">
+<Description><![CDATA[Some debug]]></Description>
+</Message>
+<Message type="qwarn" file="" line="0">
+<Description><![CDATA[Some warning]]></Description>
+</Message>
+<Message type="system" file="" line="0">
+<Description><![CDATA[Some critical]]></Description>
+</Message>
+<Incident type="fail" file="../../../tests/tst_main/tst_main.cpp" line="96">
+<Description><![CDATA[Compared values are not the same
+Actual   (1): 1
+Expected (0): 0]]></Description>
+</Incident>
+<Duration msecs="0.331859"/>
+</TestFunction>
+<TestFunction name="xfailtest">
+<Incident type="xfail" file="../../../tests/tst_main/tst_main.cpp" line="103">
+<Description><![CDATA[This will go wrong]]></Description>
+</Incident>
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.112643"/>
+</TestFunction>
+<TestFunction name="xpasstest">
+<Incident type="xpass" file="../../../tests/tst_main/tst_main.cpp" line="111">
+<Description><![CDATA[QCOMPARE(0, 0) returned TRUE unexpectedly.]]></Description>
+</Incident>
+<Duration msecs="0.114149"/>
+</TestFunction>
+<TestFunction name="datatest">
+<Incident type="pass" file="" line="0">
+<DataTag><![CDATA[positive]]></DataTag>
+</Incident>
+<Incident type="pass" file="" line="0">
+<DataTag><![CDATA[negative]]></DataTag>
+</Incident>
+<Incident type="pass" file="" line="0">
+<DataTag><![CDATA[zero]]></DataTag>
+</Incident>
+<Duration msecs="0.662028"/>
+</TestFunction>
+<TestFunction name="benchmarkpasstest">
+<Incident type="pass" file="" line="0" />
+<BenchmarkResult metric="WalltimeMilliseconds" tag="" value="0.000869751" iterations="65536" />
+<Duration msecs="249.393234"/>
+</TestFunction>
+<TestFunction name="benchmarkpassloggingtest">
+<Incident type="pass" file="" line="0" />
+<BenchmarkResult metric="WalltimeMilliseconds" tag="" value="0.00088501" iterations="65536" />
+<Duration msecs="250.894301"/>
+</TestFunction>
+<TestFunction name="cleanupTestCase">
+<Incident type="pass" file="" line="0" />
+<Duration msecs="0.055129"/>
+</TestFunction>
+<Duration msecs="502.599485"/>
+</TestCase>

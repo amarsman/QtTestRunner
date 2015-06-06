@@ -3,9 +3,9 @@
 #include "logging.h"
 
 /******************************************************************************/
-UnitTestOutputHandler::UnitTestOutputHandler(UnitTestRunner *a_runner, QString a_testpath)
+UnitTestOutputHandler::UnitTestOutputHandler()
     : QObject()
-    , m_runner(a_runner)
+    , m_runner(nullptr)
     , m_inTestCase(false)
     , m_inEnvironment(false)
     , m_inTestFunction(false)
@@ -15,8 +15,8 @@ UnitTestOutputHandler::UnitTestOutputHandler(UnitTestRunner *a_runner, QString a
     , m_inDescription(false)
     , m_inDataTag(false)
     , m_inBenchmarkResult(false)
-    , m_testpath(a_testpath)
 {
+    qRegisterMetaType<TestSuite>("TestSuite");
     qRegisterMetaType<TestCase>("TestCase");
     qRegisterMetaType<TestFunction>("TestFunction");
 
@@ -27,10 +27,10 @@ UnitTestOutputHandler::UnitTestOutputHandler(UnitTestRunner *a_runner, QString a
     re_environment_end  .setPattern("<\\/Environment>");
     re_tf_start         .setPattern("<TestFunction name=\"(.*?)\">");
     re_tf_end           .setPattern("<\\/TestFunction>");
-    re_incident         .setPattern("<Incident\\s+type=\"(.*?)\".*?\\/>");
-    re_incident_start   .setPattern("<Incident\\s+type=\"(.*?)\".*?[^\\/]>");
+    re_incident         .setPattern("<Incident\\s+type=\"(.*?)\"\\s+file=\"(.*?)\"\\s+line=\"(.*?)\"\\s*\\/>");
+    re_incident_start   .setPattern("<Incident\\s+type=\"(.*?)\"\\s+file=\"(.*?)\"\\s+line=\"(.*?)\"\\s*\\>");
     re_incident_end     .setPattern("<\\/Incident>");
-    re_message_start    .setPattern("<Message\\s+type=\"(.*?)\".*?[^\\/]>");
+    re_message_start    .setPattern("<Message\\s+type=\"(.*?)\"\\s+file=\"(.*?)\"\\s+line=\"(.*?)\"\\s*\\>");
     re_message_end      .setPattern("<\\/Message>");
     re_duration         .setPattern("<Duration\\s+msecs=\"(.*?)\".*?\\/>");
     re_description      .setPattern("<Description><!\\[CDATA\\[(.*)\\]\\]><\\/Description>");
@@ -47,10 +47,15 @@ UnitTestOutputHandler::~UnitTestOutputHandler()
 }
 
 /******************************************************************************/
+void UnitTestOutputHandler::setUnitTestRunner(UnitTestRunner *a_runner)
+{
+    //m_runner = a_runner;
+}
+
+/******************************************************************************/
 void UnitTestOutputHandler::processXmlLine(const QString &line)
 {
-    QString result = "";
-
+    fprintf(stderr,"%s\n", line.toLocal8Bit().data());
     QRegularExpressionMatch match;
 
     if (!m_inTestCase)
@@ -67,13 +72,16 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
         match = re_tc_start.match(line);
         if (match.hasMatch())
         {
-            qCDebug(LogQtTestRunnerCore, "---- TC: %s----", match.captured(1).toStdString().c_str());
+            QString name = match.captured(1);
+
+            qCDebug(LogQtTestRunnerCore, "---- TC: %s----",
+                    match.captured(1).toStdString().c_str());
             m_inTestCase = true;
 
             TestCase newtestcase;
             m_testSuite.m_testCases.append(newtestcase);
             m_testCase = &(m_testSuite.m_testCases.last());
-            m_testCase->m_name = match.captured(1);
+            m_testCase->m_name = name;
 
             return;
         }
@@ -104,7 +112,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     match = re_description_end.match(line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----", match.captured(1).toStdString().c_str());
+                        qCDebug(LogQtTestRunnerCore, "---- DESC ----");
                         m_inDescription = false;
                         return;
                     }
@@ -115,7 +123,13 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     match = re_description.match(line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----", match.captured(1).toStdString().c_str());
+                        QString text = match.captured(1);
+
+                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                                match.captured(1).toStdString().c_str());
+
+                        m_message->m_description.append(text);
+
                         return;
                     }
 
@@ -123,17 +137,29 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     match = re_description_start.match(line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----", match.captured(1).toStdString().c_str());
+                        QString text = match.captured(1);
+                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                                match.captured(1).toStdString().c_str());
                         m_inDescription = true;
+
+                        m_message->m_description.append(text+"\n");
                         return;
                     }
 
                     // end of message
+                    fprintf(stderr,"bla");
                     match = re_message_end.match(line);
+                    fprintf(stderr,"bla");
                     if (match.hasMatch())
                     {
+                        fprintf(stderr,"bla");
                         qCDebug(LogQtTestRunnerCore, "---- ~MSG ----");
+                        fprintf(stderr,"bla");
                         m_inMessage= false;
+                        fprintf(stderr,"bla");
+
+                        fprintf(stderr,"bla");
+                        m_message->m_done = true;
                         return;
                     }
                 }
@@ -146,11 +172,20 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     match = re_description_end.match(line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----", match.captured(1).toStdString().c_str());
+                        QString text = match.captured(1);
+
+                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                                match.captured(1).toStdString().c_str());
                         m_inDescription = false;
+
+                        m_incident->m_description.append(text);
                         return;
                     }
-                    qCDebug(LogQtTestRunnerCore, "---- DESC %s ----", line.toStdString().c_str());
+                    qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                            line.toStdString().c_str());
+
+                    m_incident->m_description.append(line+"\n");
+
                     return;
                 }
                 else
@@ -159,7 +194,8 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     match = re_description.match(line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----", match.captured(1).toStdString().c_str());
+                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                                match.captured(1).toStdString().c_str());
                         return;
                     }
 
@@ -167,8 +203,12 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     match = re_description_start.match(line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----", match.captured(1).toStdString().c_str());
+                        QString text = match.captured(1);
+                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                                match.captured(1).toStdString().c_str());
                         m_inDescription = true;
+
+                        m_incident->m_description.append(text+"\n");
                         return;
                     }
 
@@ -176,7 +216,11 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     match = re_datatag.match(line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- TAG %s ----", match.captured(1).toStdString().c_str());
+                        QString tag = match.captured(1);
+                        qCDebug(LogQtTestRunnerCore, "---- TAG %s ----",
+                                match.captured(1).toStdString().c_str());
+
+                        m_incident->m_datatag = tag;
                         return;
                     }
 
@@ -202,7 +246,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     m_inTestFunction = false;
 
                     m_testFunction->m_done = true;
-                    m_runner->endTestFunction(*m_testFunction);
+                    if (0) m_runner->endTestFunction(*m_testFunction);
                     return;
                 }
 
@@ -210,9 +254,21 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 match = re_message_start.match(line);
                 if (match.hasMatch())
                 {
-                    result = match.captured(1);
-                    qCDebug(LogQtTestRunnerCore, "---- MSG: %s ----", match.captured(1).toStdString().c_str());
+                    QString type = match.captured(1);
+                    QString file = match.captured(2);
+                    QString line = match.captured(3);
+
+                    qCDebug(LogQtTestRunnerCore, "---- MSG: %s ----",
+                            match.captured(1).toStdString().c_str());
                     m_inMessage = true;
+
+                    Message message;
+                    m_testFunction->m_messages.append(message);
+                    m_message = &(m_testFunction->m_messages.last());
+                    m_message->m_type = match.captured(1);
+                    m_message->m_file = match.captured(2);
+                    m_message->m_line = match.captured(3);
+
                     return;
                 }
 
@@ -220,13 +276,19 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 match = re_incident.match(line);
                 if (match.hasMatch())
                 {
-                    result = match.captured(1);
-                    qCDebug(LogQtTestRunnerCore, "---- INC: %s ----", match.captured(1).toStdString().c_str());
+                    QString type = match.captured(1);
+                    QString file = match.captured(2);
+                    QString line = match.captured(3);
+
+                    qCDebug(LogQtTestRunnerCore, "---- INC: %s ----",
+                            match.captured(1).toStdString().c_str());
 
                     Incident incident;
                     m_testFunction->m_incidents.append(incident);
                     m_incident = &(m_testFunction->m_incidents.last());
                     m_incident->m_type = match.captured(1);
+                    m_incident->m_file = match.captured(2);
+                    m_incident->m_line = match.captured(3);
                     m_incident->m_done = true;
                     return;
                 }
@@ -235,14 +297,20 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 match = re_incident_start.match(line);
                 if (match.hasMatch())
                 {
-                    result = match.captured(1);
-                    qCDebug(LogQtTestRunnerCore, "---- INC: %s ----", match.captured(1).toStdString().c_str());
+                    QString type = match.captured(1);
+                    QString file = match.captured(2);
+                    QString line = match.captured(3);
+
+                    qCDebug(LogQtTestRunnerCore, "---- INC: %s ----",
+                            match.captured(1).toStdString().c_str());
                     m_inIncident = true;
 
                     Incident incident;
                     m_testFunction->m_incidents.append(incident);
                     m_incident = &(m_testFunction->m_incidents.last());
                     m_incident->m_type = match.captured(1);
+                    m_incident->m_file = match.captured(2);
+                    m_incident->m_line = match.captured(3);
 
                     return;
                 }
@@ -251,7 +319,8 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 match = re_benchmark.match(line);
                 if (match.hasMatch())
                 {
-                    qCDebug(LogQtTestRunnerCore, "---- BENCH %s ----", match.captured(1).toStdString().c_str());
+                    qCDebug(LogQtTestRunnerCore, "---- BENCH %s ----",
+                            match.captured(1).toStdString().c_str());
                     return;
                 }
 
@@ -259,7 +328,12 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 match = re_duration.match(line);
                 if (match.hasMatch())
                 {
-                    qCDebug(LogQtTestRunnerCore, "---- DUR %s ----", match.captured(1).toStdString().c_str());
+                    QString duration = match.captured(1);
+
+                    qCDebug(LogQtTestRunnerCore, "---- DUR %s ----",
+                            match.captured(1).toStdString().c_str());
+
+                    m_testFunction->m_duration = duration;
                     return;
                 }
             }
@@ -279,14 +353,17 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             match = re_tf_start.match(line);
             if (match.hasMatch())
             {
+                QString name = match.captured(1);
+
                 //m_testFunctionName = match.captured(1);
-                qCDebug(LogQtTestRunnerCore, "---- TF: %s ----", match.captured(1).toStdString().c_str());
+                qCDebug(LogQtTestRunnerCore, "---- TF: %s ----",
+                        match.captured(1).toStdString().c_str());
                 m_inTestFunction = true;
 
                 TestFunction testfunction;
                 m_testCase->m_testfunctions.append(testfunction);
                 m_testFunction = &(m_testCase->m_testfunctions.last());
-                m_testFunction->m_name = match.captured(1);
+                m_testFunction->m_name = name;
                 m_testFunction->m_casename = m_testCase->m_name;
                 return;
             }
@@ -295,7 +372,10 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             match = re_duration.match(line);
             if (match.hasMatch())
             {
+                QString duration = match.captured(1);
                 qCDebug(LogQtTestRunnerCore, "---- Duration ----");
+
+                m_testCase->m_duration = duration;
                 return;
             }
 
@@ -308,7 +388,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 m_inTestCase = false;
 
                 m_testCase->m_done = true;
-                m_runner->endTestCase(*m_testCase);
+                if (0) m_runner->endTestCase(*m_testCase);
                 return;
             }
         }

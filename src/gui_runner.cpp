@@ -5,10 +5,10 @@
 /******************************************************************************/
 GuiRunner::GuiRunner(TestManager *a_testManager,
                      TestSettings *a_settings)
- : QMainWindow()
- , ui(new Ui::MainWindow)
- , m_testManager(a_testManager)
- , m_settings(a_settings)
+    : QMainWindow()
+    , ui(new Ui::MainWindow)
+    , m_testManager(a_testManager)
+    , m_settings(a_settings)
 {
     qCDebug(LogQtTestRunner);
     ui->setupUi(this);

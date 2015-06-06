@@ -1,7 +1,9 @@
 #include "unittestmodel.h"
 
 /******************************************************************************/
-UnitTestModel::UnitTestModel() : QStandardItemModel(), m_nrrows(0)
+UnitTestModel::UnitTestModel()
+    : QStandardItemModel()
+    , m_nrrows(0)
 {
 
 }
@@ -32,7 +34,9 @@ void UnitTestModel::refresh(const TestSuite &a_testCase)
 
         bool pass = true;
 
-        for (auto it = function.m_incidents.begin(); it != function.m_incidents.end(); ++it)
+        for (auto it = function.m_incidents.begin();
+             it != function.m_incidents.end();
+             ++it)
         {
             const Incident &incident = *it;
             if (!incident.m_done ||
@@ -68,4 +72,5 @@ void UnitTestModel::refresh(const TestSuite &a_testCase)
 #endif
     emit refreshDone();
 }
+
 /******************************************************************************/

@@ -3,6 +3,7 @@
 #include <QStandardItemModel>
 #include "unittestoutputhandler.h"
 
+/******************************************************************************/
 class UnitTestModel : public QStandardItemModel
 {
     Q_OBJECT
@@ -23,5 +24,7 @@ private:
     TestCase m_testcase;
     int m_nrrows;
 };
+
+/******************************************************************************/
 
 #endif // UNITTESTMODEL_H

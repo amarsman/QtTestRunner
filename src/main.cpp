@@ -15,7 +15,9 @@
 #include "testmanager.h"
 
 /******************************************************************************/
-void LogHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+void LogHandler(QtMsgType type,
+                const QMessageLogContext &context,
+                const QString &msg)
 {
     switch (type)
     {
@@ -104,7 +106,8 @@ static void parseCommandLineOptions(QCoreApplication &app,
     QStringList args = parser.positionalArguments();
     if (args.length() > 1) { parser.showHelp(-1); }
 
-    a_settings.basepath = (args.length() < 1) ? "/home/henklaak/Projects/QtTestRunner" : args[0];
+    a_settings.basepath = (args.length() < 1) ?
+                "/home/henklaak/Projects/QtTestRunner" : args[0];
     a_settings.recursive = parser.isSet(recursiveOption);
     a_settings.graphical = parser.isSet(graphicalOption);
     a_settings.debug = parser.isSet(debugOption);
@@ -113,7 +116,8 @@ static void parseCommandLineOptions(QCoreApplication &app,
     bool valid=false;
     int nrjobs = parser.value(parallelOption).toInt(&valid);
     if (nrjobs < 1) valid = false;
-    a_settings.nrjobs = valid ? nrjobs : 1; //std::thread::hardware_concurrency();
+    a_settings.nrjobs = valid ?
+                nrjobs : 1; //std::thread::hardware_concurrency();
 
     valid=false;
     int nrrepeats = parser.value(repeatOption).toInt(&valid);
@@ -143,7 +147,7 @@ static void checkPreconditions(TestSettings &a_settings)
         bool isroot = (0 == geteuid());
         if (!isroot)
         {
-            fprintf(stdout, "Not root, only accessible tests will be run.\n");
+            fprintf(stderr, "Not root, only accessible tests will be run.\n");
         }
         qCDebug(LogQtTestRunner, "isroot: %d", isroot);
     }
@@ -162,13 +166,13 @@ static void checkPreconditions(TestSettings &a_settings)
 int main(int argc, char *argv[])
 {
     qInstallMessageHandler(LogHandler);
-    QLoggingCategory::setFilterRules("QtTestRunner.debug=false\n"
-                                     "QtTestRunnerCore.debug=false");
+    QLoggingCategory::setFilterRules("QtTestRunner.debug=true\n"
+                                     "QtTestRunnerCore.debug=true");
 
     QApplication app(argc, argv);
     app.setOrganizationName("Heidenhain");
     app.setApplicationName("QtTestRunner"),
-    app.setApplicationVersion("1.0");
+            app.setApplicationVersion("1.0");
 
     TestSettings test_settings;
     parseCommandLineOptions(app, test_settings);

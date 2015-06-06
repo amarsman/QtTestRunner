@@ -80,7 +80,9 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
     {
         bool pass = true;
 
-        for (auto it = testfunction.m_incidents.begin(); it != testfunction.m_incidents.end(); ++it)
+        for (auto it = testfunction.m_incidents.begin();
+             it != testfunction.m_incidents.end();
+             ++it)
         {
             const Incident &incident = *it;
             if (!incident.m_done ||
@@ -91,20 +93,22 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
             }
         }
 
-        fprintf(stdout, "%s%-35s%-35s%-10s%s\n",
+        fprintf(stderr, "%s%-35s%-35s%-10s%s\n",
                 pass ? STYLE_GREEN : STYLE_RED,
                 testfunction.m_casename.toStdString().c_str(),
                 testfunction.m_name.toStdString().c_str(),
                 pass ? "OK" : "FAIL",
                 STYLE_DEFAULT);
 
-        for (auto it = testfunction.m_messages.begin(); it != testfunction.m_messages.end(); ++it)
+        for (auto it = testfunction.m_messages.begin();
+             it != testfunction.m_messages.end();
+             ++it)
         {
             const Message &message= *it;
 
             if (message.m_done && !message.m_description.isEmpty() && !pass)
             {
-                fprintf(stdout, "%s%s: %s%s\n",
+                fprintf(stderr, "%s%s: %s%s\n",
                         STYLE_BLUE,
                         message.m_type.toStdString().c_str(),
                         message.m_description.toStdString().c_str(),
@@ -114,7 +118,9 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
 
         if (!pass)
         {
-            for (auto it = testfunction.m_incidents.begin(); it != testfunction.m_incidents.end(); ++it)
+            for (auto it = testfunction.m_incidents.begin();
+                 it != testfunction.m_incidents.end();
+                 ++it)
             {
                 const Incident &incident = *it;
 
@@ -122,7 +128,7 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
                             incident.m_type == "fail" ||
                             incident.m_type == "xpass"))
                 {
-                    fprintf(stdout, "%s%s%s\n\n",
+                    fprintf(stderr, "%s%s%s\n\n",
                             STYLE_DEFAULT,
                             incident.m_description.toStdString().c_str(),
                             STYLE_DEFAULT);

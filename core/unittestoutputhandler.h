@@ -12,8 +12,19 @@ class UnitTestRunner; //forward
 class Message
 {
 public:
-    Message() { reset(); }
-    void reset() { m_type=""; m_file=""; m_line="";  m_description=""; m_done=false; }
+    Message()
+    {
+        reset();
+    }
+
+    void reset()
+    {
+        m_type="";
+        m_file="";
+        m_line="";
+        m_description="";
+        m_done=false;
+    }
 
     QString m_type;
     QString m_file;
@@ -26,8 +37,20 @@ public:
 class Incident
 {
 public:
-    Incident() { reset(); }
-    void reset() { m_type=""; m_file=""; m_line="";  m_datatag=""; m_description=""; m_done=false; }
+    Incident()
+    {
+        reset();
+    }
+
+    void reset()
+    {
+        m_type="";
+        m_file="";
+        m_line="";
+        m_datatag="";
+        m_description="";
+        m_done=false;
+    }
 
     QString m_type;
     QString m_file;
@@ -41,15 +64,26 @@ public:
 class TestFunction
 {
 public:
-    TestFunction() { reset(); }
-    void reset() { m_name=""; m_messages.clear(); m_incidents.clear(); m_duration=0; m_done=false; }
+    TestFunction()
+    {
+        reset();
+    }
+
+    void reset()
+    {
+        m_name="";
+        m_messages.clear();
+        m_incidents.clear();
+        m_duration="";
+        m_done=false;
+    }
 
     QString         m_casename;
     QString         m_name;
     QList<Message>  m_messages;
     QList<Incident> m_incidents;
     // todo         m_benchmarks
-    double          m_duration;
+    QString         m_duration;
     bool            m_done;
 };
 
@@ -57,13 +91,23 @@ public:
 class TestCase
 {
 public:
-    TestCase() { reset(); }
-    void reset() { m_name=""; m_testfunctions.clear(); m_duration=0; m_done=false; }
+    TestCase()
+    {
+        reset();
+    }
+
+    void reset()
+    {
+        m_name="";
+        m_testfunctions.clear();
+        m_duration="";
+        m_done=false;
+    }
 
     QString             m_name;
     // todo             m_environment
     QList<TestFunction> m_testfunctions;
-    double              m_duration;
+    QString             m_duration;
     bool                m_done;
 };
 
@@ -72,8 +116,15 @@ public:
 class TestSuite
 {
 public:
-    TestSuite() { reset(); }
-    void reset() { m_testCases.clear(); }
+    TestSuite()
+    {
+        reset();
+    }
+
+    void reset()
+    {
+        m_testCases.clear();
+    }
 
     QList<TestCase> m_testCases;
 };
@@ -83,9 +134,11 @@ class UnitTestOutputHandler : public QObject
 {
     Q_OBJECT
 public:
-    UnitTestOutputHandler(UnitTestRunner *a_handler, QString a_testpath);
+    UnitTestOutputHandler();
     virtual ~UnitTestOutputHandler();
     void processXmlLine(const QString &line);
+
+    void setUnitTestRunner(UnitTestRunner *a_runner);
 
 private:
     UnitTestRunner *m_runner;
@@ -94,6 +147,7 @@ private:
     TestCase *m_testCase;
     TestFunction *m_testFunction;
     Incident *m_incident;
+    Message *m_message;
 
     QRegularExpression re_xml;
     QRegularExpression re_tc_start;
@@ -123,8 +177,8 @@ private:
     bool m_inDescription;
     bool m_inDataTag;
     bool m_inBenchmarkResult;
-    QString m_testpath;
 };
 
+/******************************************************************************/
 
 #endif // MYXMLCONTENTHANDLER_H
