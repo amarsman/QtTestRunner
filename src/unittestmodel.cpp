@@ -17,6 +17,7 @@ UnitTestModel::~UnitTestModel()
 /******************************************************************************/
 void UnitTestModel::refresh(const TestSuite &a_testSuite)
 {
+    Locker lock(g_access);
     QStandardItem *rootItem = invisibleRootItem();
 
     for (auto it=a_testSuite.m_testCases.begin(); it!=a_testSuite.m_testCases.end(); ++it)

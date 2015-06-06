@@ -3,7 +3,7 @@
 
 QT_USE_NAMESPACE
 
-const int WAITTIME = 100;
+const int WAITTIME = 0;
 
 /******************************************************************************/
 class tst_main : public QObject
@@ -29,6 +29,7 @@ private slots:
     void datatest_data();
     void datatest();
 
+public slots:
     void benchmarkpasstest();
     void benchmarkpassloggingtest();
 private:

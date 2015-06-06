@@ -1,7 +1,7 @@
 #include <QTest>
 #include <QThread>
 
-const int WAITTIME = 100;
+const int WAITTIME = 0;
 
 /******************************************************************************/
 class tst_application : public QObject

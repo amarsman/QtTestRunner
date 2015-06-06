@@ -6,6 +6,7 @@
 #include <QSemaphore>
 #include <QSharedPointer>
 #include <QRegularExpression>
+#include <QMutex>
 
 // forward
 class TestSuite;
@@ -25,10 +26,10 @@ public:
     bool stop();
 
 signals:
-    void testSuiteChanged(const TestSuite &a_testSuite);
-    void endTestSuite(const TestSuite &a_testSuite);
-    void endTestCase(const TestCase &a_testCase);
-    void endTestFunction(const TestFunction &a_testFunction);
+    void testSuiteChanged(const TestSuite    &a_testSuite);
+    void endTestSuite    (const TestSuite    &a_testSuite);
+    void endTestCase     (const TestCase     &a_testCase);
+    void endTestFunction (const TestFunction &a_testFunction);
 
 protected:
     void run(void);

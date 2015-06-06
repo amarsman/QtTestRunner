@@ -25,8 +25,6 @@ GuiRunner::GuiRunner(TestManager *a_testManager,
                      this, &GuiRunner::onTestSuiteChanged);
     QObject::connect(&m_unittestmodel, &UnitTestModel::refreshDone,
                      this, &GuiRunner::onRefreshDone);
-
-    m_testManager->start(m_settings);
 }
 
 /******************************************************************************/
@@ -47,7 +45,6 @@ void GuiRunner::onStartClicked()
 void GuiRunner::onTestSuiteChanged(const TestSuite &a_testSuite)
 {
     m_unittestmodel.refresh(a_testSuite);
-
 }
 
 /******************************************************************************/

@@ -77,6 +77,8 @@ void ConsoleRunner::onEndTestCase(const TestCase &testcase)
 /******************************************************************************/
 void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
 {
+    Locker lock(g_access);
+
     if (testfunction.m_done)
     {
         bool pass = true;

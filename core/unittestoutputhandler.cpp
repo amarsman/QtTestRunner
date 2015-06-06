@@ -1,6 +1,9 @@
 #include <QFileInfo>
+#include <QMutex>
 #include "unittestoutputhandler.h"
 #include "logging.h"
+
+QMutex g_access;
 
 /******************************************************************************/
 UnitTestOutputHandler::UnitTestOutputHandler()
@@ -55,6 +58,7 @@ void UnitTestOutputHandler::setUnitTestRunner(UnitTestRunner *a_runner)
 /******************************************************************************/
 void UnitTestOutputHandler::processXmlLine(const QString &line)
 {
+    Locker lock(g_access);
     QRegularExpressionMatch match;
 
     if (!m_inTestCase)

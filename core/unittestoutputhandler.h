@@ -4,9 +4,26 @@
 #include <QString>
 #include <QObject>
 #include <QRegularExpression>
+#include <QMutex>
 #include "unittestrunner.h"
 
 class UnitTestRunner; //forward
+
+/******************************************************************************/
+class Locker
+{
+public:
+    Locker(QMutex &a_lock) : m_lock(a_lock)
+    {
+        m_lock.lock();
+    }
+    ~Locker()
+    {
+        m_lock.unlock();
+    }
+private:
+    QMutex &m_lock;
+};
 
 /******************************************************************************/
 class Benchmark
@@ -205,6 +222,8 @@ private:
     bool m_inDataTag;
     bool m_inBenchmarkResult;
 };
+
+extern QMutex g_access;
 
 /******************************************************************************/
 
