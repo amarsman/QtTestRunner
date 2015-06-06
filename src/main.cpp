@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 {
     qInstallMessageHandler(LogHandler);
     QLoggingCategory::setFilterRules("QtTestRunner.debug=false\n"
-                                     "QtTestRunnerCore.debug=true");
+                                     "QtTestRunnerCore.debug=false");
 
     QApplication app(argc, argv);
     app.setOrganizationName("Heidenhain");

@@ -13,9 +13,11 @@ UnitTestModel::~UnitTestModel()
 }
 
 /******************************************************************************/
-void UnitTestModel::refresh(const TestCase &a_testcase)
+void UnitTestModel::refresh(const TestSuite &a_testCase)
 {
+    Q_UNUSED(a_testCase);
     clear();
+#if 0
     QStandardItem *rootItem = invisibleRootItem();
     QStandardItem *testcaseItem = new QStandardItem(a_testcase.m_name);
     rootItem->appendRow(testcaseItem);
@@ -63,6 +65,7 @@ void UnitTestModel::refresh(const TestCase &a_testcase)
         }
     }
 
+#endif
     emit refreshDone();
 }
 /******************************************************************************/

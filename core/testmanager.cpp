@@ -85,22 +85,29 @@ int TestManager::countTests(const QString &filename)
 }
 
 /******************************************************************************/
-void TestManager::onTestCaseChanged(const TestCase &result)
+void TestManager::onTestSuiteChanged(const TestSuite &a_testSuite)
 {
-    emit testCaseChanged(result);
+    emit testSuiteChanged(a_testSuite);
 }
 
 /******************************************************************************/
-void TestManager::onEndTestFunction(const TestFunction &result)
+void TestManager::onEndTestSuite(const TestSuite &a_testSuite)
 {
-    emit endTestFunction(result);
+    emit endTestSuite(a_testSuite);
 }
 
 /******************************************************************************/
-void TestManager::onEndTestCase(const TestCase &result)
+void TestManager::onEndTestCase(const TestCase &a_testCase)
 {
-    emit endTestCase(result);
+    emit endTestCase(a_testCase);
 }
+
+/******************************************************************************/
+void TestManager::onEndTestFunction(const TestFunction &a_testFunction)
+{
+    emit endTestFunction(a_testFunction);
+}
+
 
 /******************************************************************************/
 void TestManager::run()
@@ -170,8 +177,10 @@ void TestManager::run()
 
         UnitTestRunner *runner = new UnitTestRunner(sem);
 
-        QObject::connect(runner, &UnitTestRunner::testCaseChanged,
-                         this, &TestManager::onTestCaseChanged);
+        QObject::connect(runner, &UnitTestRunner::testSuiteChanged,
+                         this, &TestManager::onTestSuiteChanged);
+        QObject::connect(runner, &UnitTestRunner::endTestSuite,
+                         this, &TestManager::onEndTestSuite);
         QObject::connect(runner, &UnitTestRunner::endTestCase,
                          this, &TestManager::onEndTestCase);
         QObject::connect(runner, &UnitTestRunner::endTestFunction,

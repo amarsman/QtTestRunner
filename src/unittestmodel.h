@@ -10,7 +10,7 @@ public:
     UnitTestModel();
     ~UnitTestModel();
 
-    void refresh(const TestCase &a_testcase);
+    void refresh(const TestSuite &a_testSuite);
 
     //virtual QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
     //virtual QModelIndex parent(const QModelIndex & index) const;

@@ -7,7 +7,9 @@
 #include <QSharedPointer>
 #include <QRegularExpression>
 
-class TestCase; // forward
+// forward
+class TestSuite;
+class TestCase;
 class TestFunction;
 
 /******************************************************************************/
@@ -23,9 +25,10 @@ public:
     bool stop();
 
 signals:
-    void testCaseChanged(const TestCase &result);
-    void endTestCase(const TestCase &result);
-    void endTestFunction(const TestFunction &result);
+    void testSuiteChanged(const TestSuite &a_testSuite);
+    void endTestSuite(const TestSuite &a_testSuite);
+    void endTestCase(const TestCase &a_testCase);
+    void endTestFunction(const TestFunction &a_testFunction);
 
 protected:
     void run(void);

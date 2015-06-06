@@ -21,8 +21,8 @@ GuiRunner::GuiRunner(TestManager *a_testManager,
 
     QObject::connect(m_testManager, &TestManager::finished,
                      this, &GuiRunner::onFinished);
-    QObject::connect(m_testManager, &TestManager::testCaseChanged,
-                     this, &GuiRunner::onTestCaseChanged);
+    QObject::connect(m_testManager, &TestManager::testSuiteChanged,
+                     this, &GuiRunner::onTestSuiteChanged);
     QObject::connect(&m_unittestmodel, &UnitTestModel::refreshDone,
                      this, &GuiRunner::onRefreshDone);
 
@@ -45,9 +45,9 @@ void GuiRunner::onStartClicked()
 }
 
 /******************************************************************************/
-void GuiRunner::onTestCaseChanged(const TestCase &a_testcase)
+void GuiRunner::onTestSuiteChanged(const TestSuite &a_testSuite)
 {
-    m_unittestmodel.refresh(a_testcase);
+    m_unittestmodel.refresh(a_testSuite);
 
 }
 

@@ -25,9 +25,10 @@ public slots:
 signals:
     void unitTestFound(const QString &findResult, int nr_tests);
 
-    void testCaseChanged(const TestCase &result);
-    void endTestCase(const TestCase &result);
-    void endTestFunction(const TestFunction &result);
+    void testSuiteChanged(const TestSuite &a_testSuite);
+    void endTestSuite(const TestSuite &a_testSuite);
+    void endTestCase(const TestCase &a_testCase);
+    void endTestFunction(const TestFunction &a_testFunction);
 
     void finished();
 
@@ -35,9 +36,10 @@ protected:
     void run(void);
 
 private slots:
-    void onTestCaseChanged(const TestCase &result);
-    void onEndTestFunction(const TestFunction &result);
-    void onEndTestCase(const TestCase &result);
+    void onTestSuiteChanged(const TestSuite &a_testSuite);
+    void onEndTestSuite(const TestSuite &a_testSuite);
+    void onEndTestCase(const TestCase &a_testCase);
+    void onEndTestFunction(const TestFunction &a_testFunction);
 
 private:
     bool isUnitTest(const QString &filename);

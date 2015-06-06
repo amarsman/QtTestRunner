@@ -102,12 +102,11 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
         {
             const Message &message= *it;
 
-            if (message.m_done && !pass)
+            if (message.m_done && !message.m_description.isEmpty() && !pass)
             {
                 fprintf(stdout, "%s%s: %s%s\n",
                         STYLE_BLUE,
-                        message.
-                        m_type.toStdString().c_str(),
+                        message.m_type.toStdString().c_str(),
                         message.m_description.toStdString().c_str(),
                         STYLE_DEFAULT);
             }
@@ -119,7 +118,7 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
             {
                 const Incident &incident = *it;
 
-                if (incident.m_done && (
+                if (incident.m_done && !incident.m_description.isEmpty() && (
                             incident.m_type == "fail" ||
                             incident.m_type == "xpass"))
                 {

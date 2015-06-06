@@ -26,7 +26,7 @@ public:
 
 private slots:
     void onStartClicked();
-    void onTestCaseChanged(const TestCase &result);
+    void onTestSuiteChanged(const TestSuite &a_testSuite);
     void onRefreshDone();
     void onFinished();
 

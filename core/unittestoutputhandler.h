@@ -69,6 +69,16 @@ public:
 
 
 /******************************************************************************/
+class TestSuite
+{
+public:
+    TestSuite() { reset(); }
+    void reset() { m_testCases.clear(); }
+
+    QList<TestCase> m_testCases;
+};
+
+/******************************************************************************/
 class UnitTestOutputHandler : public QObject
 {
     Q_OBJECT
@@ -79,7 +89,11 @@ public:
 
 private:
     UnitTestRunner *m_runner;
-    TestCase        m_testCase;
+    TestSuite m_testSuite;
+
+    TestCase *m_testCase;
+    TestFunction *m_testFunction;
+    Incident *m_incident;
 
     QRegularExpression re_xml;
     QRegularExpression re_tc_start;
@@ -94,6 +108,11 @@ private:
     QRegularExpression re_message_start;
     QRegularExpression re_message_end;
     QRegularExpression re_duration;
+    QRegularExpression re_description;
+    QRegularExpression re_description_start;
+    QRegularExpression re_description_end;
+    QRegularExpression re_datatag;
+    QRegularExpression re_benchmark;
 
     bool m_inTestCase;
     bool m_inEnvironment;
