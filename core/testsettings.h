@@ -11,8 +11,9 @@ struct TestSettings
         nrjobs = 1;
         debug = false;
         useldd = true;
-        shuffle = false;
+        shuffle = true;
         repeat = 1;
+        onebyone = true;
     }
 
     bool recursive;
@@ -23,6 +24,7 @@ struct TestSettings
     bool useldd;
     bool shuffle;
     int repeat;
+    bool onebyone;
 };
 
 #endif // TEST_SETTINGS_H

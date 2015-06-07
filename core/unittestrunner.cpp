@@ -26,7 +26,9 @@ UnitTestRunner::~UnitTestRunner()
 }
 
 /******************************************************************************/
-bool UnitTestRunner::start(int a_jobnr, const QString &a_unitTest)
+bool UnitTestRunner::start(int a_jobnr,
+                           const QString &a_unitTest,
+                           const QString &a_testName)
 {
     qCDebug(LogQtTestRunnerCore);
     if (m_running)
@@ -35,6 +37,7 @@ bool UnitTestRunner::start(int a_jobnr, const QString &a_unitTest)
     }
 
     m_unitTest = a_unitTest;
+    m_testName = a_testName;
     m_stopRequested = false;
     m_jobnr = a_jobnr;
 
@@ -76,7 +79,14 @@ void UnitTestRunner::run()
     handler->setUnitTestRunner(this);
 
     QScopedPointer<QProcess> process(new QProcess());
-    process->start(m_unitTest, QStringList() << "-xml");
+    if (m_testName.isEmpty())
+    {
+            process->start(m_unitTest, QStringList() << "-xml");
+    }
+    else
+    {
+            process->start(m_unitTest, QStringList() << "-xml" << m_testName);
+    }
     process->waitForStarted();
     while (process->waitForReadyRead())
     {

@@ -22,7 +22,9 @@ public:
     UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore);
     ~UnitTestRunner();
 
-    bool start(int jobnr, const QString &a_unitTest);
+    bool start(int jobnr,
+               const QString &a_unitTest,
+               const QString &a_testName);
     bool stop();
 
 signals:
@@ -36,6 +38,7 @@ protected:
 
 private:
     QString m_unitTest;
+    QString m_testName;
     QSharedPointer<QSemaphore> m_semaphore;
     bool m_running;
     bool m_stopRequested;

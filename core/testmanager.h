@@ -23,7 +23,7 @@ public slots:
     void stop();
 
 signals:
-    void unitTestFound(const QString &findResult, int nr_tests);
+    void unitTestFound(const QString &findResult);
 
     void testSuiteChanged(const TestSuite    &a_testSuite);
     void endTestSuite    (const TestSuite    &a_testSuite);
@@ -43,7 +43,7 @@ private slots:
 
 private:
     bool isUnitTest(const QString &filename);
-    int countTests(const QString &filename);
+    QStringList getTests(const QString &filename);
 
     TestSettings *m_settings;
     bool m_stopRequested;

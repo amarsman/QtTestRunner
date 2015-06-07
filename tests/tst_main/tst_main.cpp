@@ -13,25 +13,21 @@ class tst_main : public QObject
 private slots:
     void initTestCase();
     void cleanupTestCase();
-
     void init();
     void cleanup();
 
     void passtest();
     void passloggingtest();
-
-    void failtest();
-    void failloggingtest();
-
     void xfailtest();
-    void xpasstest();
-
     void datatest_data();
     void datatest();
 
 public slots:
     void benchmarkpasstest();
     void benchmarkpassloggingtest();
+    void failloggingtest();
+    void failtest();
+    void xpasstest();
 private:
 };
 

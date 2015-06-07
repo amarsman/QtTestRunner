@@ -65,8 +65,10 @@ bool TestManager::isUnitTest(const QString &filename)
 }
 
 /******************************************************************************/
-int TestManager::countTests(const QString &filename)
+QStringList TestManager::getTests(const QString &filename)
 {
+    QStringList tests;
+
     QScopedPointer<QProcess> process(new QProcess());
 
     process->start(filename, QStringList() << "-functions");
@@ -74,14 +76,17 @@ int TestManager::countTests(const QString &filename)
 
     QStringList data = QString(process->readAllStandardOutput()).split('\n');
 
-    int count=0;
     for (auto it = data.begin(); it != data.end(); ++it)
     {
         QString &line = *it;
 
-        if (line.contains("()")) count++;
+        if (line.endsWith("()"))
+        {
+            QString testname = line.left(line.length()-2);
+            tests.append(testname);
+        }
     }
-    return count + 2; //init and cleanup are not outputted by -functions
+    return tests;
 }
 
 /******************************************************************************/
@@ -124,7 +129,7 @@ void TestManager::run()
     m_running = true;
 
     // Collect all tests executables
-    QStringList m_unitTests;
+    QList<QPair<QString,QString>> m_unitTests;
 
     QDirIterator it(m_settings->basepath,
                     QStringList() << "*",
@@ -143,12 +148,23 @@ void TestManager::run()
 
         if (isUnitTest(fullPath))
         {
-            int nr_tests = countTests(fullPath);
+            QStringList tests = getTests(fullPath);
 
             for (int i=0; i<m_settings->repeat; i++)
             {
-                m_unitTests.append(fullPath);
-                emit unitTestFound(fullPath, nr_tests);
+                if (m_settings->onebyone)
+                {
+                    for (auto it=tests.begin(); it!=tests.end(); ++it)
+                    {
+                        const QString &test = *it;
+                        m_unitTests.append(QPair<QString,QString>(fullPath, test));
+                    }
+                }
+                else
+                {
+                    m_unitTests.append(QPair<QString,QString>(fullPath, ""));
+                }
+                emit unitTestFound(fullPath);
             }
         }
     }
@@ -161,7 +177,7 @@ void TestManager::run()
     }
     else
     {
-        m_unitTests.sort();
+        std::sort(m_unitTests.begin(), m_unitTests.end());
     }
 
 
@@ -171,7 +187,8 @@ void TestManager::run()
          !m_stopRequested && it != m_unitTests.constEnd();
          ++it)
     {
-        QString filename = (*it);
+        const QString &filename = (*it).first;
+        const QString &testname = (*it).second;
 
         qCDebug(LogQtTestRunnerCore, "Acquiring");
         sem->acquire();
@@ -189,7 +206,7 @@ void TestManager::run()
         QObject::connect(runner, &UnitTestRunner::endTestFunction,
                          this, &TestManager::onEndTestFunction);
 
-        runner->start(jobnr, filename);
+        runner->start(jobnr, filename, testname);
         jobnr++;
     }
 

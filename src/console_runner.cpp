@@ -56,9 +56,9 @@ void ConsoleRunner::startCollecting()
 }
 
 /******************************************************************************/
-void ConsoleRunner::onUnitTestFound(const QString &a_path, int a_nrtests)
+void ConsoleRunner::onUnitTestFound(const QString &a_path)
 {
-    qCDebug(LogQtTestRunner, "%s %d", a_path.toStdString().c_str(), a_nrtests);
+    qCDebug(LogQtTestRunner, "%s", a_path.toStdString().c_str());
 }
 
 /******************************************************************************/
@@ -78,6 +78,12 @@ void ConsoleRunner::onEndTestCase(const TestCase &testcase)
 void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
 {
     Locker lock(g_access);
+
+    if (m_settings->onebyone)
+    {
+        if (testfunction.m_name == "initTestCase") return;
+        if (testfunction.m_name == "cleanupTestCase") return;
+    }
 
     if (testfunction.m_done)
     {

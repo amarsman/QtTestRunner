@@ -57,7 +57,6 @@ void GuiRunner::onRefreshDone()
 void GuiRunner::onFinished()
 {
     ui->pbStart->setEnabled(true);
-    close();
 }
 
 /******************************************************************************/

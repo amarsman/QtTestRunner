@@ -66,15 +66,15 @@ static void parseCommandLineOptions(QCoreApplication &app,
                                     TestSettings &a_settings)
 {
     /*
-    Usage: src/QtTestRunner [options] path
+    Usage: ./QtTestRunner [options] path
 
     Options:
         -r, --recursive       Search recursive
-        -g, --graphical       Use graphical interface
         -j, --jobs <nrjobs>   Use parallel jobs (default=nr_cpus)
         -d, --debug           Produce debug output
         -n, --repeat <count>  Repeat tests (default=1)
         -s, --shuffle         Shuffle tests
+        -i, --individual      Run tests individually
         -v, --version         Displays version information.
         -h, --help            Displays this help.
 
@@ -84,21 +84,23 @@ static void parseCommandLineOptions(QCoreApplication &app,
     qCDebug(LogQtTestRunner);
 
 
-    QCommandLineOption recursiveOption(QStringList() << "r" << "recursive", "Search recursive"                             );
-    QCommandLineOption graphicalOption(QStringList() << "g" << "graphical", "Use graphical interface"                      );
-    QCommandLineOption parallelOption (QStringList() << "j" << "jobs",      "Use parallel jobs (default=nr_cpus)", "nrjobs");
-    QCommandLineOption debugOption    (QStringList() << "d" << "debug",     "Produce debug output"                         );
-    QCommandLineOption repeatOption   (QStringList() << "n" << "repeat",    "Repeat tests (default=1)",            "count" );
-    QCommandLineOption shuffleOption  (QStringList() << "s" << "shuffle",   "Shuffle tests"                                );
+    QCommandLineOption recursiveOption(QStringList() << "r" << "recursive",  "Search recursive"                             );
+    QCommandLineOption graphicalOption(QStringList() << "g" << "graphical",  "Use graphical interface"                      );
+    QCommandLineOption parallelOption (QStringList() << "j" << "jobs",       "Use parallel jobs (default=nr_cpus)", "nrjobs");
+    QCommandLineOption debugOption    (QStringList() << "d" << "debug",      "Produce debug output"                         );
+    QCommandLineOption repeatOption   (QStringList() << "n" << "repeat",     "Repeat tests (default=1)",            "count" );
+    QCommandLineOption shuffleOption  (QStringList() << "s" << "shuffle",    "Shuffle tests"                                );
+    QCommandLineOption singleOption   (QStringList() << "i" << "individual", "Run tests individually"                       );
 
     QCommandLineParser parser;
     parser.addPositionalArgument("path", "Path or test executable. (default=cwd)");
     parser.addOption(recursiveOption);
-    parser.addOption(graphicalOption);
+    //parser.addOption(graphicalOption);
     parser.addOption(parallelOption);
     parser.addOption(debugOption);
     parser.addOption(repeatOption);
     parser.addOption(shuffleOption);
+    parser.addOption(singleOption);
     parser.addVersionOption();
     parser.addHelpOption();
     parser.process(app);
@@ -112,6 +114,7 @@ static void parseCommandLineOptions(QCoreApplication &app,
     a_settings.graphical = parser.isSet(graphicalOption);
     a_settings.debug = parser.isSet(debugOption);
     a_settings.shuffle = parser.isSet(shuffleOption);
+    a_settings.onebyone = parser.isSet(singleOption);
 
     bool valid=false;
     int nrjobs = parser.value(parallelOption).toInt(&valid);
@@ -128,6 +131,12 @@ static void parseCommandLineOptions(QCoreApplication &app,
     {
         QLoggingCategory::setFilterRules("QtTestRunner.debug=true");
     }
+
+    // Debug settings
+    //a_settings.shuffle = true;
+    //a_settings.onebyone = true;
+    //a_settings.repeat = 100;
+    //a_settings.nrjobs = 8;
 
     qCDebug(LogQtTestRunner, "basepath  %s", a_settings.basepath.toStdString().c_str());
     qCDebug(LogQtTestRunner, "recursive %s", a_settings.recursive ? "yes" : "no");
@@ -179,20 +188,11 @@ int main(int argc, char *argv[])
     checkPreconditions(test_settings);
 
     TestManager test_manager;
-    if (test_settings.graphical)
-    {
-        GuiRunner runner(&test_manager, &test_settings);
-        runner.show();
-        return app.exec();
-    }
-    else
-    {
-        ConsoleRunner runner(&test_manager, &test_settings);
-        QObject::connect(&runner, &ConsoleRunner::finished,
-                         &app, &TestRunnerApplication::quit);
-        QTimer::singleShot(0, &runner, &ConsoleRunner::onRun);
-        return app.exec();
-    }
+    ConsoleRunner runner(&test_manager, &test_settings);
+    QObject::connect(&runner, &ConsoleRunner::finished,
+                     &app, &TestRunnerApplication::quit);
+    QTimer::singleShot(0, &runner, &ConsoleRunner::onRun);
+    return app.exec();
 }
 
 /******************************************************************************/
