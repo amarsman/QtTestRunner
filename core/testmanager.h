@@ -9,6 +9,14 @@
 #include "testsettings.h"
 #include "unittestoutputhandler.h"
 
+class TestTriple
+{
+public:
+    QString m_testunit;
+    QString m_testcase;
+    QString m_testname;
+};
+
 /******************************************************************************/
 class TestManager : public QObject, public QRunnable
 {
@@ -43,7 +51,7 @@ private slots:
 
 private:
     bool isUnitTest(const QString &filename);
-    QStringList getTests(const QString &filename);
+    QList<TestTriple> getTests(const QString &filename);
 
     TestSettings *m_settings;
     bool m_stopRequested;

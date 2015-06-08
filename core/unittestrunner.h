@@ -24,6 +24,7 @@ public:
 
     bool start(int jobnr,
                const QString &a_unitTest,
+               const QString &a_testCase,
                const QString &a_testName);
     bool stop();
 
@@ -38,6 +39,7 @@ protected:
 
 private:
     QString m_unitTest;
+    QString m_testCase;
     QString m_testName;
     QSharedPointer<QSemaphore> m_semaphore;
     bool m_running;

@@ -65,12 +65,25 @@ bool TestManager::isUnitTest(const QString &filename)
 }
 
 /******************************************************************************/
-QStringList TestManager::getTests(const QString &filename)
+QList<TestTriple> TestManager::getTests(const QString &a_unittest)
 {
-    QStringList tests;
+    QList<TestTriple> tests;
 
+    QString filename = QFileInfo(a_unittest).absoluteFilePath();
+
+    if (!m_settings->isolated) // run unittest as a whole
+    {
+        TestTriple triple;
+        triple.m_testunit = filename;
+        triple.m_testcase = "";
+        triple.m_testname = "";
+        tests.append(triple);
+    }
+    else
+    {
+        if (!m_settings->jhextensions) // don't use JH extensions
+        {
     QScopedPointer<QProcess> process(new QProcess());
-
     process->start(filename, QStringList() << "-functions");
     process->waitForFinished();
 
@@ -82,8 +95,58 @@ QStringList TestManager::getTests(const QString &filename)
 
         if (line.endsWith("()"))
         {
-            QString testname = line.left(line.length()-2);
-            tests.append(testname);
+                    TestTriple triple;
+                    triple.m_testunit = filename;
+                    triple.m_testcase = "";
+                    triple.m_testname = line.left(line.length()-2);
+                    tests.append(triple);
+                    //emit unitTestFound(test);
+                }
+            }
+        }
+        else // use JH extensions
+        {
+            QStringList testcases;
+
+            QScopedPointer<QProcess> process(new QProcess());
+            process->start(filename, QStringList() << "-testcases");
+            process->waitForFinished();
+
+            QStringList data = QString(process->readAllStandardError()).split('\n');
+            for (auto it = data.begin(); it != data.end(); ++it)
+            {
+                QString line = (*it).trimmed();
+                if (line.startsWith("- "))
+                {
+                    testcases.append(line.right(line.length()-2));
+                }
+            }
+
+            for (auto it = testcases.begin(); it != testcases.end(); ++it)
+            {
+                QString testcase = (*it).trimmed();
+                QScopedPointer<QProcess> process(new QProcess());
+                process->start(filename, QStringList() << "-testcase" << testcase << "-functions" );
+                process->waitForFinished();
+
+                QStringList data = QString(process->readAllStandardOutput()).split('\n');
+
+                for (auto it = data.begin(); it != data.end(); ++it)
+                {
+                    QString &line = *it;
+
+                    if (line.endsWith("()"))
+                    {
+                        TestTriple triple;
+                        triple.m_testunit = filename;
+                        triple.m_testcase = testcase;
+                        triple.m_testname = line.left(line.length()-2);
+                        tests.append(triple);
+                        //emit unitTestFound(test);
+                    }
+                }
+
+            }
         }
     }
     return tests;
@@ -129,8 +192,10 @@ void TestManager::run()
     m_running = true;
 
     // Collect all tests executables
-    QList<QPair<QString,QString>> m_unitTests;
+    QList<TestTriple> m_unitTests;
 
+    if (QFileInfo(m_settings->basepath).isDir())
+    {
     QDirIterator it(m_settings->basepath,
                     QStringList() << "*",
                     QDir::Files | QDir::Executable,
@@ -148,27 +213,31 @@ void TestManager::run()
 
         if (isUnitTest(fullPath))
         {
-            QStringList tests = getTests(fullPath);
-
-            for (int i=0; i<m_settings->repeat; i++)
-            {
-                if (m_settings->onebyone)
-                {
-                    for (auto it=tests.begin(); it!=tests.end(); ++it)
-                    {
-                        const QString &test = *it;
-                        m_unitTests.append(QPair<QString,QString>(fullPath, test));
-                    }
-                }
-                else
-                {
-                    m_unitTests.append(QPair<QString,QString>(fullPath, ""));
-                }
-                emit unitTestFound(fullPath);
+                m_unitTests.append(getTests(fullPath));
             }
         }
     }
+    else if (QFileInfo(m_settings->basepath).isFile())
+    {
+        QDir dir(m_settings->basepath);
+        qCDebug(LogQtTestRunnerCore, "%s",
+                dir.absolutePath().toStdString().c_str());
 
+        QString fullPath = dir.absolutePath();
+
+        if (isUnitTest(fullPath))
+            {
+            m_unitTests.append(getTests(fullPath));
+
+                    }
+                }
+
+    QList<TestTriple> m_unitTests_old = m_unitTests;
+
+    for (int i=1; i<m_settings->repeat; i++)
+                {
+        m_unitTests.append(m_unitTests_old);
+                }
 
     qCDebug(LogQtTestRunnerCore, "Sorting");
     if (m_settings->shuffle)
@@ -177,7 +246,7 @@ void TestManager::run()
     }
     else
     {
-        std::sort(m_unitTests.begin(), m_unitTests.end());
+        //std::sort(m_unitTests.begin(), m_unitTests.end());
     }
 
 
@@ -187,8 +256,9 @@ void TestManager::run()
          !m_stopRequested && it != m_unitTests.constEnd();
          ++it)
     {
-        const QString &filename = (*it).first;
-        const QString &testname = (*it).second;
+        const QString &filename = (*it).m_testunit;
+        const QString &testcase = (*it).m_testcase;
+        const QString &testname = (*it).m_testname;
 
         qCDebug(LogQtTestRunnerCore, "Acquiring");
         sem->acquire();
@@ -206,7 +276,7 @@ void TestManager::run()
         QObject::connect(runner, &UnitTestRunner::endTestFunction,
                          this, &TestManager::onEndTestFunction);
 
-        runner->start(jobnr, filename, testname);
+        runner->start(jobnr, filename, testcase, testname);
         jobnr++;
     }
 

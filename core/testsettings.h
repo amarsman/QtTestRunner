@@ -5,26 +5,28 @@
 struct TestSettings
 {
     TestSettings() {
-        recursive = false;
-        graphical = false;
         basepath = ".";
+        recursive = false;
         nrjobs = 1;
         debug = false;
         useldd = true;
         shuffle = true;
         repeat = 1;
-        onebyone = true;
+        isolated = true;
+        jhextensions = true;
+        verbosity = 1;
     }
 
-    bool recursive;
-    bool graphical;
     QString basepath;
+    bool recursive;
     int nrjobs;
     bool debug;
     bool useldd;
     bool shuffle;
-    int repeat;
-    bool onebyone;
+    int  repeat;
+    bool isolated;
+    bool jhextensions;
+    int  verbosity;
 };
 
 #endif // TEST_SETTINGS_H

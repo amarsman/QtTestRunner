@@ -85,22 +85,24 @@ static void parseCommandLineOptions(QCoreApplication &app,
 
 
     QCommandLineOption recursiveOption(QStringList() << "r" << "recursive",  "Search recursive"                             );
-    QCommandLineOption graphicalOption(QStringList() << "g" << "graphical",  "Use graphical interface"                      );
     QCommandLineOption parallelOption (QStringList() << "j" << "jobs",       "Use parallel jobs (default=nr_cpus)", "nrjobs");
     QCommandLineOption debugOption    (QStringList() << "d" << "debug",      "Produce debug output"                         );
     QCommandLineOption repeatOption   (QStringList() << "n" << "repeat",     "Repeat tests (default=1)",            "count" );
     QCommandLineOption shuffleOption  (QStringList() << "s" << "shuffle",    "Shuffle tests"                                );
     QCommandLineOption singleOption   (QStringList() << "i" << "individual", "Run tests individually"                       );
+    QCommandLineOption jhOption       (QStringList() << "j" << "jh",         "Disable JH extensions"                        );
+    QCommandLineOption verboseOption  (QStringList() << "V" << "verbosity",  "Set verbosity (default=1)",            "verb" );
 
     QCommandLineParser parser;
     parser.addPositionalArgument("path", "Path or test executable. (default=cwd)");
     parser.addOption(recursiveOption);
-    //parser.addOption(graphicalOption);
     parser.addOption(parallelOption);
     parser.addOption(debugOption);
     parser.addOption(repeatOption);
     parser.addOption(shuffleOption);
     parser.addOption(singleOption);
+    parser.addOption(jhOption);
+    parser.addOption(verboseOption);
     parser.addVersionOption();
     parser.addHelpOption();
     parser.process(app);
@@ -108,13 +110,12 @@ static void parseCommandLineOptions(QCoreApplication &app,
     QStringList args = parser.positionalArguments();
     if (args.length() > 1) { parser.showHelp(-1); }
 
-    a_settings.basepath = (args.length() < 1) ?
-                "/home/henklaak/Projects/QtTestRunner" : args[0];
+    a_settings.basepath = (args.length() < 1) ? "/home/henklaak/Projects/QtTestRunner" : args[0];
     a_settings.recursive = parser.isSet(recursiveOption);
-    a_settings.graphical = parser.isSet(graphicalOption);
     a_settings.debug = parser.isSet(debugOption);
     a_settings.shuffle = parser.isSet(shuffleOption);
-    a_settings.onebyone = parser.isSet(singleOption);
+    a_settings.isolated = parser.isSet(singleOption);
+    a_settings.jhextensions = !parser.isSet(jhOption);
 
     bool valid=false;
     int nrjobs = parser.value(parallelOption).toInt(&valid);
@@ -127,6 +128,11 @@ static void parseCommandLineOptions(QCoreApplication &app,
     if (nrrepeats < 1) valid = false;
     a_settings.repeat = valid ? nrrepeats : 1;
 
+    valid=false;
+    int verbosity = parser.value(verboseOption).toInt(&valid);
+    if (verbosity < 0) valid = false;
+    a_settings.verbosity = valid ? verbosity : 1;
+
     if (a_settings.debug)
     {
         QLoggingCategory::setFilterRules("QtTestRunner.debug=true");
@@ -137,13 +143,19 @@ static void parseCommandLineOptions(QCoreApplication &app,
     //a_settings.onebyone = true;
     //a_settings.repeat = 100;
     //a_settings.nrjobs = 8;
+    a_settings.jhextensions = false;
+    //a_settings.verbosity = 0;
 
     qCDebug(LogQtTestRunner, "basepath  %s", a_settings.basepath.toStdString().c_str());
     qCDebug(LogQtTestRunner, "recursive %s", a_settings.recursive ? "yes" : "no");
-    qCDebug(LogQtTestRunner, "graphical %s", a_settings.graphical ? "yes" : "no");
     qCDebug(LogQtTestRunner, "nrjobs    %d", a_settings.nrjobs);
     qCDebug(LogQtTestRunner, "debug     %s", a_settings.debug ? "yes" : "no");
+    qCDebug(LogQtTestRunner, "useldd    %s", a_settings.useldd ? "yes" : "no");
     qCDebug(LogQtTestRunner, "shuffle   %s", a_settings.shuffle ? "yes" : "no");
+    qCDebug(LogQtTestRunner, "repeat    %d", a_settings.repeat);
+    qCDebug(LogQtTestRunner, "isolated  %s", a_settings.isolated ? "yes" : "no");
+    qCDebug(LogQtTestRunner, "jhext     %s", a_settings.jhextensions ? "yes" : "no");
+    qCDebug(LogQtTestRunner, "verbosity %d", a_settings.verbosity);
 }
 
 /******************************************************************************/

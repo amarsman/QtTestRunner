@@ -28,6 +28,7 @@ UnitTestRunner::~UnitTestRunner()
 /******************************************************************************/
 bool UnitTestRunner::start(int a_jobnr,
                            const QString &a_unitTest,
+                           const QString &a_testCase,
                            const QString &a_testName)
 {
     qCDebug(LogQtTestRunnerCore);
@@ -38,6 +39,7 @@ bool UnitTestRunner::start(int a_jobnr,
 
     m_unitTest = a_unitTest;
     m_testName = a_testName;
+    m_testCase = a_testCase;
     m_stopRequested = false;
     m_jobnr = a_jobnr;
 
@@ -83,9 +85,13 @@ void UnitTestRunner::run()
     {
             process->start(m_unitTest, QStringList() << "-xml");
     }
-    else
+    else if (m_testCase.isEmpty())
     {
             process->start(m_unitTest, QStringList() << "-xml" << m_testName);
+    }
+    else
+    {
+            process->start(m_unitTest, QStringList() << "-xml" << "-testcase" << m_testCase << m_testName);
     }
     process->waitForStarted();
     while (process->waitForReadyRead())
@@ -97,7 +103,7 @@ void UnitTestRunner::run()
         }
     }
 
-    process->waitForFinished();
+    process->waitForFinished(60000);
 
     bool result_ok = true;
     QProcess::ExitStatus status = process->exitStatus();

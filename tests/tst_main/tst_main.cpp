@@ -22,7 +22,7 @@ private slots:
     void datatest_data();
     void datatest();
 
-public slots:
+//public slots:
     void benchmarkpasstest();
     void benchmarkpassloggingtest();
     void failloggingtest();
