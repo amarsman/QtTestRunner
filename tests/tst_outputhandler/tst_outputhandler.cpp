@@ -39,7 +39,8 @@ void tst_outputhandler::test()
 {
     UnitTestOutputHandler handler("bla");
 
-    readDataFile("testdata.txt", handler);
+    QString inputFile = QFINDTESTDATA("testdata.txt");
+    readDataFile(inputFile, handler);
 
     TestSuite &suite = handler.m_testSuite;
 
