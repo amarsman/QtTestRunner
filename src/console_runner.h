@@ -30,11 +30,11 @@ signals:
     void testingFinished();
 
 private slots:
-    /** \brief Report a new unittest */
-    void onUnitTestFound(const QString &a_path, unsigned int a_nrTests);
+    /** \brief Report a new testsuite */
+    void onFoundTestSuite(const QString &a_path, unsigned int a_nrTests);
 
     /** \brief Report testing finished */
-    void onTestingFinished();
+    void onFinishedTesting();
 
     /** \brief Report end test case */
     void onEndTestCase(const TestCase &result);
@@ -53,6 +53,7 @@ private:
 
     unsigned int m_totalNrTestsFound;
     unsigned int m_totalNrTestsRun;
+    unsigned int m_totalNrTestsPassed;
     bool m_allTestsOk;
 };
 

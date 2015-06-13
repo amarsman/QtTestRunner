@@ -10,24 +10,24 @@
 #include "unittestoutputhandler.h"
 
 /** \brief Struct that holds a testable */
-class TestTriple
+class UnitTestTriple
 {
 public:
-    TestTriple()
+    UnitTestTriple()
     {
         reset();
     }
     /** \brief reset data */
     void reset()
     {
-        m_unitTestName = "";
+        m_testSuiteName = "";
         m_testCaseName = "";
-        m_testName = "";
+        m_testFunctionName = "";
     }
 
-    QString m_unitTestName;    /*!< \brief Name of test suite */
-    QString m_testCaseName;    /*!< \brief Name of test case */
-    QString m_testName;        /*!< \brief Name of test function */
+    QString m_testSuiteName;     /*!< \brief Name of test suite */
+    QString m_testCaseName;      /*!< \brief Name of test case */
+    QString m_testFunctionName;  /*!< \brief Name of test function */
 };
 
 /******************************************************************************/
@@ -48,8 +48,8 @@ public slots:
     void stop();
 
 signals:
-    /** \brief Report a new unittest */
-    void unitTestFound(const QString &findResult, unsigned int a_nrTests);
+    /** \brief Report a new test suite */
+    void foundTestSuite(const QString &findResult, unsigned int a_nrTests);
 
     /** \brief Report test function done */
     void endTestFunction (const TestFunction &a_testFunction);
@@ -66,8 +66,8 @@ private slots:
 
 private:
     void run(void);
-    bool isUnitTest(const QString &filename);
-    void getTests(const QString &a_unittest, QList<TestTriple> &tests, unsigned int &nrtests);
+    bool isTestSuite(const QString &filename);
+    void getTests(const QString &a_unittest, QList<UnitTestTriple> &tests, unsigned int &nrtests);
 
     TestSettings *m_settings;
     bool m_stopRequested;

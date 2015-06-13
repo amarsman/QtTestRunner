@@ -23,6 +23,7 @@ ConsoleRunner::ConsoleRunner(TestManager *a_testManager,
     , m_settings(a_settings)
     , m_totalNrTestsFound(0)
     , m_totalNrTestsRun(0)
+    , m_totalNrTestsPassed(0)
     , m_allTestsOk(true)
 {
     qCDebug(LogQtTestRunner);
@@ -59,10 +60,10 @@ void ConsoleRunner::onRun()
 /******************************************************************************/
 void ConsoleRunner::startCollecting()
 {
-    QObject::connect(m_testManager, &TestManager::unitTestFound,
-                     this, &ConsoleRunner::onUnitTestFound);
+    QObject::connect(m_testManager, &TestManager::foundTestSuite,
+                     this, &ConsoleRunner::onFoundTestSuite);
     QObject::connect(m_testManager, &TestManager::testingFinished,
-                     this, &ConsoleRunner::onTestingFinished);
+                     this, &ConsoleRunner::onFinishedTesting);
     QObject::connect(m_testManager, &TestManager::endTestFunction,
                      this, &ConsoleRunner::onEndTestFunction);
     QObject::connect(m_testManager, &TestManager::crashTestSuite,
@@ -72,21 +73,25 @@ void ConsoleRunner::startCollecting()
 }
 
 /******************************************************************************/
-void ConsoleRunner::onUnitTestFound(const QString &a_path, unsigned int a_nrTests)
+void ConsoleRunner::onFoundTestSuite(const QString &a_path, unsigned int a_nrTests)
 {
     qCDebug(LogQtTestRunner, "%s", a_path.toLatin1().data());
     m_totalNrTestsFound += a_nrTests;
 }
 
 /******************************************************************************/
-void ConsoleRunner::onTestingFinished()
+void ConsoleRunner::onFinishedTesting()
 {
     qCDebug(LogQtTestRunner, "Finished");
 
-    fprintf(stdout, "\n%d/%d tested. ", m_totalNrTestsRun, m_totalNrTestsFound);
-    fprintf(stdout, "Final result: %s%s%s\n",
-            m_allTestsOk ? STYLE_GREEN_BOLD : STYLE_RED_BOLD ,
-            m_allTestsOk ? "OK" : "FAIL",
+    bool all_ok = (m_totalNrTestsFound * m_settings->repeat == m_totalNrTestsPassed);
+    fprintf(stdout, "\n%d failed, ",    m_totalNrTestsRun - m_totalNrTestsPassed);
+    fprintf(stdout, "%d passed, ",  m_totalNrTestsPassed);
+    fprintf(stdout, "%d run, ",      m_totalNrTestsRun);
+    fprintf(stdout, "%d found, ", m_totalNrTestsFound * m_settings->repeat);
+    fprintf(stdout, "final result: %s%s%s\n",
+            all_ok ? STYLE_GREEN_BOLD : STYLE_RED_BOLD ,
+            all_ok ? "OK" : "FAIL",
             STYLE_DEFAULT);
     emit testingFinished();
 }
@@ -142,6 +147,10 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
         {
             m_allTestsOk = false;
         }
+        else
+        {
+            m_totalNrTestsPassed++;
+        }
 
         // has messages?
         for (auto it = testfunction.m_messages.begin();
@@ -174,9 +183,9 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
                 fprintf(stdout, "\n");
                 nrdots=0;
             }
-            fprintf(stdout, "%s%d/%d %-40s%-75s %15s  %s\n",
+            fprintf(stdout, "%s%3d/%3d %-40s%-75s %15s  %s\n",
                     pass ? STYLE_GREEN : STYLE_RED,
-                    m_totalNrTestsRun, m_totalNrTestsFound,
+                    m_totalNrTestsRun, m_totalNrTestsFound * m_settings->repeat,
                     testfunction.m_casename.toLatin1().data(),
                     testfunction.m_name.toLatin1().data(),
                     testfunction.m_duration.toLatin1().data(),

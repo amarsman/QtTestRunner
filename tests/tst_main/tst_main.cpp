@@ -18,18 +18,19 @@ private slots:
     void cleanup();
 
     void passtest();
-    void passloggingtest();
     void xfailtest();
     void datatest_data();
     void datatest();
 
-//public slots:
     void benchmarkpasstest();
     void benchmarkpassloggingtest();
+
+private:
+    void passloggingtest();
     void failloggingtest();
     void failtest();
     void xpasstest();
-private:
+    void testcrash();
 };
 
 /******************************************************************************/
@@ -158,6 +159,13 @@ void tst_main::benchmarkpassloggingtest()
     {
         QCOMPARE(a.toInt(), 42);
     }
+}
+
+/******************************************************************************/
+void tst_main::testcrash()
+{
+    int *a = 0;
+    *a = 0;
 }
 
 /******************************************************************************/

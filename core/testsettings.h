@@ -6,17 +6,17 @@
 struct TestSettings
 {
     TestSettings() {
-        basepath = ".";
-        recursive = false;
-        nrjobs = 1;
-        debug = false;
-        useldd = true;
-        shuffle = true;
-        repeat = 1;
-        isolated = true;
+        basepath     = ".";
+        recursive    = false;
+        nrjobs       = 1;
+        debug        = false;
+        useldd       = true;
+        shuffle      = true;
+        repeat       =  1;
+        isolated     = true;
         jhextensions = true;
-        verbosity = 1;
-        no_colors = false;
+        verbosity    = 1;
+        no_colors    = false;
     }
 
     QString basepath;    /*!< \brief Basepath where to look for tests */

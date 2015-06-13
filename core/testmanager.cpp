@@ -51,7 +51,7 @@ void TestManager::stop()
 }
 
 /******************************************************************************/
-bool TestManager::isUnitTest(const QString &filename)
+bool TestManager::isTestSuite(const QString &filename)
 {
     QScopedPointer<QProcess> process(new QProcess());
 
@@ -65,12 +65,12 @@ bool TestManager::isUnitTest(const QString &filename)
 }
 
 /******************************************************************************/
-void TestManager::getTests(const QString &a_unittest, QList<TestTriple> &a_testList, unsigned int &a_nrTests)
+void TestManager::getTests(const QString &a_testSuite, QList<UnitTestTriple> &a_testList, unsigned int &a_nrTests)
 {
     a_testList.clear();
     a_nrTests = 0;
 
-    QString filename = QFileInfo(a_unittest).absoluteFilePath();
+    QString filename = QFileInfo(a_testSuite).absoluteFilePath();
 
     if (!m_settings->jhextensions) // don't use JH extensions
     {
@@ -88,22 +88,22 @@ void TestManager::getTests(const QString &a_unittest, QList<TestTriple> &a_testL
             {
                 if (m_settings->isolated)
                 {
-                    TestTriple triple;
-                    triple.m_unitTestName = filename;
+                    UnitTestTriple triple;
+                    triple.m_testSuiteName = filename;
                     triple.m_testCaseName = "";
-                    triple.m_testName = line.left(line.length()-2);
+                    triple.m_testFunctionName = line.left(line.length()-2);
                     a_testList.append(triple);
                 }
                 a_nrTests++;
-                emit unitTestFound(a_unittest, 1);
+                emit foundTestSuite(a_testSuite, 1);
             }
         }
         if (!m_settings->isolated)
         {
-            TestTriple triple;
-            triple.m_unitTestName = filename;
+            UnitTestTriple triple;
+            triple.m_testSuiteName = filename;
             triple.m_testCaseName = "";
-            triple.m_testName = "";
+            triple.m_testFunctionName = "";
             a_testList.append(triple);
         }
     }
@@ -142,24 +142,24 @@ void TestManager::getTests(const QString &a_unittest, QList<TestTriple> &a_testL
                 {
                     if (m_settings->isolated)
                     {
-                        TestTriple triple;
-                        triple.m_unitTestName = filename;
+                        UnitTestTriple triple;
+                        triple.m_testSuiteName = filename;
                         triple.m_testCaseName = testcase;
-                        triple.m_testName = line.left(line.length()-2);
+                        triple.m_testFunctionName = line.left(line.length()-2);
                         a_testList.append(triple);
                     }
                     a_nrTests++;
-                    emit unitTestFound(a_unittest, 1);
+                    emit foundTestSuite(a_testSuite, 1);
                 }
             }
         }
 
         if (!m_settings->isolated)
         {
-            TestTriple triple;
-            triple.m_unitTestName = filename;
+            UnitTestTriple triple;
+            triple.m_testSuiteName = filename;
             triple.m_testCaseName = "";
-            triple.m_testName = "";
+            triple.m_testFunctionName = "";
             a_testList.append(triple);
         }
     }
@@ -192,7 +192,7 @@ void TestManager::run()
     m_running = true;
 
     // Collect all tests executables
-    QList<TestTriple> m_unitTests;
+    QList<UnitTestTriple> m_unitTests;
 
     if (QFileInfo(m_settings->basepath).isDir())
     {
@@ -211,9 +211,9 @@ void TestManager::run()
 
             QString fullPath = dir.absolutePath();
 
-            if (isUnitTest(fullPath))
+            if (isTestSuite(fullPath))
             {
-                QList<TestTriple> tests;
+                QList<UnitTestTriple> tests;
                 unsigned int nrtests=0;
                 getTests(fullPath, tests, nrtests);
                 m_unitTests.append(tests);
@@ -230,9 +230,9 @@ void TestManager::run()
 
         QString fullPath = dir.absolutePath();
 
-        if (isUnitTest(fullPath))
+        if (isTestSuite(fullPath))
         {
-            QList<TestTriple> tests;
+            QList<UnitTestTriple> tests;
             unsigned int nrtests=0;
             getTests(fullPath, tests, nrtests);
             m_unitTests.append(tests);
@@ -241,7 +241,7 @@ void TestManager::run()
         }
     }
 
-    QList<TestTriple> m_unitTests_old = m_unitTests;
+    QList<UnitTestTriple> m_unitTests_old = m_unitTests;
 
     for (int i=1; i<m_settings->repeat; i++)
     {
@@ -260,9 +260,9 @@ void TestManager::run()
             !m_stopRequested && it != m_unitTests.constEnd();
             ++it)
     {
-        const QString &filename = (*it).m_unitTestName;
+        const QString &filename = (*it).m_testSuiteName;
         const QString &testcase = (*it).m_testCaseName;
-        const QString &testname = (*it).m_testName;
+        const QString &testname = (*it).m_testFunctionName;
 
         qCDebug(LogQtTestRunnerCore, "Acquiring");
         if (!sem->tryAcquire(1, 180000)) // try for three minutes

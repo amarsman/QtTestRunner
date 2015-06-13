@@ -14,7 +14,7 @@ class TestCase;
 class TestFunction;
 
 /******************************************************************************/
-/** \brief Runnable that runs a single unittest, testcase or test function
+/** \brief Runnable that runs a single test suite, test case or test function
  * and reports results by signals */
 class UnitTestRunner : public QObject, public QRunnable
 {
@@ -26,9 +26,9 @@ public:
 
     /** \brief Start a test */
     bool start(int jobnr,
-               const QString &a_unitTestName,
+               const QString &a_testSuiteName,
                const QString &a_testCaseName,
-               const QString &a_testName);
+               const QString &a_testFunctionName);
 
     /** \brief Stop*/
     bool stop();
@@ -43,9 +43,9 @@ signals:
 private:
     void run(void);
 
-    QString m_unitTestName;
+    QString m_testSuiteName;
     QString m_testCaseName;
-    QString m_testName;
+    QString m_testFunctionName;
     QSharedPointer<QSemaphore> m_semaphore;
     bool m_running;
     bool m_stopRequested;

@@ -27,9 +27,9 @@ UnitTestRunner::~UnitTestRunner()
 
 /******************************************************************************/
 bool UnitTestRunner::start(int a_jobnr,
-                           const QString &a_unitTestName,
+                           const QString &a_testSuiteName,
                            const QString &a_testCaseName,
-                           const QString &a_testName)
+                           const QString &a_testFunctionName)
 {
     qCDebug(LogQtTestRunnerCore);
     if (m_running)
@@ -37,9 +37,9 @@ bool UnitTestRunner::start(int a_jobnr,
         return false;
     }
 
-    m_unitTestName = a_unitTestName;
+    m_testSuiteName = a_testSuiteName;
     m_testCaseName = a_testCaseName;
-    m_testName = a_testName;
+    m_testFunctionName = a_testFunctionName;
     m_stopRequested = false;
     m_jobnr = a_jobnr;
 
@@ -73,26 +73,26 @@ void UnitTestRunner::run()
 
     m_running = true;
 
-    qCDebug(LogQtTestRunnerCore, "%s ", m_unitTestName.toLatin1().data());
+    qCDebug(LogQtTestRunnerCore, "%s ", m_testSuiteName.toLatin1().data());
 
-    QFileInfo info(m_unitTestName);
+    QFileInfo info(m_testSuiteName);
     QString testpath = info.absoluteFilePath();
 
     QScopedPointer<UnitTestOutputHandler> handler(new UnitTestOutputHandler(testpath));
     handler->setUnitTestRunner(this);
 
     QScopedPointer<QProcess> process(new QProcess());
-    if (m_testName.isEmpty())
+    if (m_testFunctionName.isEmpty())
     {
-        process->start(m_unitTestName, QStringList() << "-o" << "-,xml");
+        process->start(m_testSuiteName, QStringList() << "-o" << "-,xml");
     }
     else if (m_testCaseName.isEmpty())
     {
-        process->start(m_unitTestName, QStringList() << "-o" << "-,xml" << m_testName);
+        process->start(m_testSuiteName, QStringList() << "-o" << "-,xml" << m_testFunctionName);
     }
     else
     {
-        process->start(m_unitTestName, QStringList() << "-o" << "-,xml" << "-testcase" << m_testCaseName << m_testName);
+        process->start(m_testSuiteName, QStringList() << "-o" << "-,xml" << "-testcase" << m_testCaseName << m_testFunctionName);
     }
     process->waitForStarted();
     while (process->waitForReadyRead())
