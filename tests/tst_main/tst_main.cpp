@@ -25,11 +25,15 @@ private slots:
     void benchmarkpasstest();
     void benchmarkpassloggingtest();
 
-private:
+
+    void testvector_data();
+    void testvector();
+
     void passloggingtest();
     void failloggingtest();
     void failtest();
     void xpasstest();
+
     void testcrash();
 };
 
@@ -166,6 +170,24 @@ void tst_main::testcrash()
 {
     int *a = 0;
     *a = 0;
+}
+
+/******************************************************************************/
+void tst_main::testvector_data()
+{
+    QTest::addColumn<int>("anint");
+    QTest::newRow("set1") << 1;
+    QTest::newRow("set2") << 0;
+    QTest::newRow("set3") << 0;
+    QTest::newRow("set4") << 1;
+}
+
+/******************************************************************************/
+void tst_main::testvector()
+{
+    QFETCH(int, anint);
+
+    QCOMPARE(anint, 0);
 }
 
 /******************************************************************************/

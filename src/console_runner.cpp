@@ -119,8 +119,8 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
 
     int vv = m_settings->verbosity;
 
-    if (vv <= 2 && testfunction.m_name == "initTestCase") return;
-    if (vv <= 2 && testfunction.m_name == "cleanupTestCase") return;
+    if (testfunction.m_name == "initTestCase") return;
+    if (testfunction.m_name == "cleanupTestCase") return;
 
     if (testfunction.m_done)
     {
@@ -183,9 +183,12 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
                 fprintf(stdout, "\n");
                 nrdots=0;
             }
-            fprintf(stdout, "%s%3d/%3d %-40s%-75s %15s  %s\n",
+            char buf[32];
+            snprintf(buf,32,"%d/%d",
+                     m_totalNrTestsRun, m_totalNrTestsFound * m_settings->repeat);
+            fprintf(stdout, "%s%-9s %-40s%-75s %15s  %s\n",
                     pass ? STYLE_GREEN : STYLE_RED,
-                    m_totalNrTestsRun, m_totalNrTestsFound * m_settings->repeat,
+                    buf,
                     testfunction.m_casename.toLatin1().data(),
                     testfunction.m_name.toLatin1().data(),
                     testfunction.m_duration.toLatin1().data(),
@@ -233,10 +236,17 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
                             incident.m_type == "fail" ||
                             incident.m_type == "xpass"))
                 {
+                    if (!incident.m_datatag.isEmpty())
+                    {
+                            fprintf(stdout, "    %sDataset: %s\n",
+                            pass ? STYLE_GREEN_BOLD : STYLE_RED_BOLD,
+                            incident.m_datatag.toLatin1().data());
+                    }
                     fprintf(stdout, "    %s%s %s\n",
                             pass ? STYLE_GREEN_BOLD : STYLE_RED_BOLD,
                             incident.m_file.toLatin1().data(),
                             incident.m_line.toLatin1().data());
+
 
                     QString desc = incident.m_description;
                     desc.replace(QString("\n"), QString("\n    "));

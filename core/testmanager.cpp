@@ -254,12 +254,14 @@ void TestManager::run()
         std::random_shuffle(m_unitTests.begin(), m_unitTests.end());
     }
 
-    int jobnr = 1;
+    int jobnr = 0;
     // Run all test executables
     for (auto it = m_unitTests.constBegin();
             !m_stopRequested && it != m_unitTests.constEnd();
             ++it)
     {
+        jobnr++;
+
         const QString &filename = (*it).m_testSuiteName;
         const QString &testcase = (*it).m_testCaseName;
         const QString &testname = (*it).m_testFunctionName;
@@ -281,7 +283,6 @@ void TestManager::run()
                          this, &TestManager::onCrashTestSuite);
 
         runner->start(jobnr, filename, testcase, testname);
-        jobnr++;
     }
 
     qCDebug(LogQtTestRunnerCore, "Waiting for runners to finish");
