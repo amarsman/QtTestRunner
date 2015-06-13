@@ -43,7 +43,6 @@ signals:
 private:
     void run(void);
 
-private:
     QString m_unitTestName;
     QString m_testCaseName;
     QString m_testName;
