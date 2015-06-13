@@ -1,18 +1,19 @@
-#include <QCoreApplication>
-#include <QLoggingCategory>
-#include <QDateTime>
-#include <QThread>
+#include <unistd.h>
 
 #include <QCommandLineParser>
+#include <QCoreApplication>
+#include <QDateTime>
+#include <QLoggingCategory>
 #include <QProcess>
+#include <QThread>
 #include <QTimer>
-#include <thread>
-#include <unistd.h>
-#include <sys/types.h>
+
 
 #include "console_runner.h"
-#include "logging.h"
 #include "testmanager.h"
+#include "testsettings.h"
+
+Q_LOGGING_CATEGORY(LogQtTestRunner, "QtTestRunner")
 
 /******************************************************************************/
 void LogHandler(QtMsgType type,

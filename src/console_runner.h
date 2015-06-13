@@ -1,10 +1,8 @@
-#ifndef MAIN_TASK_H
-#define MAIN_TASK_H
+#ifndef CONSOLE_RUNNER_H
+#define CONSOLE_RUNNER_H
 
 #include <QObject>
-#include <QString>
-#include <QStringList>
-#include <QScopedPointer>
+
 #include "testsettings.h"
 #include "unittestoutputhandler.h"
 
@@ -59,4 +57,4 @@ private:
 
 /******************************************************************************/
 
-#endif // MAIN_TASK_H
+#endif // CONSOLE_RUNNER_H

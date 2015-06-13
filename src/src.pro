@@ -5,12 +5,10 @@ QT     += core gui widgets xml
 
 DESTDIR = $${PWD}/../bin
 
-SOURCES += logging.cpp \
-           main.cpp \
+SOURCES += main.cpp \
            console_runner.cpp
 
-HEADERS  += logging.h \
-            console_runner.h
+HEADERS  += console_runner.h
 
 INCLUDEPATH += ../core
 DEPENDPATH += ../core

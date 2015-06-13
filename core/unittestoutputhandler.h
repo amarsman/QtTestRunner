@@ -1,11 +1,11 @@
-#ifndef MYXMLCONTENTHANDLER_H
-#define MYXMLCONTENTHANDLER_H
+#ifndef UNIT_TEST_OUTPUT_HANDLER_H
+#define UNIT_TEST_OUTPUT_HANDLER_H
 
-#include <QString>
+#include <QList>
+#include <QMutex>
 #include <QObject>
 #include <QRegularExpression>
-#include <QMutex>
-#include "unittestrunner.h"
+#include <QString>
 
 class UnitTestRunner; //forward
 
@@ -252,4 +252,4 @@ extern QMutex g_access;
 
 /******************************************************************************/
 
-#endif // MYXMLCONTENTHANDLER_H
+#endif // UNIT_TEST_OUTPUT_HANDLER_H

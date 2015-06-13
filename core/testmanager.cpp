@@ -1,15 +1,14 @@
-#include <QScopedPointer>
-#include <QDebug>
 #include <QDirIterator>
-#include <QFile>
+#include <QFileInfo>
+#include <QLoggingCategory>
 #include <QProcess>
 #include <QThreadPool>
-#include <QRegularExpression>
-#include <QStringList>
 
 #include "testmanager.h"
 #include "unittestrunner.h"
-#include "logging.h"
+
+
+Q_LOGGING_CATEGORY(LogQtTestRunnerCore, "QtTestRunnerCore")
 
 /******************************************************************************/
 TestManager::TestManager()

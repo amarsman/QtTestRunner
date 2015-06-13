@@ -1,7 +1,9 @@
 #ifndef TEST_SETTINGS_H
 #define TEST_SETTINGS_H
+
 #include <QString>
 
+/******************************************************************************/
 /** \brief Struct that holds all test options */
 struct TestSettings
 {
@@ -31,5 +33,7 @@ struct TestSettings
     int  verbosity;      /*!< \brief Set verbosity level at n */
     bool no_colors;      /*!< \brief Do not produce colored output */
 };
+
+/******************************************************************************/
 
 #endif // TEST_SETTINGS_H

@@ -1,14 +1,16 @@
 #ifndef TEST_MANAGER_H
 #define TEST_MANAGER_H
+
 #include <QObject>
 #include <QRunnable>
-#include <QString>
-#include <QStringList>
 #include <QSemaphore>
 #include <QSharedPointer>
+#include <QString>
+
 #include "testsettings.h"
 #include "unittestoutputhandler.h"
 
+/******************************************************************************/
 /** \brief Struct that holds a testable */
 class UnitTestTriple
 {

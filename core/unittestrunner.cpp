@@ -1,13 +1,12 @@
-#include <QThreadPool>
-#include <QProcess>
-#include <QRegularExpression>
-#include <QXmlSimpleReader>
-#include <QXmlInputSource>
 #include <QFileInfo>
+#include <QLoggingCategory>
+#include <QProcess>
+#include <QThreadPool>
 
 #include "unittestrunner.h"
-#include "logging.h"
 #include "unittestoutputhandler.h"
+
+Q_DECLARE_LOGGING_CATEGORY(LogQtTestRunnerCore)
 
 /******************************************************************************/
 UnitTestRunner::UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore)

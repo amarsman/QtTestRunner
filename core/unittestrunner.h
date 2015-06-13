@@ -1,12 +1,10 @@
 #ifndef UNIT_TEST_RUNNER_H
 #define UNIT_TEST_RUNNER_H
+
 #include <QObject>
 #include <QRunnable>
-#include <QString>
 #include <QSemaphore>
 #include <QSharedPointer>
-#include <QRegularExpression>
-#include <QMutex>
 
 // forward
 class TestSuite;

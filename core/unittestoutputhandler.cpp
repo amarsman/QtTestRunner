@@ -1,7 +1,10 @@
-#include <QFileInfo>
+#include <QLoggingCategory>
 #include <QMutex>
+
 #include "unittestoutputhandler.h"
-#include "logging.h"
+#include "unittestrunner.h"
+
+Q_DECLARE_LOGGING_CATEGORY(LogQtTestRunnerCore)
 
 QMutex g_access;
 

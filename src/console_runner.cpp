@@ -1,9 +1,9 @@
-#include <QString>
-#include <QRegularExpression>
+#include <QLoggingCategory>
 
 #include "console_runner.h"
-#include "logging.h"
 #include "testmanager.h"
+
+Q_DECLARE_LOGGING_CATEGORY(LogQtTestRunner)
 
 static char STYLE_DEFAULT[]    = "\033[0m";
 static char STYLE_BOLD[]       = "\033[1;30m";
