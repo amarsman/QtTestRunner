@@ -23,23 +23,21 @@ public:
     ~UnitTestRunner();
 
     bool start(int jobnr,
-               const QString &a_unitTest,
-               const QString &a_testCase,
+               const QString &a_unitTestName,
+               const QString &a_testCaseName,
                const QString &a_testName);
     bool stop();
 
 signals:
-    void testSuiteChanged(const TestSuite    &a_testSuite);
-    void endTestSuite    (const TestSuite    &a_testSuite);
-    void endTestCase     (const TestCase     &a_testCase);
     void endTestFunction (const TestFunction &a_testFunction);
+    void crashTestSuite  (const TestSuite    &a_testSuite);
 
 protected:
     void run(void);
 
 private:
-    QString m_unitTest;
-    QString m_testCase;
+    QString m_unitTestName;
+    QString m_testCaseName;
     QString m_testName;
     QSharedPointer<QSemaphore> m_semaphore;
     bool m_running;

@@ -6,7 +6,7 @@
 QMutex g_access;
 
 /******************************************************************************/
-UnitTestOutputHandler::UnitTestOutputHandler()
+UnitTestOutputHandler::UnitTestOutputHandler(const QString &a_testSuiteName)
     : QObject()
     , m_runner(nullptr)
     , m_inTestCase(false)
@@ -19,6 +19,8 @@ UnitTestOutputHandler::UnitTestOutputHandler()
     , m_inDataTag(false)
     , m_inBenchmarkResult(false)
 {
+    m_testSuite.m_name = a_testSuiteName;
+
     qRegisterMetaType<TestSuite>("TestSuite");
     qRegisterMetaType<TestCase>("TestCase");
     qRegisterMetaType<TestFunction>("TestFunction");
@@ -68,7 +70,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
         if (match.hasMatch())
         {
             qCDebug(LogQtTestRunnerCore, "---- XML ----");
-            if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
             return;
         }
 
@@ -79,7 +80,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             QString name = match.captured(1);
 
             qCDebug(LogQtTestRunnerCore, "---- TC: %s----",
-                    match.captured(1).toStdString().c_str());
+                    match.captured(1).toLatin1().data());
             m_inTestCase = true;
 
             TestCase newtestcase;
@@ -87,7 +88,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             m_testCase = &(m_testSuite.m_testCases.last());
             m_testCase->m_name = name;
 
-            if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
             return;
         }
     }
@@ -101,11 +101,9 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             {
                 m_inEnvironment = false;
                 qCDebug(LogQtTestRunnerCore, "---- ~ENV ----");
-                if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                 return;
             }
 
-            if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
             return; // ignore anything else
         }
         else if (m_inTestFunction)
@@ -120,7 +118,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     {
                         qCDebug(LogQtTestRunnerCore, "---- DESC ----");
                         m_inDescription = false;
-                        if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                         return;
                     }
                 }
@@ -133,11 +130,10 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                         QString text = match.captured(1);
 
                         qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
-                                match.captured(1).toStdString().c_str());
+                                match.captured(1).toLatin1().data());
 
                         m_message->m_description.append(text);
 
-                        if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                         return;
                     }
 
@@ -147,11 +143,10 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     {
                         QString text = match.captured(1);
                         qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
-                                match.captured(1).toStdString().c_str());
+                                match.captured(1).toLatin1().data());
                         m_inDescription = true;
 
                         m_message->m_description.append(text+"\n");
-                        if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                         return;
                     }
 
@@ -162,7 +157,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                         qCDebug(LogQtTestRunnerCore, "---- ~MSG ----");
                         m_inMessage= false;
                         m_message->m_done = true;
-                        if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                         return;
                     }
                 }
@@ -178,19 +172,17 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                         QString text = match.captured(1);
 
                         qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
-                                match.captured(1).toStdString().c_str());
+                                match.captured(1).toLatin1().data());
                         m_inDescription = false;
 
                         m_incident->m_description.append(text);
-                        if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                         return;
                     }
                     qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
-                            line.toStdString().c_str());
+                            line.toLatin1().data());
 
                     m_incident->m_description.append(line+"\n");
 
-                    if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                     return;
                 }
                 else
@@ -202,8 +194,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                         QString text = match.captured(1);
                         m_incident->m_description.append(text);
                         qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
-                                match.captured(1).toStdString().c_str());
-                        if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
+                                match.captured(1).toLatin1().data());
                         return;
                     }
 
@@ -213,11 +204,10 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     {
                         QString text = match.captured(1);
                         qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
-                                match.captured(1).toStdString().c_str());
+                                match.captured(1).toLatin1().data());
                         m_inDescription = true;
 
                         m_incident->m_description.append(text+"\n");
-                        if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                         return;
                     }
 
@@ -227,10 +217,9 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     {
                         QString tag = match.captured(1);
                         qCDebug(LogQtTestRunnerCore, "---- TAG %s ----",
-                                match.captured(1).toStdString().c_str());
+                                match.captured(1).toLatin1().data());
 
                         m_incident->m_datatag = tag;
-                        if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                         return;
                     }
 
@@ -243,7 +232,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                         m_incident->m_done = true;
                         m_incident = 0;
 
-                        if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                         return;
                     }
                 }
@@ -259,10 +247,8 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
 
                     m_testFunction->m_done = true;
                     if (m_runner) emit m_runner->endTestFunction(*m_testFunction);
-                    if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
 
                     m_testFunction = 0;
-                    if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                     return;
                 }
 
@@ -275,7 +261,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     QString line = match.captured(3);
 
                     qCDebug(LogQtTestRunnerCore, "---- MSG: %s ----",
-                            match.captured(1).toStdString().c_str());
+                            match.captured(1).toLatin1().data());
                     m_inMessage = true;
 
                     Message message;
@@ -285,7 +271,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     m_message->m_file = match.captured(2);
                     m_message->m_line = match.captured(3);
 
-                    if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                     return;
                 }
 
@@ -298,7 +283,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     QString line = match.captured(3);
 
                     qCDebug(LogQtTestRunnerCore, "---- INC: %s ----",
-                            match.captured(1).toStdString().c_str());
+                            match.captured(1).toLatin1().data());
 
                     Incident incident;
                     m_testFunction->m_incidents.append(incident);
@@ -307,7 +292,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     m_incident->m_file = match.captured(2);
                     m_incident->m_line = match.captured(3);
                     m_incident->m_done = true;
-                    if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                     return;
                 }
 
@@ -320,7 +304,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     QString line = match.captured(3);
 
                     qCDebug(LogQtTestRunnerCore, "---- INC: %s ----",
-                            match.captured(1).toStdString().c_str());
+                            match.captured(1).toLatin1().data());
                     m_inIncident = true;
 
                     Incident incident;
@@ -330,7 +314,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     m_incident->m_file = match.captured(2);
                     m_incident->m_line = match.captured(3);
 
-                    if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                     return;
                 }
 
@@ -344,7 +327,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     QString iterations = match.captured(4);
 
                     qCDebug(LogQtTestRunnerCore, "---- BENCH %s ----",
-                            match.captured(1).toStdString().c_str());
+                            match.captured(1).toLatin1().data());
 
                     Benchmark benchmark;
                     m_testFunction->m_benchmarks.append(benchmark);
@@ -355,7 +338,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     m_benchmark->m_iterations = iterations;
                     m_benchmark->m_done = true;
 
-                    if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                     return;
                 }
 
@@ -366,10 +348,9 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     QString duration = match.captured(1);
 
                     qCDebug(LogQtTestRunnerCore, "---- DUR %s ----",
-                            match.captured(1).toStdString().c_str());
+                            match.captured(1).toLatin1().data());
 
                     m_testFunction->m_duration = duration;
-                    if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                     return;
                 }
             }
@@ -382,7 +363,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             {
                 m_inEnvironment = true;
                 qCDebug(LogQtTestRunnerCore, "---- ENV ----");
-                if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                 return;
             }
 
@@ -394,7 +374,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
 
                 //m_testFunctionName = match.captured(1);
                 qCDebug(LogQtTestRunnerCore, "---- TF: %s ----",
-                        match.captured(1).toStdString().c_str());
+                        match.captured(1).toLatin1().data());
                 m_inTestFunction = true;
 
                 TestFunction testfunction;
@@ -402,7 +382,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 m_testFunction = &(m_testCase->m_testfunctions.last());
                 m_testFunction->m_name = name;
                 m_testFunction->m_casename = m_testCase->m_name;
-                if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                 return;
             }
 
@@ -414,7 +393,6 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 qCDebug(LogQtTestRunnerCore, "---- Duration ----");
 
                 m_testCase->m_duration = duration;
-                if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                 return;
             }
 
@@ -428,15 +406,13 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
 
                 m_testCase->m_done = true;
                 m_testCase = 0;
-                if (m_runner) emit m_runner->endTestCase(*m_testCase);
-                if (m_runner) emit m_runner->testSuiteChanged(m_testSuite);
                 return;
             }
         }
     }
 
     //not processed, log
-    qCWarning(LogQtTestRunnerCore, "%s", line.toStdString().c_str());
+    //qCWarning(LogQtTestRunnerCore, "%s", line.toLatin1().data());
 }
 
 /******************************************************************************/

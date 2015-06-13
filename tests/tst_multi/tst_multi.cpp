@@ -1,5 +1,6 @@
 #include <QTest>
 #include <QThread>
+#include "../jhtestsuite.h"
 
 const int WAITTIME = 0;
 
@@ -92,13 +93,12 @@ void tst_application2::passtest2()
 /******************************************************************************/
 int main(int argc, char *argv[])
 {
-    tst_application tc;
-    QTest::qExec(&tc, argc, argv);
+    JhTestSuite suite;
 
-    tst_application2 tc2;
-    QTest::qExec(&tc2, argc, argv);
+    suite.add<tst_application>();
+    suite.add<tst_application2>();
 
-    return 0;
+    return suite.exec(argc, argv);
 }
 
-#include "tst_application.moc"
+#include "tst_multi.moc"

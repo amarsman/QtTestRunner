@@ -15,6 +15,7 @@ struct TestSettings
         isolated = true;
         jhextensions = true;
         verbosity = 1;
+        no_colors = false;
     }
 
     QString basepath;
@@ -27,6 +28,7 @@ struct TestSettings
     bool isolated;
     bool jhextensions;
     int  verbosity;
+    bool no_colors;
 };
 
 #endif // TEST_SETTINGS_H

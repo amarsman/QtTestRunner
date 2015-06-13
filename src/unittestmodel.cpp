@@ -57,8 +57,8 @@ void UnitTestModel::refresh(const TestSuite &a_testSuite)
             bool pass = true;
 
             for (auto it = function.m_incidents.begin();
-                 it != function.m_incidents.end();
-                 ++it)
+                    it != function.m_incidents.end();
+                    ++it)
             {
                 const Incident &incident = *it;
                 if (!incident.m_done ||

@@ -165,10 +165,15 @@ public:
 
     void reset()
     {
+        m_done = false;
+        m_name = "";
         m_testCases.clear();
     }
 
+    bool m_done;
+    QString m_name;
     QList<TestCase> m_testCases;
+
 };
 
 /******************************************************************************/
@@ -176,7 +181,7 @@ class UnitTestOutputHandler : public QObject
 {
     Q_OBJECT
 public:
-    UnitTestOutputHandler();
+    UnitTestOutputHandler(const QString &a_testSuiteName);
     virtual ~UnitTestOutputHandler();
     void processXmlLine(const QString &line);
 

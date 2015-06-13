@@ -21,21 +21,26 @@ public:
 
 public slots:
     void onRun();
-    void onUnitTestFound(const QString &a_path);
-    void onCollectionFinished();
+    void onUnitTestFound(const QString &a_path, unsigned int a_nrTests);
+    void onTestingFinished();
 
 signals:
-    void finished();
+    void testingFinished();
 
 private slots:
     void onEndTestCase(const TestCase &result);
     void onEndTestFunction(const TestFunction &result);
+    void onCrashTestSuite(const TestSuite &a_testSuiteName);
 
 private:
     void startCollecting();
 
     TestManager *m_testManager;
     TestSettings *m_settings;
+
+    unsigned int m_totalNrTestsFound;
+    unsigned int m_totalNrTestsRun;
+    bool m_allTestsOk;
 };
 
 /******************************************************************************/

@@ -1,5 +1,6 @@
 #include <QLoggingCategory>
 #include <QDateTime>
+#include <QThread>
 
 #include <QCommandLineParser>
 #include <QProcess>
@@ -23,8 +24,8 @@ void LogHandler(QtMsgType type,
     {
 
     case QtDebugMsg:
-        fprintf(stderr, "%s %s.debug %s.%u %s %s\n",
-                QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toStdString().c_str(),
+        fprintf(stdout, "%s %s.debug %s.%u %s %s\n",
+                QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toLatin1().data(),
                 context.category,
                 context.file,
                 context.line,
@@ -32,8 +33,8 @@ void LogHandler(QtMsgType type,
                 msg.toStdString().c_str());
         break;
     case QtWarningMsg:
-        fprintf(stderr, "%s %s.warng  %s.%u %s %s\n",
-                QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toStdString().c_str(),
+        fprintf(stdout, "%s %s.warng  %s.%u %s %s\n",
+                QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toLatin1().data(),
                 context.category,
                 context.file,
                 context.line,
@@ -41,8 +42,8 @@ void LogHandler(QtMsgType type,
                 msg.toStdString().c_str());
         break;
     case QtCriticalMsg:
-        fprintf(stderr, "%s %s.error %s.%u %s %s\n",
-                QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toStdString().c_str(),
+        fprintf(stdout, "%s %s.error %s.%u %s %s\n",
+                QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toLatin1().data(),
                 context.category,
                 context.file,
                 context.line,
@@ -50,8 +51,8 @@ void LogHandler(QtMsgType type,
                 msg.toStdString().c_str());
         break;
     case QtFatalMsg:
-        fprintf(stderr, "%s %s.fatal %s.%u %s %s\n",
-                QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toStdString().c_str(),
+        fprintf(stdout, "%s %s.fatal %s.%u %s %s\n",
+                QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toLatin1().data(),
                 context.category,
                 context.file,
                 context.line,
@@ -83,14 +84,14 @@ static void parseCommandLineOptions(QCoreApplication &app,
     */
     qCDebug(LogQtTestRunner);
 
-
     QCommandLineOption recursiveOption(QStringList() << "r" << "recursive",  "Search recursive"                             );
     QCommandLineOption parallelOption (QStringList() << "j" << "jobs",       "Use parallel jobs (default=nr_cpus)", "nrjobs");
     QCommandLineOption debugOption    (QStringList() << "d" << "debug",      "Produce debug output"                         );
     QCommandLineOption repeatOption   (QStringList() << "n" << "repeat",     "Repeat tests (default=1)",            "count" );
     QCommandLineOption shuffleOption  (QStringList() << "s" << "shuffle",    "Shuffle tests"                                );
     QCommandLineOption singleOption   (QStringList() << "i" << "individual", "Run tests individually"                       );
-    QCommandLineOption jhOption       (QStringList() << "j" << "jh",         "Disable JH extensions"                        );
+    QCommandLineOption jhOption       (QStringList() << "jh",         "Disable JH extensions"                        );
+    QCommandLineOption nocolorOption  (QStringList() << "c" << "no-color",   "Disabled color output"                        );
     QCommandLineOption verboseOption  (QStringList() << "V" << "verbosity",  "Set verbosity (default=1)",            "verb" );
 
     QCommandLineParser parser;
@@ -103,25 +104,29 @@ static void parseCommandLineOptions(QCoreApplication &app,
     parser.addOption(singleOption);
     parser.addOption(jhOption);
     parser.addOption(verboseOption);
+    parser.addOption(nocolorOption);
     parser.addVersionOption();
     parser.addHelpOption();
     parser.process(app);
 
     QStringList args = parser.positionalArguments();
-    if (args.length() > 1) { parser.showHelp(-1); }
+    if (args.length() > 1) {
+        parser.showHelp(-1);
+    }
 
-    a_settings.basepath = (args.length() < 1) ? "/home/henklaak/Projects/QtTestRunner" : args[0];
+    a_settings.basepath = (args.length() < 1) ? "." : args[0];
     a_settings.recursive = parser.isSet(recursiveOption);
     a_settings.debug = parser.isSet(debugOption);
     a_settings.shuffle = parser.isSet(shuffleOption);
     a_settings.isolated = parser.isSet(singleOption);
     a_settings.jhextensions = !parser.isSet(jhOption);
+    a_settings.no_colors = parser.isSet(nocolorOption);
 
     bool valid=false;
     int nrjobs = parser.value(parallelOption).toInt(&valid);
     if (nrjobs < 1) valid = false;
-    a_settings.nrjobs = valid ?
-                nrjobs : 1; //std::thread::hardware_concurrency();
+    int nrthreads = QThread::idealThreadCount();
+    a_settings.nrjobs = valid ? nrjobs : ((nrthreads > 0) ? nrthreads : 1);
 
     valid=false;
     int nrrepeats = parser.value(repeatOption).toInt(&valid);
@@ -132,7 +137,6 @@ static void parseCommandLineOptions(QCoreApplication &app,
     int verbosity = parser.value(verboseOption).toInt(&valid);
     if (verbosity < 0) valid = false;
     a_settings.verbosity = valid ? verbosity : 1;
-
     if (a_settings.debug)
     {
         QLoggingCategory::setFilterRules("QtTestRunner.debug=true");
@@ -142,11 +146,11 @@ static void parseCommandLineOptions(QCoreApplication &app,
     //a_settings.shuffle = true;
     //a_settings.onebyone = true;
     //a_settings.repeat = 100;
-    //a_settings.nrjobs = 8;
-    a_settings.jhextensions = false;
-    //a_settings.verbosity = 0;
+    a_settings.nrjobs = 1;
+    //a_settings.jhextensions = false;
+    a_settings.verbosity = 2;
 
-    qCDebug(LogQtTestRunner, "basepath  %s", a_settings.basepath.toStdString().c_str());
+    qCDebug(LogQtTestRunner, "basepath  %s", a_settings.basepath.toLatin1().data());
     qCDebug(LogQtTestRunner, "recursive %s", a_settings.recursive ? "yes" : "no");
     qCDebug(LogQtTestRunner, "nrjobs    %d", a_settings.nrjobs);
     qCDebug(LogQtTestRunner, "debug     %s", a_settings.debug ? "yes" : "no");
@@ -156,6 +160,7 @@ static void parseCommandLineOptions(QCoreApplication &app,
     qCDebug(LogQtTestRunner, "isolated  %s", a_settings.isolated ? "yes" : "no");
     qCDebug(LogQtTestRunner, "jhext     %s", a_settings.jhextensions ? "yes" : "no");
     qCDebug(LogQtTestRunner, "verbosity %d", a_settings.verbosity);
+    qCDebug(LogQtTestRunner, "no colors %s", a_settings.no_colors ? "yes" : "no");
 }
 
 /******************************************************************************/
@@ -168,7 +173,7 @@ static void checkPreconditions(TestSettings &a_settings)
         bool isroot = (0 == geteuid());
         if (!isroot)
         {
-            fprintf(stderr, "Not root, only accessible tests will be run.\n");
+            fprintf(stdout, "Not root, only accessible tests will be run.\n");
         }
         qCDebug(LogQtTestRunner, "isroot: %d", isroot);
     }
@@ -193,7 +198,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setOrganizationName("Heidenhain");
     app.setApplicationName("QtTestRunner"),
-            app.setApplicationVersion("1.0");
+                           app.setApplicationVersion("1.0");
 
     TestSettings test_settings;
     parseCommandLineOptions(app, test_settings);
@@ -201,7 +206,7 @@ int main(int argc, char *argv[])
 
     TestManager test_manager;
     ConsoleRunner runner(&test_manager, &test_settings);
-    QObject::connect(&runner, &ConsoleRunner::finished,
+    QObject::connect(&runner, &ConsoleRunner::testingFinished,
                      &app, &TestRunnerApplication::quit);
     QTimer::singleShot(0, &runner, &ConsoleRunner::onRun);
     return app.exec();

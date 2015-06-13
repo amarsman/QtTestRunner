@@ -27,8 +27,8 @@ UnitTestRunner::~UnitTestRunner()
 
 /******************************************************************************/
 bool UnitTestRunner::start(int a_jobnr,
-                           const QString &a_unitTest,
-                           const QString &a_testCase,
+                           const QString &a_unitTestName,
+                           const QString &a_testCaseName,
                            const QString &a_testName)
 {
     qCDebug(LogQtTestRunnerCore);
@@ -37,9 +37,9 @@ bool UnitTestRunner::start(int a_jobnr,
         return false;
     }
 
-    m_unitTest = a_unitTest;
+    m_unitTestName = a_unitTestName;
+    m_testCaseName = a_testCaseName;
     m_testName = a_testName;
-    m_testCase = a_testCase;
     m_stopRequested = false;
     m_jobnr = a_jobnr;
 
@@ -67,31 +67,32 @@ void UnitTestRunner::run()
 
     if (m_running)
     {
+        m_semaphore->release();
         return;
     }
 
     m_running = true;
 
-    qCDebug(LogQtTestRunnerCore, "%s ", m_unitTest.toStdString().c_str());
+    qCDebug(LogQtTestRunnerCore, "%s ", m_unitTestName.toLatin1().data());
 
-    QFileInfo info(m_unitTest);
-    QString testpath = info.absolutePath();
+    QFileInfo info(m_unitTestName);
+    QString testpath = info.absoluteFilePath();
 
-    QScopedPointer<UnitTestOutputHandler> handler(new UnitTestOutputHandler());
+    QScopedPointer<UnitTestOutputHandler> handler(new UnitTestOutputHandler(testpath));
     handler->setUnitTestRunner(this);
 
     QScopedPointer<QProcess> process(new QProcess());
     if (m_testName.isEmpty())
     {
-            process->start(m_unitTest, QStringList() << "-xml");
+        process->start(m_unitTestName, QStringList() << "-o" << "-,xml");
     }
-    else if (m_testCase.isEmpty())
+    else if (m_testCaseName.isEmpty())
     {
-            process->start(m_unitTest, QStringList() << "-xml" << m_testName);
+        process->start(m_unitTestName, QStringList() << "-o" << "-,xml" << m_testName);
     }
     else
     {
-            process->start(m_unitTest, QStringList() << "-xml" << "-testcase" << m_testCase << m_testName);
+        process->start(m_unitTestName, QStringList() << "-o" << "-,xml" << "-testcase" << m_testCaseName << m_testName);
     }
     process->waitForStarted();
     while (process->waitForReadyRead())
@@ -103,12 +104,16 @@ void UnitTestRunner::run()
         }
     }
 
-    process->waitForFinished(60000);
+    if (!process->waitForFinished(180000)) // 3 minutes
+    {
+        process->kill();
+    }
 
     bool result_ok = true;
     QProcess::ExitStatus status = process->exitStatus();
     if (status  != QProcess::NormalExit)
     {
+        emit crashTestSuite(handler->m_testSuite);
         result_ok = false;
     }
     else if (0 != process->exitCode())

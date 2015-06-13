@@ -1,5 +1,6 @@
 #include <QTest>
 #include <QThread>
+#include "../jhtestsuite.h"
 
 QT_USE_NAMESPACE
 
@@ -159,8 +160,14 @@ void tst_main::benchmarkpassloggingtest()
     }
 }
 
-
 /******************************************************************************/
-QTEST_APPLESS_MAIN(tst_main)
+int main(int argc, char *argv[])
+{
+    JhTestSuite suite;
+
+    suite.add<tst_main>();
+
+    return suite.exec(argc, argv);
+}
 
 #include "tst_main.moc"

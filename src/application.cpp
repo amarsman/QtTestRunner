@@ -18,7 +18,7 @@ TestRunnerApplication::TestRunnerApplication(int &argc, char **argv)
     qCDebug(LogQtTestRunner);
     setOrganizationName("LSI");
     setApplicationName("QtTestRunner"),
-    setApplicationVersion("1.0");
+                       setApplicationVersion("1.0");
 }
 
 /******************************************************************************/
@@ -71,7 +71,9 @@ void TestRunnerApplication::parseCommandLineOptions()
     parser.process(*this);
 
     QStringList args = parser.positionalArguments();
-    if (args.length() > 1) { parser.showHelp(-1); }
+    if (args.length() > 1) {
+        parser.showHelp(-1);
+    }
 
     m_settings.basepath = (args.length() < 1) ? "/home/henklaak/Projects/QtTestRunner" : args[0];
     m_settings.recursive = parser.isSet(recursiveOption);

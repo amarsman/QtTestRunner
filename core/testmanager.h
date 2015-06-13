@@ -12,9 +12,20 @@
 class TestTriple
 {
 public:
-    QString m_testunit;
-    QString m_testcase;
-    QString m_testname;
+    TestTriple()
+    {
+        reset();
+    }
+    void reset()
+    {
+        m_unitTestName = "";
+        m_testCaseName = "";
+        m_testName = "";
+    }
+
+    QString m_unitTestName;
+    QString m_testCaseName;
+    QString m_testName;
 };
 
 /******************************************************************************/
@@ -31,27 +42,23 @@ public slots:
     void stop();
 
 signals:
-    void unitTestFound(const QString &findResult);
+    void unitTestFound(const QString &findResult, unsigned int a_nrTests);
 
-    void testSuiteChanged(const TestSuite    &a_testSuite);
-    void endTestSuite    (const TestSuite    &a_testSuite);
-    void endTestCase     (const TestCase     &a_testCase);
     void endTestFunction (const TestFunction &a_testFunction);
+    void crashTestSuite  (const TestSuite    &a_testSuiteName);
 
-    void finished();
+    void testingFinished();
 
 protected:
     void run(void);
 
 private slots:
-    void onTestSuiteChanged(const TestSuite &a_testSuite);
-    void onEndTestSuite(const TestSuite &a_testSuite);
-    void onEndTestCase(const TestCase &a_testCase);
     void onEndTestFunction(const TestFunction &a_testFunction);
+    void onCrashTestSuite(const TestSuite &a_testSuiteName);
 
 private:
     bool isUnitTest(const QString &filename);
-    QList<TestTriple> getTests(const QString &filename);
+    void getTests(const QString &a_unittest, QList<TestTriple> &tests, unsigned int &nrtests);
 
     TestSettings *m_settings;
     bool m_stopRequested;

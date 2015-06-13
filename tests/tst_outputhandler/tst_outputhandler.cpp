@@ -1,6 +1,7 @@
 #include <QTest>
 #include <QLoggingCategory>
 #include "unittestoutputhandler.h"
+#include "../jhtestsuite.h"
 
 QT_USE_NAMESPACE
 
@@ -23,25 +24,27 @@ void tst_outputhandler::readDataFile(const QString &filename,
     QFile inputFile(filename);
     if (inputFile.open(QIODevice::ReadOnly))
     {
-       QTextStream in(&inputFile);
-       while (!in.atEnd())
-       {
-          QString line = in.readLine();
-          handler.processXmlLine(line);
-       }
-       inputFile.close();
+        QTextStream in(&inputFile);
+        while (!in.atEnd())
+        {
+            QString line = in.readLine();
+            handler.processXmlLine(line);
+        }
+        inputFile.close();
     }
 }
 
 /******************************************************************************/
 void tst_outputhandler::test()
 {
-    UnitTestOutputHandler handler;
+    UnitTestOutputHandler handler("bla");
 
     readDataFile("testdata.txt", handler);
 
     TestSuite &suite = handler.m_testSuite;
 
+    QCOMPARE(suite.m_name,                                                          QString("bla"));
+    QCOMPARE(suite.m_done,                                                          false);
     QCOMPARE(suite.m_testCases.length(),                                            3);
     QCOMPARE(suite.m_testCases[0].m_name,                                           QString("tst_application"));
     QCOMPARE(suite.m_testCases[0].m_testfunctions.length(),                         3);
@@ -341,10 +344,13 @@ void tst_outputhandler::test()
 /******************************************************************************/
 int main(int argc, char *argv[])
 {
-    QLoggingCategory::setFilterRules("*.debug=false");
+    QLoggingCategory::setFilterRules("QtTestRunnerCore.debug=false");
 
-    tst_outputhandler tc;
-    return QTest::qExec(&tc, argc, argv);
+    JhTestSuite suite;
+
+    suite.add<tst_outputhandler>();
+
+    return suite.exec(argc, argv);
 }
 
 
