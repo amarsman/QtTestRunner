@@ -11,7 +11,7 @@ QMutex g_access;
 /******************************************************************************/
 UnitTestOutputHandler::UnitTestOutputHandler(const QString &a_testSuiteName)
     : QObject()
-    , m_runner(nullptr)
+    , m_unitTestRunner(nullptr)
     , m_inTestCase(false)
     , m_inEnvironment(false)
     , m_inTestFunction(false)
@@ -55,13 +55,13 @@ UnitTestOutputHandler::~UnitTestOutputHandler()
 }
 
 /******************************************************************************/
-void UnitTestOutputHandler::setUnitTestRunner(UnitTestRunner *a_runner)
+void UnitTestOutputHandler::setUnitTestRunner(UnitTestRunner *a_unitTestRunner)
 {
-    m_runner = a_runner;
+    m_unitTestRunner = a_unitTestRunner;
 }
 
 /******************************************************************************/
-void UnitTestOutputHandler::processXmlLine(const QString &line)
+void UnitTestOutputHandler::processXmlLine(const QString &a_line)
 {
     Locker lock(g_access);
     QRegularExpressionMatch match;
@@ -69,7 +69,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
     if (!m_inTestCase)
     {
         // xml line
-        match = re_xml.match(line);
+        match = re_xml.match(a_line);
         if (match.hasMatch())
         {
             qCDebug(LogQtTestRunnerCore, "---- XML ----");
@@ -77,7 +77,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
         }
 
         // start testcase
-        match = re_tc_start.match(line);
+        match = re_tc_start.match(a_line);
         if (match.hasMatch())
         {
             QString name = match.captured(1);
@@ -99,7 +99,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
         if (m_inEnvironment)
         {
             // end environment
-            match = re_environment_end.match(line);
+            match = re_environment_end.match(a_line);
             if (match.hasMatch())
             {
                 m_inEnvironment = false;
@@ -116,7 +116,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 if (m_inDescription)
                 {
                     // end of description
-                    match = re_description_end.match(line);
+                    match = re_description_end.match(a_line);
                     if (match.hasMatch())
                     {
                         qCDebug(LogQtTestRunnerCore, "---- DESC ----");
@@ -127,7 +127,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 else
                 {
                     // single line description
-                    match = re_description.match(line);
+                    match = re_description.match(a_line);
                     if (match.hasMatch())
                     {
                         QString text = match.captured(1);
@@ -141,7 +141,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     }
 
                     // start description
-                    match = re_description_start.match(line);
+                    match = re_description_start.match(a_line);
                     if (match.hasMatch())
                     {
                         QString text = match.captured(1);
@@ -154,7 +154,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     }
 
                     // end of message
-                    match = re_message_end.match(line);
+                    match = re_message_end.match(a_line);
                     if (match.hasMatch())
                     {
                         qCDebug(LogQtTestRunnerCore, "---- ~MSG ----");
@@ -169,7 +169,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 if (m_inDescription)
                 {
                     // end of description
-                    match = re_description_end.match(line);
+                    match = re_description_end.match(a_line);
                     if (match.hasMatch())
                     {
                         QString text = match.captured(1);
@@ -182,16 +182,16 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                         return;
                     }
                     qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
-                            line.toLatin1().data());
+                            a_line.toLatin1().data());
 
-                    m_incident->m_description.append(line+"\n");
+                    m_incident->m_description.append(a_line+"\n");
 
                     return;
                 }
                 else
                 {
                     // single line description
-                    match = re_description.match(line);
+                    match = re_description.match(a_line);
                     if (match.hasMatch())
                     {
                         QString text = match.captured(1);
@@ -202,7 +202,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     }
 
                     // start description
-                    match = re_description_start.match(line);
+                    match = re_description_start.match(a_line);
                     if (match.hasMatch())
                     {
                         QString text = match.captured(1);
@@ -215,7 +215,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     }
 
                     // single line datatag
-                    match = re_datatag.match(line);
+                    match = re_datatag.match(a_line);
                     if (match.hasMatch())
                     {
                         QString tag = match.captured(1);
@@ -226,7 +226,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                         return;
                     }
 
-                    match = re_incident_end.match(line);
+                    match = re_incident_end.match(a_line);
                     if (match.hasMatch())
                     {
                         qCDebug(LogQtTestRunnerCore, "---- ~INC ----");
@@ -241,7 +241,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             }
             else
             {
-                match = re_tf_end.match(line);
+                match = re_tf_end.match(a_line);
                 if (match.hasMatch())
                 {
                     //m_testFunctionName = "";
@@ -249,14 +249,14 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                     m_inTestFunction = false;
 
                     m_testFunction->m_done = true;
-                    if (m_runner) emit m_runner->endTestFunction(*m_testFunction);
+                    if (m_unitTestRunner) emit m_unitTestRunner->endTestFunction(*m_testFunction);
 
                     m_testFunction = 0;
                     return;
                 }
 
                 // start message
-                match = re_message_start.match(line);
+                match = re_message_start.match(a_line);
                 if (match.hasMatch())
                 {
                     QString type = match.captured(1);
@@ -278,7 +278,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 }
 
                 // Single line incident
-                match = re_incident.match(line);
+                match = re_incident.match(a_line);
                 if (match.hasMatch())
                 {
                     QString type = match.captured(1);
@@ -299,7 +299,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 }
 
                 // start incident
-                match = re_incident_start.match(line);
+                match = re_incident_start.match(a_line);
                 if (match.hasMatch())
                 {
                     QString type = match.captured(1);
@@ -321,7 +321,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 }
 
                 // single line benchmark
-                match = re_benchmark.match(line);
+                match = re_benchmark.match(a_line);
                 if (match.hasMatch())
                 {
                     QString metric = match.captured(1);
@@ -345,7 +345,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
                 }
 
                 // Single line duration
-                match = re_duration.match(line);
+                match = re_duration.match(a_line);
                 if (match.hasMatch())
                 {
                     QString duration = match.captured(1);
@@ -361,7 +361,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
         else
         {
             // start environment
-            match = re_environment_start.match(line);
+            match = re_environment_start.match(a_line);
             if (match.hasMatch())
             {
                 m_inEnvironment = true;
@@ -370,7 +370,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             }
 
             // start test function
-            match = re_tf_start.match(line);
+            match = re_tf_start.match(a_line);
             if (match.hasMatch())
             {
                 QString name = match.captured(1);
@@ -389,7 +389,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             }
 
             // duration
-            match = re_duration.match(line);
+            match = re_duration.match(a_line);
             if (match.hasMatch())
             {
                 QString duration = match.captured(1);
@@ -400,7 +400,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
             }
 
             // end testcase
-            match = re_tc_end.match(line);
+            match = re_tc_end.match(a_line);
             if (match.hasMatch())
             {
                 //m_testCaseName = "";
@@ -416,6 +416,12 @@ void UnitTestOutputHandler::processXmlLine(const QString &line)
 
     //not processed, log
     //qCWarning(LogQtTestRunnerCore, "%s", line.toLatin1().data());
+}
+
+/******************************************************************************/
+const TestSuite UnitTestOutputHandler::getTestSuite() const
+{
+    return m_testSuite;
 }
 
 /******************************************************************************/

@@ -44,34 +44,32 @@ public:
 
 public slots:
     /** \brief Start the test manager */
-    void start(TestSettings *a_settings);
+    void start(TestSettings *a_testSettings);
 
     /** \brief Stop the test manager */
     void stop();
 
 signals:
     /** \brief Report a new test suite */
-    void foundTestSuite(const QString &findResult, unsigned int a_nrTests);
+    void foundTestSuite(const QString &a_testSuiteName, unsigned int a_nrTests);
 
     /** \brief Report test function done */
-    void endTestFunction (const TestFunction &a_testFunction);
+    void endTestFunction(const TestFunction &a_testFunction);
 
     /** \brief Report test suite crashed */
-    void crashTestSuite  (const TestSuite    &a_testSuiteName);
+    void crashTestSuite(const TestSuite &a_testSuiteName);
 
     /** \brief Report testing finished */
-    void testingFinished();
-
-private slots:
-    void onEndTestFunction(const TestFunction &a_testFunction);
-    void onCrashTestSuite(const TestSuite &a_testSuiteName);
+    void finishedTesting();
 
 private:
     void run(void);
-    bool isTestSuite(const QString &filename);
-    void getTests(const QString &a_unittest, QList<UnitTestTriple> &tests, unsigned int &nrtests);
+    bool isTestSuite(const QString &a_fileName);
+    void getTests(const QString &a_testSuiteName,
+                  QList<UnitTestTriple> &a_testTriples,
+                  unsigned int &a_nrTests);
 
-    TestSettings *m_settings;
+    TestSettings *m_testSettings;
     bool m_stopRequested;
     bool m_running;
     QSharedPointer<QSemaphore> sem;

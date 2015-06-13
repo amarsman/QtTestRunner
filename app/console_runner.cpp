@@ -17,10 +17,10 @@ static char STYLE_GRAY[]       = "\033[0;37m";
 
 /******************************************************************************/
 ConsoleRunner::ConsoleRunner(TestManager *a_testManager,
-                             TestSettings *a_settings)
+                             TestSettings *a_testSettings)
     : QObject()
     , m_testManager(a_testManager)
-    , m_settings(a_settings)
+    , m_testSettings(a_testSettings)
     , m_totalNrTestsFound(0)
     , m_totalNrTestsRun(0)
     , m_totalNrTestsPassed(0)
@@ -28,7 +28,7 @@ ConsoleRunner::ConsoleRunner(TestManager *a_testManager,
 {
     qCDebug(LogQtTestRunner);
 
-    if (a_settings->no_colors)
+    if (a_testSettings->no_colors)
     {
         STYLE_DEFAULT[0]    = 0;
         STYLE_BOLD[0]       = 0;
@@ -62,67 +62,35 @@ void ConsoleRunner::startCollecting()
 {
     QObject::connect(m_testManager, &TestManager::foundTestSuite,
                      this, &ConsoleRunner::onFoundTestSuite);
-    QObject::connect(m_testManager, &TestManager::testingFinished,
-                     this, &ConsoleRunner::onFinishedTesting);
     QObject::connect(m_testManager, &TestManager::endTestFunction,
                      this, &ConsoleRunner::onEndTestFunction);
     QObject::connect(m_testManager, &TestManager::crashTestSuite,
                      this, &ConsoleRunner::onCrashTestSuite);
+    QObject::connect(m_testManager, &TestManager::finishedTesting,
+                     this, &ConsoleRunner::onFinishedTesting);
 
-    m_testManager->start(m_settings);
+    m_testManager->start(m_testSettings);
 }
 
 /******************************************************************************/
-void ConsoleRunner::onFoundTestSuite(const QString &a_path, unsigned int a_nrTests)
+void ConsoleRunner::onFoundTestSuite(const QString &a_testSuiteName, unsigned int a_nrTests)
 {
-    qCDebug(LogQtTestRunner, "%s", a_path.toLatin1().data());
+    qCDebug(LogQtTestRunner, "%s", a_testSuiteName.toLatin1().data());
     m_totalNrTestsFound += a_nrTests;
 }
 
 /******************************************************************************/
-void ConsoleRunner::onFinishedTesting()
-{
-    qCDebug(LogQtTestRunner, "Finished");
-
-    bool all_ok = (m_totalNrTestsFound * m_settings->repeat == m_totalNrTestsPassed);
-    fprintf(stdout, "\n%d failed, ",    m_totalNrTestsRun - m_totalNrTestsPassed);
-    fprintf(stdout, "%d passed, ",  m_totalNrTestsPassed);
-    fprintf(stdout, "%d run, ",      m_totalNrTestsRun);
-    fprintf(stdout, "%d found, ", m_totalNrTestsFound * m_settings->repeat);
-    fprintf(stdout, "final result: %s%s%s\n",
-            all_ok ? STYLE_GREEN_BOLD : STYLE_RED_BOLD ,
-            all_ok ? "OK" : "FAIL",
-            STYLE_DEFAULT);
-    emit testingFinished();
-}
-
-/******************************************************************************/
-void ConsoleRunner::onEndTestCase(const TestCase &testcase)
-{
-    Q_UNUSED(testcase);
-}
-
-/******************************************************************************/
-void ConsoleRunner::onCrashTestSuite(const TestSuite &a_testSuite)
-{
-    fprintf(stdout,"\n%sCRASH in %s%s\n",
-            STYLE_RED_BOLD, a_testSuite.m_name.toLatin1().data(),
-            STYLE_DEFAULT);
-    m_allTestsOk = false;
-}
-
-/******************************************************************************/
-void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
+void ConsoleRunner::onEndTestFunction(const TestFunction &a_testFunction)
 {
     static int nrdots=0;
     Locker lock(g_access);
 
-    int vv = m_settings->verbosity;
+    int vv = m_testSettings->verbosity;
 
-    if (testfunction.m_name == "initTestCase") return;
-    if (testfunction.m_name == "cleanupTestCase") return;
+    if (a_testFunction.m_name == "initTestCase") return;
+    if (a_testFunction.m_name == "cleanupTestCase") return;
 
-    if (testfunction.m_done)
+    if (a_testFunction.m_done)
     {
         m_totalNrTestsRun++;
 
@@ -130,8 +98,8 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
         bool has_messages = false;
 
         // Determine if test was ok
-        for (auto it = testfunction.m_incidents.begin();
-                it != testfunction.m_incidents.end();
+        for (auto it = a_testFunction.m_incidents.begin();
+                it != a_testFunction.m_incidents.end();
                 ++it)
         {
             const Incident &incident = *it;
@@ -153,13 +121,14 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
         }
 
         // has messages?
-        for (auto it = testfunction.m_messages.begin();
-                it != testfunction.m_messages.end();
+        for (auto it = a_testFunction.m_messages.begin();
+                it != a_testFunction.m_messages.end();
                 ++it)
         {
             const Message &message= *it;
 
-            if (message.m_done && !message.m_description.isEmpty() && (!message.m_description.contains("Authentication Rejected")))
+            if (message.m_done && !message.m_description.isEmpty() &&
+                    (!message.m_description.contains("Authentication Rejected")))
             {
                 has_messages = true;
             }
@@ -185,21 +154,21 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
             }
             char buf[32];
             snprintf(buf,32,"%d/%d",
-                     m_totalNrTestsRun, m_totalNrTestsFound * m_settings->repeat);
+                     m_totalNrTestsRun, m_totalNrTestsFound * m_testSettings->repeat);
             fprintf(stdout, "%s%-9s %-40s%-75s %15s  %s\n",
                     pass ? STYLE_GREEN : STYLE_RED,
                     buf,
-                    testfunction.m_casename.toLatin1().data(),
-                    testfunction.m_name.toLatin1().data(),
-                    testfunction.m_duration.toLatin1().data(),
+                    a_testFunction.m_casename.toLatin1().data(),
+                    a_testFunction.m_name.toLatin1().data(),
+                    a_testFunction.m_duration.toLatin1().data(),
                     pass ? "OK" : "FAIL");
         }
 
         // print messages
         if (vv >=1)
         {
-            for (auto it = testfunction.m_messages.begin();
-                    it != testfunction.m_messages.end();
+            for (auto it = a_testFunction.m_messages.begin();
+                    it != a_testFunction.m_messages.end();
                     ++it)
             {
                 const Message &message= *it;
@@ -226,8 +195,8 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
         // print incidents
         if (vv >= 1)
         {
-            for (auto it = testfunction.m_incidents.begin();
-                    it != testfunction.m_incidents.end();
+            for (auto it = a_testFunction.m_incidents.begin();
+                    it != a_testFunction.m_incidents.end();
                     ++it)
             {
                 const Incident &incident = *it;
@@ -258,6 +227,32 @@ void ConsoleRunner::onEndTestFunction(const TestFunction &testfunction)
         }
     }
     fprintf(stdout, "%s", STYLE_DEFAULT);
+}
+
+/******************************************************************************/
+void ConsoleRunner::onCrashTestSuite(const TestSuite &a_testSuite)
+{
+    fprintf(stdout,"\n%sCRASH in %s%s\n",
+            STYLE_RED_BOLD, a_testSuite.m_name.toLatin1().data(),
+            STYLE_DEFAULT);
+    m_allTestsOk = false;
+}
+
+/******************************************************************************/
+void ConsoleRunner::onFinishedTesting()
+{
+    qCDebug(LogQtTestRunner, "Finished");
+
+    bool all_ok = (m_totalNrTestsFound * m_testSettings->repeat == m_totalNrTestsPassed);
+    fprintf(stdout, "\n%d failed, ",    m_totalNrTestsRun - m_totalNrTestsPassed);
+    fprintf(stdout, "%d passed, ",  m_totalNrTestsPassed);
+    fprintf(stdout, "%d run, ",      m_totalNrTestsRun);
+    fprintf(stdout, "%d found, ", m_totalNrTestsFound * m_testSettings->repeat);
+    fprintf(stdout, "final result: %s%s%s\n",
+            all_ok ? STYLE_GREEN_BOLD : STYLE_RED_BOLD ,
+            all_ok ? "OK" : "FAIL",
+            STYLE_DEFAULT);
+    emit testingFinished();
 }
 
 /******************************************************************************/

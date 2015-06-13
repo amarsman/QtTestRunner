@@ -201,16 +201,17 @@ public:
     virtual ~UnitTestOutputHandler();
 
     /** \brief Set the test runner for reporting back */
-    void setUnitTestRunner(UnitTestRunner *a_runner);
+    void setUnitTestRunner(UnitTestRunner *a_unitTestRunner);
 
     /** \brief Process an xml line */
-    void processXmlLine(const QString &line);
+    void processXmlLine(const QString &a_line);
 
     /** \brief The collected data tree */
-    TestSuite m_testSuite;
+    const TestSuite getTestSuite() const;
 
 private:
-    UnitTestRunner *m_runner;
+    TestSuite m_testSuite;
+    UnitTestRunner *m_unitTestRunner;
 
     TestCase *m_testCase;
     TestFunction *m_testFunction;

@@ -16,7 +16,7 @@ class ConsoleRunner : public QObject
 public:
     /** \brief Create a console runner that uses a testmanager and testsettings */
     explicit ConsoleRunner(TestManager *a_testManager,
-                           TestSettings *a_settings);
+                           TestSettings *a_testSettings);
     virtual ~ConsoleRunner();
 
 public slots:
@@ -29,25 +29,22 @@ signals:
 
 private slots:
     /** \brief Report a new testsuite */
-    void onFoundTestSuite(const QString &a_path, unsigned int a_nrTests);
+    void onFoundTestSuite(const QString &a_testSuiteName, unsigned int a_nrTests);
+
+    /** \brief Report end test function */
+    void onEndTestFunction(const TestFunction &a_testFunction);
+
+    /** \brief Report crash test suite */
+    void onCrashTestSuite(const TestSuite &a_testSuite);
 
     /** \brief Report testing finished */
     void onFinishedTesting();
-
-    /** \brief Report end test case */
-    void onEndTestCase(const TestCase &result);
-
-    /** \brief Report end test function */
-    void onEndTestFunction(const TestFunction &result);
-
-    /** \brief Report crash test suite */
-    void onCrashTestSuite(const TestSuite &a_testSuiteName);
 
 private:
     void startCollecting();
 
     TestManager *m_testManager;
-    TestSettings *m_settings;
+    TestSettings *m_testSettings;
 
     unsigned int m_totalNrTestsFound;
     unsigned int m_totalNrTestsRun;

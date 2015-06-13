@@ -13,7 +13,7 @@ UnitTestRunner::UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore)
     : m_semaphore(a_semaphore)
     , m_running(false)
     , m_stopRequested(false)
-    , m_jobnr(0)
+    , m_jobNr(0)
 {
     qCDebug(LogQtTestRunnerCore);
 }
@@ -25,7 +25,7 @@ UnitTestRunner::~UnitTestRunner()
 }
 
 /******************************************************************************/
-bool UnitTestRunner::start(int a_jobnr,
+bool UnitTestRunner::start(int a_jobNr,
                            const QString &a_testSuiteName,
                            const QString &a_testCaseName,
                            const QString &a_testFunctionName)
@@ -40,7 +40,7 @@ bool UnitTestRunner::start(int a_jobnr,
     m_testCaseName = a_testCaseName;
     m_testFunctionName = a_testFunctionName;
     m_stopRequested = false;
-    m_jobnr = a_jobnr;
+    m_jobNr = a_jobNr;
 
     QThreadPool::globalInstance()->start(this);
 
@@ -112,7 +112,7 @@ void UnitTestRunner::run()
     QProcess::ExitStatus status = process->exitStatus();
     if (status  != QProcess::NormalExit)
     {
-        emit crashTestSuite(handler->m_testSuite);
+        emit crashTestSuite(handler->getTestSuite());
         result_ok = false;
     }
     else if (0 != process->exitCode())

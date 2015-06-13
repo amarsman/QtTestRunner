@@ -23,7 +23,7 @@ public:
     ~UnitTestRunner();
 
     /** \brief Start a test */
-    bool start(int jobnr,
+    bool start(int a_jobNr,
                const QString &a_testSuiteName,
                const QString &a_testCaseName,
                const QString &a_testFunctionName);
@@ -47,7 +47,7 @@ private:
     QSharedPointer<QSemaphore> m_semaphore;
     bool m_running;
     bool m_stopRequested;
-    int m_jobnr;
+    int m_jobNr;
 };
 
 /******************************************************************************/

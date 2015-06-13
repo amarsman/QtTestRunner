@@ -42,7 +42,7 @@ void tst_outputhandler::test()
     QString inputFile = QFINDTESTDATA("testdata.txt");
     readDataFile(inputFile, handler);
 
-    TestSuite &suite = handler.m_testSuite;
+    const TestSuite &suite = handler.getTestSuite();
 
     QCOMPARE(suite.m_name,                                                          QString("bla"));
     QCOMPARE(suite.m_done,                                                          false);
