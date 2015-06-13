@@ -31,7 +31,7 @@ public:
 };
 
 /******************************************************************************/
-/** \brief Class that collects testables and runs them multi threaded */
+/** \brief Runnable that collects testables and runs them multi threaded */
 class TestManager : public QObject, public QRunnable
 {
     Q_OBJECT

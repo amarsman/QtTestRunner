@@ -11,7 +11,7 @@
 class TestManager; //forward
 
 /******************************************************************************/
-/** Class that uses the testmanager to run tests and report them in a console */
+/** \brief Class that uses the testmanager to run tests and report them in a console */
 class ConsoleRunner : public QObject
 {
     Q_OBJECT
