@@ -1,5 +1,8 @@
 build/
 bin/
+html/
+latex/
 *~
 *.user
 *.orig
+doxywarn.txt

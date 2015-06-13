@@ -5,9 +5,10 @@
 #include <QByteArray>
 #include <QStringList>
 
-typedef QObject* (*ObjectConstructor)();
+typedef QObject* (*ObjectFactory)();
 
-class JhTestSuite : public QMap<QByteArray, ObjectConstructor>
+/** \brief JhTestSuite groups testcases in a group and tests them */
+class JhTestSuite : public QMap<QByteArray, ObjectFactory>
 {
 private:
     /** \brief Templated factory that creates an instance of T */
@@ -16,19 +17,21 @@ private:
         return new T();
     }
 
-    /** \brief Templated factory that creates an instance by classname */
+    /** \brief Factory that creates an instance by classname */
     QObject* createObject(const QByteArray &a_className) const
     {
-        ObjectConstructor factory = value(a_className);
+        ObjectFactory factory = value(a_className);
         return (factory == NULL) ? NULL : (*factory)();
     }
 
 public:
+    /** \brief Adds a testcase to the testsuite */
     template<class T> void add()
     {
         insert(T::staticMetaObject.className(), &objectFactory<T>);
     }
 
+    /** \brief Runs the testsuite */
     int exec(int &argc, char *argv[])
     {
         // Put cmdline args in a stringlist for easier handling

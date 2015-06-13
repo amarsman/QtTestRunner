@@ -14,25 +14,33 @@ class TestCase;
 class TestFunction;
 
 /******************************************************************************/
+/** \brief Runnable that runs a single unittest, testcase or test function
+ * and reports results by signals */
 class UnitTestRunner : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-
+    /** \brief Create a test runner that clears a semaphore when done */
     UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore);
     ~UnitTestRunner();
 
+    /** \brief Start a test */
     bool start(int jobnr,
                const QString &a_unitTestName,
                const QString &a_testCaseName,
                const QString &a_testName);
+
+    /** \brief Stop*/
     bool stop();
 
 signals:
+    /** \brief Report test function done */
     void endTestFunction (const TestFunction &a_testFunction);
+
+    /** \brief Report test suite crashed */
     void crashTestSuite  (const TestSuite    &a_testSuite);
 
-protected:
+private:
     void run(void);
 
 private:

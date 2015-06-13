@@ -2,6 +2,7 @@
 #define TEST_SETTINGS_H
 #include <QString>
 
+/** \brief Struct that holds all test options */
 struct TestSettings
 {
     TestSettings() {
@@ -18,17 +19,17 @@ struct TestSettings
         no_colors = false;
     }
 
-    QString basepath;
-    bool recursive;
-    int nrjobs;
-    bool debug;
-    bool useldd;
-    bool shuffle;
-    int  repeat;
-    bool isolated;
-    bool jhextensions;
-    int  verbosity;
-    bool no_colors;
+    QString basepath;    /*!< \brief Basepath where to look for tests */
+    bool recursive;      /*!< \brief Look for tests recursively */
+    int nrjobs;          /*!< \brief Run test in n threads */
+    bool debug;          /*!< \brief Print debug info */
+    bool useldd;         /*!< \brief Use ldd to determine if a file is a QTest */
+    bool shuffle;        /*!< \brief Shuffle test order */
+    int  repeat;         /*!< \brief Repeat tests n times */
+    bool isolated;       /*!< \brief Run test functions one at a time */
+    bool jhextensions;   /*!< \brief Use JH extensions (multi testcases) */
+    int  verbosity;      /*!< \brief Set verbosity level at n */
+    bool no_colors;      /*!< \brief Do not produce colored output */
 };
 
 #endif // TEST_SETTINGS_H

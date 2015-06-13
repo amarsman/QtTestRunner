@@ -1,3 +1,4 @@
+#include <QCoreApplication>
 #include <QLoggingCategory>
 #include <QDateTime>
 #include <QThread>
@@ -9,8 +10,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-#include "application.h"
-#include "gui_runner.h"
 #include "console_runner.h"
 #include "logging.h"
 #include "testmanager.h"
@@ -195,7 +194,7 @@ int main(int argc, char *argv[])
     QLoggingCategory::setFilterRules("QtTestRunner.debug=false\n"
                                      "QtTestRunnerCore.debug=false");
 
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
     app.setOrganizationName("Heidenhain");
     app.setApplicationName("QtTestRunner"),
                            app.setApplicationVersion("1.0");
@@ -207,7 +206,7 @@ int main(int argc, char *argv[])
     TestManager test_manager;
     ConsoleRunner runner(&test_manager, &test_settings);
     QObject::connect(&runner, &ConsoleRunner::testingFinished,
-                     &app, &TestRunnerApplication::quit);
+                     &app, &QCoreApplication::quit);
     QTimer::singleShot(0, &runner, &ConsoleRunner::onRun);
     return app.exec();
 }

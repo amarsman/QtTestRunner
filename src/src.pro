@@ -7,12 +7,10 @@ DESTDIR = $${PWD}/../bin
 
 SOURCES += logging.cpp \
            main.cpp \
-           console_runner.cpp \
-           unittestmodel.cpp
+           console_runner.cpp
 
 HEADERS  += logging.h \
-            console_runner.h \
-            unittestmodel.h
+            console_runner.h
 
 INCLUDEPATH += ../core
 DEPENDPATH += ../core
