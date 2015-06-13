@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
-SUBDIRS +=  src tests core
+SUBDIRS +=  core app tests
 
-src.depends = core
-tests.depends = core
-tests.depends = src
+app.depends = core
+tests.depends = core app
+
