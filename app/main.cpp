@@ -204,8 +204,8 @@ int main(int argc, char *argv[])
 
     QCoreApplication app(argc, argv);
     app.setOrganizationName("Heidenhain");
-    app.setApplicationName("QtTestRunner"),
-                           app.setApplicationVersion("1.0");
+    app.setApplicationName("QtTestRunner");
+    app.setApplicationVersion("1.0");
 
     TestSettings test_settings;
     parseCommandLineOptions(app, test_settings);
