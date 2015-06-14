@@ -142,7 +142,7 @@ void ConsoleRunner::printTestFunctionResult(const TestFunction &a_testFunction,
     {
         fprintf(stdout, "%s%s", a_testFunction.m_pass ? STYLE_GREEN : STYLE_RED, a_testFunction.m_pass ? "." : "E");
         m_nrDots++;
-        if (m_nrDots > 80)
+        if (m_nrDots > 146)
         {
             fprintf(stdout,"\n");
             m_nrDots=0;
