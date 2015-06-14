@@ -43,6 +43,9 @@ private slots:
 private:
     void startCollecting();
     void printTestFunctionResult(const TestFunction &a_testFunction, unsigned int a_testFunctionNr);
+    bool hasMessages(const TestFunction &a_testFunction);
+    void printMessages(const TestFunction &a_testFunction);
+    void printIncidents(const TestFunction &a_testFunction);
 
     TestManager *m_testManager;
     TestSettings *m_testSettings;

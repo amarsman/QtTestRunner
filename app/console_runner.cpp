@@ -5,6 +5,8 @@
 
 Q_DECLARE_LOGGING_CATEGORY(LogQtTestRunner)
 
+static const int CONSOLE_WIDTH = 146;
+
 static char STYLE_DEFAULT[]    = "\033[0m";
 static char STYLE_BOLD[]       = "\033[1;30m";
 static char STYLE_RED[]        = "\033[0;31m";
@@ -104,7 +106,7 @@ void ConsoleRunner::onFinishedTesting()
     fprintf(stdout, "\n%d found, ", nrFoundTestFunctions);
     fprintf(stdout, "%d run, ",     nrRunTestFunctions);
     fprintf(stdout, "%d passed, ",  nrPassedTestFunctions);
-    fprintf(stdout, "%d failed\n",    nrFailedTestFunctinos);
+    fprintf(stdout, "%d failed\n",  nrFailedTestFunctinos);
     fprintf(stdout, "%sFinal result: %s%s\n\n",
             all_ok ? STYLE_GREEN_BOLD : STYLE_RED_BOLD ,
             all_ok ? "OK" : "FAIL",
@@ -119,33 +121,18 @@ void ConsoleRunner::printTestFunctionResult(const TestFunction &a_testFunction,
 {
     Locker lock(g_access);
 
-    int vv = m_testSettings->verbosity;
+    int verbosity = m_testSettings->verbosity;
+    bool pass = a_testFunction.m_pass;
 
-    bool has_messages = false;
-    unsigned int nrTestFunctions = m_testManager->getNrFoundTestFunctions();
-
-    // has messages?
-    for (auto it = a_testFunction.m_messages.begin();
-         it != a_testFunction.m_messages.end();
-         ++it)
+    // print pass/fail
+    if (verbosity == 0 || ((verbosity == 1) &&  pass && !hasMessages(a_testFunction)))
     {
-        const Message &message= *it;
-
-        if (message.m_done && !message.m_description.isEmpty() &&
-                (!message.m_description.contains("Authentication Rejected")))
-        {
-            has_messages = true;
-        }
-    }
-
-    if (vv == 0 || ((vv == 1) &&  a_testFunction.m_pass && !has_messages))
-    {
-        fprintf(stdout, "%s%s", a_testFunction.m_pass ? STYLE_GREEN : STYLE_RED, a_testFunction.m_pass ? "." : "E");
+        fprintf(stdout, "%s%s", pass ? STYLE_GREEN : STYLE_RED, pass ? "." : "E");
         m_nrDots++;
-        if (m_nrDots > 146)
+        if (m_nrDots > CONSOLE_WIDTH)
         {
             fprintf(stdout,"\n");
-            m_nrDots=0;
+            m_nrDots = 0;
         }
         fflush(stdout);
     }
@@ -154,85 +141,114 @@ void ConsoleRunner::printTestFunctionResult(const TestFunction &a_testFunction,
         if (m_nrDots > 0)
         {
             fprintf(stdout, "\n");
-            m_nrDots=0;
+            m_nrDots = 0;
         }
         char buf[32];
         snprintf(buf,32,"%d/%d",
-                 a_testFunctionNr, nrTestFunctions);//m_totalNrTestsRun, m_totalNrTestsFound * m_testSettings->repeat);
+                 a_testFunctionNr,
+                 m_testManager->getNrFoundTestFunctions());
+
         fprintf(stdout, "%s%-9s %-40s%-75s %15s  %s\n",
-                a_testFunction.m_pass ? STYLE_GREEN : STYLE_RED,
+                pass ? STYLE_GREEN : STYLE_RED,
                 buf,
                 a_testFunction.m_casename.toLatin1().data(),
                 a_testFunction.m_name.toLatin1().data(),
                 a_testFunction.m_duration.toLatin1().data(),
-                a_testFunction.m_pass ? "OK" : "FAIL");
+                pass ? "OK" : "FAIL");
     }
 
-    // print messages
-    if (vv >=1)
+    // print context info
+    if (verbosity >=1)
     {
-        for (auto it = a_testFunction.m_messages.begin();
-             it != a_testFunction.m_messages.end();
-             ++it)
-        {
-            const Message &message= *it;
+        printMessages(a_testFunction);
+        printIncidents(a_testFunction);
+    }
 
-            if (message.m_done && !message.m_description.isEmpty())
+    // Always revert to default style
+    fprintf(stdout, "%s", STYLE_DEFAULT);
+}
+
+/******************************************************************************/
+bool ConsoleRunner::hasMessages(const TestFunction &a_testFunction)
+{
+    for (auto it = a_testFunction.m_messages.begin();
+         it != a_testFunction.m_messages.end();
+         ++it)
+    {
+        const Message &message= *it;
+
+        if (message.m_done &&
+                !message.m_description.isEmpty() &&
+                (!message.m_description.contains("Authentication Rejected")))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+/******************************************************************************/
+void ConsoleRunner::printMessages(const TestFunction &a_testFunction)
+{
+    // print messages
+    for (auto it = a_testFunction.m_messages.begin();
+         it != a_testFunction.m_messages.end();
+         ++it)
+    {
+        const Message &message= *it;
+
+        if (message.m_done && !message.m_description.isEmpty())
+        {
+            if (!message.m_description.contains("Authentication Rejected"))
             {
-                if (!message.m_description.contains("Authentication Rejected"))
+                if (m_nrDots > 0)
                 {
-                    if (m_nrDots > 0)
-                    {
-                        fprintf(stdout,"\n");
-                        m_nrDots = 0;
-                    }
-                    fprintf(stdout, "    %s%s: %s\n",
-                            STYLE_BLUE,
-                            message.m_type.toLatin1().data(),
-                            message.m_description.toLatin1().data());
+                    fprintf(stdout,"\n");
                     m_nrDots = 0;
                 }
+                fprintf(stdout, "    %s%s: %s\n",
+                        STYLE_BLUE,
+                        message.m_type.toLatin1().data(),
+                        message.m_description.toLatin1().data());
+                m_nrDots = 0;
             }
         }
     }
+}
+/******************************************************************************/
+void ConsoleRunner::printIncidents(const TestFunction &a_testFunction)
+{
+    bool pass = a_testFunction.m_pass;
 
-    // print incidents
-    if (vv >= 1)
+    for (auto it = a_testFunction.m_incidents.begin();
+         it != a_testFunction.m_incidents.end();
+         ++it)
     {
-        for (auto it = a_testFunction.m_incidents.begin();
-             it != a_testFunction.m_incidents.end();
-             ++it)
+        const Incident &incident = *it;
+
+        if (incident.m_done && !incident.m_description.isEmpty() && (
+                    incident.m_type == "fail" ||
+                    incident.m_type == "xpass"))
         {
-            const Incident &incident = *it;
-
-            if (incident.m_done && !incident.m_description.isEmpty() && (
-                        incident.m_type == "fail" ||
-                        incident.m_type == "xpass"))
+            if (!incident.m_datatag.isEmpty())
             {
-                if (!incident.m_datatag.isEmpty())
-                {
-                    fprintf(stdout, "    %sDataset: %s\n",
-                            a_testFunction.m_pass ? STYLE_GREEN_BOLD : STYLE_RED_BOLD,
-                            incident.m_datatag.toLatin1().data());
-                }
-                fprintf(stdout, "    %s%s %s\n",
-                        a_testFunction.m_pass ? STYLE_GREEN_BOLD : STYLE_RED_BOLD,
-                        incident.m_file.toLatin1().data(),
-                        incident.m_line.toLatin1().data());
-
-
-                QString desc = incident.m_description;
-                desc.replace(QString("\n"), QString("\n    "));
-                fprintf(stdout, "    %s%s\n",
-                        a_testFunction.m_pass ? STYLE_GREEN : STYLE_RED,
-                        desc.toLatin1().data());
+                fprintf(stdout, "    %sDataset: %s\n",
+                        pass ? STYLE_GREEN_BOLD : STYLE_RED_BOLD,
+                        incident.m_datatag.toLatin1().data());
             }
+            fprintf(stdout, "    %s%s %s\n",
+                    pass ? STYLE_GREEN_BOLD : STYLE_RED_BOLD,
+                    incident.m_file.toLatin1().data(),
+                    incident.m_line.toLatin1().data());
+
+
+            QString desc = incident.m_description;
+            desc.replace(QString("\n"), QString("\n    "));
+            fprintf(stdout, "    %s%s\n",
+                    pass ? STYLE_GREEN : STYLE_RED,
+                    desc.toLatin1().data());
         }
     }
-
-
-    // Make sure to revert to default style
-    fprintf(stdout, "%s", STYLE_DEFAULT);
 }
 
 /******************************************************************************/
