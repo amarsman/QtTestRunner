@@ -452,8 +452,8 @@ bool UnitTestOutputHandler::hasTestFunctionPassed()
 
     // Determine if test was ok
     for (auto it = m_testFunction->m_incidents.begin();
-         it != m_testFunction->m_incidents.end();
-         ++it)
+            it != m_testFunction->m_incidents.end();
+            ++it)
     {
         const Incident &incident = *it;
         if (!incident.m_done ||

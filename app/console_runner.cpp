@@ -117,7 +117,7 @@ void ConsoleRunner::onFinishedTesting()
 
 /******************************************************************************/
 void ConsoleRunner::printTestFunctionResult(const TestFunction &a_testFunction,
-                                            unsigned int a_testFunctionNr)
+        unsigned int a_testFunctionNr)
 {
     Locker lock(g_access);
 
@@ -172,8 +172,8 @@ void ConsoleRunner::printTestFunctionResult(const TestFunction &a_testFunction,
 bool ConsoleRunner::hasMessages(const TestFunction &a_testFunction)
 {
     for (auto it = a_testFunction.m_messages.begin();
-         it != a_testFunction.m_messages.end();
-         ++it)
+            it != a_testFunction.m_messages.end();
+            ++it)
     {
         const Message &message= *it;
 
@@ -192,8 +192,8 @@ void ConsoleRunner::printMessages(const TestFunction &a_testFunction)
 {
     // print messages
     for (auto it = a_testFunction.m_messages.begin();
-         it != a_testFunction.m_messages.end();
-         ++it)
+            it != a_testFunction.m_messages.end();
+            ++it)
     {
         const Message &message= *it;
 
@@ -221,8 +221,8 @@ void ConsoleRunner::printIncidents(const TestFunction &a_testFunction)
     bool pass = a_testFunction.m_pass;
 
     for (auto it = a_testFunction.m_incidents.begin();
-         it != a_testFunction.m_incidents.end();
-         ++it)
+            it != a_testFunction.m_incidents.end();
+            ++it)
     {
         const Incident &incident = *it;
 
