@@ -57,7 +57,7 @@ public slots:
 
 signals:
     /** \brief Report a new test suite */
-    void foundTestSuite(const QString &a_testSuiteName, unsigned int m_nrTestFunctions);
+    void foundTestSuite(const QString &a_testSuiteName, unsigned int m_nrFoundTestFunctions);
 
     /** \brief Report test function done */
     void endTestFunction(const TestFunction &a_testFunction, unsigned int m_testFunctionNr);
@@ -84,7 +84,7 @@ private:
     bool m_stopRequested;
     bool m_running;
     QSharedPointer<QSemaphore> sem;
-    unsigned int m_nrTestFunctions;
+    unsigned int m_nrFoundTestFunctions;
     unsigned int m_nrRunTestFunctions;
     unsigned int m_nrPassedTestFunctions;
     unsigned int m_nrFailedTestFunctions;

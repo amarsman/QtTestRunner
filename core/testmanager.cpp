@@ -14,7 +14,7 @@ Q_LOGGING_CATEGORY(LogQtTestRunnerCore, "QtTestRunnerCore")
 TestManager::TestManager()
     : m_stopRequested(false)
     , m_running(false)
-    , m_nrTestFunctions(0)
+    , m_nrFoundTestFunctions(0)
     , m_nrRunTestFunctions(0)
     , m_nrPassedTestFunctions(0)
     , m_nrFailedTestFunctions(0)
@@ -56,7 +56,7 @@ void TestManager::stop()
 /******************************************************************************/
 unsigned int TestManager::getNrFoundTestFunctions()
 {
-    return m_nrTestFunctions;
+    return m_nrFoundTestFunctions * m_testSettings->repeat;
 }
 
 /******************************************************************************/
@@ -146,7 +146,7 @@ void TestManager::run()
                     return;
                 }
                 m_unitTests.append(tests);
-                m_nrTestFunctions += nrtests;
+                m_nrFoundTestFunctions += nrtests;
             }
         }
     }
@@ -168,7 +168,7 @@ void TestManager::run()
                 return;
             }
             m_unitTests.append(tests);
-            m_nrTestFunctions += nrtests;
+            m_nrFoundTestFunctions += nrtests;
         }
     }
 
