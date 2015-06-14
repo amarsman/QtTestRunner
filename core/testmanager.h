@@ -49,18 +49,29 @@ public slots:
     /** \brief Stop the test manager */
     void stop();
 
+    /** \brief Get nr of found test functions */
+    unsigned int getNrFoundTestFunctions();
+    unsigned int getNrRunTestFunctions();
+    unsigned int getNrPassedFunctions();
+    unsigned int getNrFailedTestFunctions();
+
 signals:
     /** \brief Report a new test suite */
-    void foundTestSuite(const QString &a_testSuiteName, unsigned int a_nrTests);
+    void foundTestSuite(const QString &a_testSuiteName, unsigned int m_nrTestFunctions);
 
     /** \brief Report test function done */
-    void endTestFunction(const TestFunction &a_testFunction);
+    void endTestFunction(const TestFunction &a_testFunction, unsigned int m_testFunctionNr);
 
     /** \brief Report test suite crashed */
     void crashTestSuite(const TestSuite &a_testSuiteName);
 
     /** \brief Report testing finished */
     void finishedTesting();
+
+
+private slots:
+    void onEndTestFunction(const TestFunction &a_testFunction);
+    void onCrashTestSuite(const TestSuite &a_testSuiteName);
 
 private:
     void run(void);
@@ -73,6 +84,10 @@ private:
     bool m_stopRequested;
     bool m_running;
     QSharedPointer<QSemaphore> sem;
+    unsigned int m_nrTestFunctions;
+    unsigned int m_nrRunTestFunctions;
+    unsigned int m_nrPassedTestFunctions;
+    unsigned int m_nrFailedTestFunctions;
 };
 
 /******************************************************************************/

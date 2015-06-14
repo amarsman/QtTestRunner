@@ -11,6 +11,7 @@ QMutex g_access;
 /******************************************************************************/
 UnitTestOutputHandler::UnitTestOutputHandler(const QString &a_testSuiteName)
     : QObject()
+
     , m_unitTestRunner(nullptr)
     , m_inTestCase(false)
     , m_inEnvironment(false)
@@ -22,7 +23,8 @@ UnitTestOutputHandler::UnitTestOutputHandler(const QString &a_testSuiteName)
     , m_inDataTag(false)
     , m_inBenchmarkResult(false)
 {
-    m_testSuite.m_name = a_testSuiteName;
+    m_testSuite.reset(new TestSuite());
+    m_testSuite->m_name = a_testSuiteName;
 
     qRegisterMetaType<TestSuite>("TestSuite");
     qRegisterMetaType<TestCase>("TestCase");
@@ -51,7 +53,7 @@ UnitTestOutputHandler::UnitTestOutputHandler(const QString &a_testSuiteName)
 /******************************************************************************/
 UnitTestOutputHandler::~UnitTestOutputHandler()
 {
-
+    m_testSuite.reset();
 }
 
 /******************************************************************************/
@@ -87,8 +89,8 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
             m_inTestCase = true;
 
             TestCase newtestcase;
-            m_testSuite.m_testCases.append(newtestcase);
-            m_testCase = &(m_testSuite.m_testCases.last());
+            m_testSuite->m_testCases.append(newtestcase);
+            m_testCase = &(m_testSuite->m_testCases.last());
             m_testCase->m_name = name;
 
             return;
@@ -249,6 +251,9 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     m_inTestFunction = false;
 
                     m_testFunction->m_done = true;
+
+                    propagateResults();
+
                     if (m_unitTestRunner) emit m_unitTestRunner->endTestFunction(*m_testFunction);
 
                     m_testFunction = 0;
@@ -419,9 +424,47 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
 }
 
 /******************************************************************************/
-const TestSuite UnitTestOutputHandler::getTestSuite() const
+const TestSuite &UnitTestOutputHandler::getTestSuite() const
 {
-    return m_testSuite;
+    return *(m_testSuite.data());
 }
+
+/******************************************************************************/
+void UnitTestOutputHandler::propagateResults()
+{
+    qCDebug(LogQtTestRunnerCore, "---- Propragate ----");
+    Q_ASSERT(m_testFunction != nullptr);
+    Q_ASSERT(m_testCase != nullptr);
+    Q_ASSERT(m_testSuite != nullptr);
+
+    if (!hasTestFunctionPassed())
+    {
+        m_testFunction->m_pass = false;
+        m_testCase->m_pass = false;
+        m_testSuite->m_pass = false;
+    }
+}
+
+/******************************************************************************/
+bool UnitTestOutputHandler::hasTestFunctionPassed()
+{
+    bool pass = true;
+
+    // Determine if test was ok
+    for (auto it = m_testFunction->m_incidents.begin();
+         it != m_testFunction->m_incidents.end();
+         ++it)
+    {
+        const Incident &incident = *it;
+        if (!incident.m_done ||
+                incident.m_type == "fail" ||
+                incident.m_type == "xpass")
+        {
+            pass = false;
+        }
+    }
+    return pass;
+}
+
 
 /******************************************************************************/

@@ -25,14 +25,14 @@ public slots:
 
 signals:
     /** \brief Test runner finished */
-    void testingFinished();
+    void testingFinished(int exitcode);
 
 private slots:
     /** \brief Report a new testsuite */
-    void onFoundTestSuite(const QString &a_testSuiteName, unsigned int a_nrTests);
+    void onFoundTestSuite(const QString &a_testSuiteName, unsigned int a_nrTestFunctions);
 
     /** \brief Report end test function */
-    void onEndTestFunction(const TestFunction &a_testFunction);
+    void onEndTestFunction(const TestFunction &a_testFunction, unsigned int a_testFunctionNr);
 
     /** \brief Report crash test suite */
     void onCrashTestSuite(const TestSuite &a_testSuite);
@@ -42,14 +42,12 @@ private slots:
 
 private:
     void startCollecting();
+    void printTestFunctionResult(const TestFunction &a_testFunction, unsigned int a_testFunctionNr);
 
     TestManager *m_testManager;
     TestSettings *m_testSettings;
 
-    unsigned int m_totalNrTestsFound;
-    unsigned int m_totalNrTestsRun;
-    unsigned int m_totalNrTestsPassed;
-    bool m_allTestsOk;
+    unsigned int m_nrDots;
 };
 
 /******************************************************************************/

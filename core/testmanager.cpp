@@ -14,6 +14,10 @@ Q_LOGGING_CATEGORY(LogQtTestRunnerCore, "QtTestRunnerCore")
 TestManager::TestManager()
     : m_stopRequested(false)
     , m_running(false)
+    , m_nrTestFunctions(0)
+    , m_nrRunTestFunctions(0)
+    , m_nrPassedTestFunctions(0)
+    , m_nrFailedTestFunctions(0)
 {
     qCDebug(LogQtTestRunnerCore);
     setAutoDelete(false);
@@ -47,6 +51,55 @@ void TestManager::stop()
 
     qDebug("FileFinder Stopping...");
     m_stopRequested = true;
+}
+
+/******************************************************************************/
+unsigned int TestManager::getNrFoundTestFunctions()
+{
+    return m_nrTestFunctions;
+}
+
+/******************************************************************************/
+unsigned int TestManager::getNrRunTestFunctions()
+{
+    return m_nrRunTestFunctions;
+}
+
+/******************************************************************************/
+unsigned int TestManager::getNrPassedFunctions()
+{
+    return m_nrPassedTestFunctions;
+}
+
+/******************************************************************************/
+unsigned int TestManager::getNrFailedTestFunctions()
+{
+    return m_nrFailedTestFunctions;
+}
+
+/******************************************************************************/
+void TestManager::onEndTestFunction(const TestFunction &a_testFunction)
+{
+    // Do not process init/cleanup
+    if (a_testFunction.m_name == "initTestCase") return;
+    if (a_testFunction.m_name == "cleanupTestCase") return;
+
+    m_nrRunTestFunctions++;
+    if (a_testFunction.m_pass)
+    {
+        m_nrPassedTestFunctions++;
+    }
+    else
+    {
+        m_nrFailedTestFunctions++;
+    }
+    emit endTestFunction(a_testFunction, m_nrRunTestFunctions);
+}
+
+/******************************************************************************/
+void TestManager::onCrashTestSuite(const TestSuite &a_testSuiteName)
+{
+    emit crashTestSuite(a_testSuiteName);
 }
 
 /******************************************************************************/
@@ -93,6 +146,7 @@ void TestManager::run()
                     return;
                 }
                 m_unitTests.append(tests);
+                m_nrTestFunctions += nrtests;
             }
         }
     }
@@ -114,6 +168,7 @@ void TestManager::run()
                 return;
             }
             m_unitTests.append(tests);
+            m_nrTestFunctions += nrtests;
         }
     }
 
@@ -154,9 +209,9 @@ void TestManager::run()
         UnitTestRunner *runner = new UnitTestRunner(sem);
 
         QObject::connect(runner, &UnitTestRunner::endTestFunction,
-                         this, &TestManager::endTestFunction);
+                         this, &TestManager::onEndTestFunction);
         QObject::connect(runner, &UnitTestRunner::crashTestSuite,
-                         this, &TestManager::crashTestSuite);
+                         this, &TestManager::onCrashTestSuite);
 
         runner->start(jobnr, filename, testcase, testname);
     }

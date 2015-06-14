@@ -123,11 +123,12 @@ public:
     /** \brief Reset data */
     void reset()
     {
-        m_name="";
+        m_name = "";
         m_messages.clear();
         m_incidents.clear();
-        m_duration="";
-        m_done=false;
+        m_duration = "";
+        m_done = false;
+        m_pass = true;
     }
 
     QString          m_casename;          /*!< \brief Name of test case */
@@ -137,6 +138,7 @@ public:
     QList<Benchmark> m_benchmarks;        /*!< \brief Benchmarks in test function */
     QString          m_duration;          /*!< \brief Duration of test function */
     bool             m_done;              /*!< \brief Test function done */
+    bool             m_pass;              /*!< \brief Test function passed */
 };
 
 /******************************************************************************/
@@ -152,10 +154,11 @@ public:
     /** \brief Reset data */
     void reset()
     {
-        m_name="";
+        m_name = "";
         m_testfunctions.clear();
-        m_duration="";
-        m_done=false;
+        m_duration = "";
+        m_done = false;
+        m_pass = true;
     }
 
     QString             m_name;            /*!< \brief Name of test case */
@@ -163,6 +166,7 @@ public:
     QList<TestFunction> m_testfunctions;   /*!< \brief Test functions in test case */
     QString             m_duration;        /*!< \brief Duration of test case */
     bool                m_done;            /*!< \brief Test case done */
+    bool                m_pass;            /*!< \brief Test case passed */
 };
 
 
@@ -182,12 +186,13 @@ public:
         m_name = "";
         m_testCases.clear();
         m_done = false;
+        m_pass = true;
     }
 
-    QString m_name;                   /*!< \brief Name of test suite */
+    QString         m_name;           /*!< \brief Name of test suite */
     QList<TestCase> m_testCases;      /*!< \brief Test cases in test suite*/
-    bool m_done;                      /*!< \brief Test suite done */
-
+    bool            m_done;           /*!< \brief Test suite done */
+    bool            m_pass;           /*!< \brief Test suite passed */
 };
 
 /******************************************************************************/
@@ -207,10 +212,13 @@ public:
     void processXmlLine(const QString &a_line);
 
     /** \brief The collected data tree */
-    const TestSuite getTestSuite() const;
+    const TestSuite &getTestSuite() const;
 
 private:
-    TestSuite m_testSuite;
+    void propagateResults();
+    bool hasTestFunctionPassed();
+
+    QScopedPointer<TestSuite> m_testSuite;
     UnitTestRunner *m_unitTestRunner;
 
     TestCase *m_testCase;

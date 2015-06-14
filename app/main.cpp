@@ -146,9 +146,9 @@ static void parseCommandLineOptions(QCoreApplication &app,
     //a_settings.shuffle = true;
     //a_settings.onebyone = true;
     //a_settings.repeat = 100;
-    //a_settings.nrjobs = 1;
+    a_settings.nrjobs = 1;
     //a_settings.jhextensions = false;
-    //a_settings.verbosity = 2;
+    a_settings.verbosity = 2;
 
     qCDebug(LogQtTestRunner, "basepath  %s", a_settings.basepath.toLatin1().data());
     qCDebug(LogQtTestRunner, "recursive %s", a_settings.recursive ? "yes" : "no");
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
     TestManager test_manager;
     ConsoleRunner runner(&test_manager, &test_settings);
     QObject::connect(&runner, &ConsoleRunner::testingFinished,
-                     &app, &QCoreApplication::quit);
+                     &app, &QCoreApplication::exit);
     QTimer::singleShot(0, &runner, &ConsoleRunner::onRun);
     return app.exec();
 }
