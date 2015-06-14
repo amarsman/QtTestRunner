@@ -243,7 +243,7 @@ void ConsoleRunner::onFinishedTesting()
 {
     qCDebug(LogQtTestRunner, "Finished");
 
-    bool all_ok = (m_totalNrTestsFound * m_testSettings->repeat == m_totalNrTestsPassed);
+    bool all_ok = (m_totalNrTestsPassed > 0) && (m_totalNrTestsFound * m_testSettings->repeat == m_totalNrTestsPassed);
     fprintf(stdout, "\n%d failed, ",    m_totalNrTestsRun - m_totalNrTestsPassed);
     fprintf(stdout, "%d passed, ",  m_totalNrTestsPassed);
     fprintf(stdout, "%d run, ",      m_totalNrTestsRun);

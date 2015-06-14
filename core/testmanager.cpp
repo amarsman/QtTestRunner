@@ -87,7 +87,11 @@ void TestManager::run()
             {
                 QList<UnitTestTriple> tests;
                 unsigned int nrtests=0;
-                getTests(fullPath, tests, nrtests);
+                if (!getTests(fullPath, tests, nrtests))
+                {
+                    emit finishedTesting();
+                    return;
+                }
                 m_unitTests.append(tests);
             }
         }
@@ -104,7 +108,11 @@ void TestManager::run()
         {
             QList<UnitTestTriple> tests;
             unsigned int nrtests=0;
-            getTests(fullPath, tests, nrtests);
+            if (!getTests(fullPath, tests, nrtests))
+            {
+                emit finishedTesting();
+                return;
+            }
             m_unitTests.append(tests);
         }
     }
@@ -170,7 +178,13 @@ bool TestManager::isTestSuite(const QString &a_fileName)
     QScopedPointer<QProcess> process(new QProcess());
 
     process->start("ldd",QStringList() << a_fileName);
-    process->waitForFinished();
+    if (!process->waitForFinished(5000) ||
+            process->exitStatus() != QProcess::NormalExit ||
+            process->exitCode() != 0)
+    {
+        qCCritical(LogQtTestRunnerCore, "Could not analyze %s", a_fileName.toLatin1().data());
+        return false;
+    }
     QString data = QString(process->readAllStandardOutput());
 
     QRegularExpression re("libQt5Test");
@@ -179,20 +193,27 @@ bool TestManager::isTestSuite(const QString &a_fileName)
 }
 
 /******************************************************************************/
-void TestManager::getTests(const QString &a_testSuiteName,
+bool TestManager::getTests(const QString &a_testSuiteFileName,
                            QList<UnitTestTriple> &a_testTriples,
                            unsigned int &a_nrTests)
 {
     a_testTriples.clear();
     a_nrTests = 0;
 
-    QString filename = QFileInfo(a_testSuiteName).absoluteFilePath();
+    QString filename = QFileInfo(a_testSuiteFileName).absoluteFilePath();
 
     if (!m_testSettings->jhextensions) // don't use JH extensions
     {
         QScopedPointer<QProcess> process(new QProcess());
         process->start(filename, QStringList() << "-functions");
-        process->waitForFinished();
+        if (!process->waitForFinished(5000) ||
+                process->exitStatus() != QProcess::NormalExit ||
+                process->exitCode() != 0)
+        {
+            qCCritical(LogQtTestRunnerCore, "Could not analyze %s",
+                       a_testSuiteFileName.toLatin1().data());
+            return false;
+        }
 
         QStringList data = QString(process->readAllStandardOutput()).split('\n');
 
@@ -211,7 +232,7 @@ void TestManager::getTests(const QString &a_testSuiteName,
                     a_testTriples.append(triple);
                 }
                 a_nrTests++;
-                emit foundTestSuite(a_testSuiteName, 1);
+                emit foundTestSuite(a_testSuiteFileName, 1);
             }
         }
         if (!m_testSettings->isolated)
@@ -229,7 +250,14 @@ void TestManager::getTests(const QString &a_testSuiteName,
 
         QScopedPointer<QProcess> process(new QProcess());
         process->start(filename, QStringList() << "-testcases");
-        process->waitForFinished();
+        if (!process->waitForFinished(5000) ||
+                process->exitStatus() != QProcess::NormalExit ||
+                process->exitCode() != 0)
+        {
+            qCCritical(LogQtTestRunnerCore, "Could not analyze %s",
+                       a_testSuiteFileName.toLatin1().data());
+            return false;
+        }
 
         QStringList data = QString(process->readAllStandardOutput()).split('\n');
         for (auto it = data.begin(); it != data.end(); ++it)
@@ -246,7 +274,14 @@ void TestManager::getTests(const QString &a_testSuiteName,
             QString testcase = (*it).trimmed();
             QScopedPointer<QProcess> process(new QProcess());
             process->start(filename, QStringList() << "-testcase" << testcase << "-functions" );
-            process->waitForFinished();
+            if (!process->waitForFinished(5000) ||
+                    process->exitStatus() != QProcess::NormalExit ||
+                    process->exitCode() != 0)
+            {
+                qCCritical(LogQtTestRunnerCore, "Could not analyze %s",
+                           a_testSuiteFileName.toLatin1().data());
+                return false;
+            }
 
             QStringList data = QString(process->readAllStandardOutput()).split('\n');
 
@@ -265,7 +300,7 @@ void TestManager::getTests(const QString &a_testSuiteName,
                         a_testTriples.append(triple);
                     }
                     a_nrTests++;
-                    emit foundTestSuite(a_testSuiteName, 1);
+                    emit foundTestSuite(a_testSuiteFileName, 1);
                 }
             }
         }
@@ -279,6 +314,8 @@ void TestManager::getTests(const QString &a_testSuiteName,
             a_testTriples.append(triple);
         }
     }
+
+    return true;
 }
 
 /******************************************************************************/

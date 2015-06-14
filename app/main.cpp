@@ -180,10 +180,17 @@ static void checkPreconditions(TestSettings &a_settings)
 
     // Find out if ldd works
     {
+        a_settings.useldd = false;
+
         QScopedPointer<QProcess> process(new QProcess());
 
         process->start("ldd", QStringList() << "/bin/ls");
-        a_settings.useldd = process->waitForFinished();
+        if (process->waitForFinished(5000) &&
+                process->exitStatus() == QProcess::NormalExit &&
+                process->exitCode() == 0)
+        {
+            a_settings.useldd = true;
+        }
         qCDebug(LogQtTestRunner, "useldd: %d", a_settings.useldd);
     }
 }
@@ -198,7 +205,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
     app.setOrganizationName("Heidenhain");
     app.setApplicationName("QtTestRunner"),
-                           app.setApplicationVersion("1.0");
+            app.setApplicationVersion("1.0");
 
     TestSettings test_settings;
     parseCommandLineOptions(app, test_settings);

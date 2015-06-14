@@ -65,7 +65,7 @@ signals:
 private:
     void run(void);
     bool isTestSuite(const QString &a_fileName);
-    void getTests(const QString &a_testSuiteName,
+    bool getTests(const QString &a_testSuiteName,
                   QList<UnitTestTriple> &a_testTriples,
                   unsigned int &a_nrTests);
 

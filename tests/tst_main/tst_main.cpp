@@ -25,7 +25,6 @@ private slots:
     void benchmarkpasstest();
     void benchmarkpassloggingtest();
 
-
     void testvector_data();
     void testvector();
 
