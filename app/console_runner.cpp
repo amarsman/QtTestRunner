@@ -43,6 +43,7 @@ ConsoleRunner::ConsoleRunner(TestManager *a_testManager,
     , m_nrDots(0)
 {
     qCDebug(LogQtTestRunner);
+    m_elapsedTimer.start();
 
     if (a_testSettings->no_colors)
     {
@@ -113,6 +114,7 @@ void ConsoleRunner::onCrashTestSuite(const TestSuite &a_testSuite)
 void ConsoleRunner::onFinishedTesting()
 {
     qCDebug(LogQtTestRunner, "Finished");
+    qint64 elapsed = m_elapsedTimer.elapsed();
 
     unsigned int nrFoundTestFunctions  = m_testManager->getNrFoundTestFunctions();
     unsigned int nrRunTestFunctions    = m_testManager->getNrRunTestFunctions();
@@ -120,7 +122,8 @@ void ConsoleRunner::onFinishedTesting()
     unsigned int nrFailedTestFunctinos = m_testManager->getNrFailedTestFunctions();
 
     bool all_ok = (nrPassedTestFunctions > 0) && (nrFoundTestFunctions == nrPassedTestFunctions);
-    fprintf(stdout, "\n%d found, ", nrFoundTestFunctions);
+    fprintf(stdout, "\n%.1lf seconds, ", elapsed/1000.0);
+    fprintf(stdout, "%d found, ",   nrFoundTestFunctions);
     fprintf(stdout, "%d run, ",     nrRunTestFunctions);
     fprintf(stdout, "%d passed, ",  nrPassedTestFunctions);
     fprintf(stdout, "%d failed\n",  nrFailedTestFunctinos);

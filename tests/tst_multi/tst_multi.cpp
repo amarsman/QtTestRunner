@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QThread>
 #include "../jhtestsuite.h"
 
-const int WAITTIME = 0;
+const int WAITTIME = 1000;
 
 /******************************************************************************/
 class tst_application : public QObject

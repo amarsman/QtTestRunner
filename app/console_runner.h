@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define CONSOLE_RUNNER_H
 
 #include <QObject>
+#include <QElapsedTimer>
 
 #include "testsettings.h"
 #include "unittestoutputhandler.h"
@@ -68,6 +69,8 @@ private:
     TestSettings *m_testSettings;
 
     unsigned int m_nrDots;
+    QElapsedTimer m_elapsedTimer;
+
 };
 
 /******************************************************************************/
