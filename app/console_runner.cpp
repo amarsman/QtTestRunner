@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 Q_DECLARE_LOGGING_CATEGORY(LogQtTestRunner)
 
-static const int CONSOLE_WIDTH = 146;
+static const unsigned int CONSOLE_WIDTH = 146;
 
 static char STYLE_DEFAULT[]    = "\033[0m";
 static char STYLE_BOLD[]       = "\033[1;30m";
@@ -71,28 +71,31 @@ void ConsoleRunner::onRun()
 {
     qCDebug(LogQtTestRunner);
 
-    startCollecting();
+    if (!m_testManager->isRunning())
+    {
+        fprintf(stdout,"Started\n");
+
+        QObject::connect(m_testManager, &TestManager::foundUnitTestTriple,
+                         this, &ConsoleRunner::onFoundUnitTestTriple);
+        QObject::connect(m_testManager, &TestManager::endTestFunction,
+                         this, &ConsoleRunner::onEndTestFunction);
+        QObject::connect(m_testManager, &TestManager::crashTestSuite,
+                         this, &ConsoleRunner::onCrashTestSuite);
+        QObject::connect(m_testManager, &TestManager::finishedTesting,
+                         this, &ConsoleRunner::onFinishedTesting);
+
+        m_testManager->start(m_testSettings);
+    }
 }
 
 /******************************************************************************/
-void ConsoleRunner::startCollecting()
+void ConsoleRunner::onFoundUnitTestTriple(const UnitTestTriple &a_unitTestTriple)
 {
-    QObject::connect(m_testManager, &TestManager::foundTestSuite,
-                     this, &ConsoleRunner::onFoundTestSuite);
-    QObject::connect(m_testManager, &TestManager::endTestFunction,
-                     this, &ConsoleRunner::onEndTestFunction);
-    QObject::connect(m_testManager, &TestManager::crashTestSuite,
-                     this, &ConsoleRunner::onCrashTestSuite);
-    QObject::connect(m_testManager, &TestManager::finishedTesting,
-                     this, &ConsoleRunner::onFinishedTesting);
-
-    m_testManager->start(m_testSettings);
-}
-
-/******************************************************************************/
-void ConsoleRunner::onFoundTestSuite(const QString &a_testSuiteName, unsigned int m_nrTestFunctions)
-{
-    qCDebug(LogQtTestRunner, "%s %d", a_testSuiteName.toLatin1().data(), m_nrTestFunctions);
+    qCDebug(LogQtTestRunner, "%s", a_unitTestTriple.m_testSuiteName.toLatin1().data());
+    if (m_testSettings->verbosity >= 2)
+    {
+        fprintf(stdout,"%s\n", a_unitTestTriple.m_testSuiteName.toLatin1().data());
+    }
 }
 
 /******************************************************************************/
@@ -114,6 +117,7 @@ void ConsoleRunner::onCrashTestSuite(const TestSuite &a_testSuite)
 void ConsoleRunner::onFinishedTesting()
 {
     qCDebug(LogQtTestRunner, "Finished");
+
     qint64 elapsed = m_elapsedTimer.elapsed();
 
     unsigned int nrFoundTestFunctions  = m_testManager->getNrFoundTestFunctions();
@@ -137,7 +141,7 @@ void ConsoleRunner::onFinishedTesting()
 
 /******************************************************************************/
 void ConsoleRunner::printTestFunctionResult(const TestFunction &a_testFunction,
-        unsigned int a_testFunctionNr)
+                                            unsigned int a_testFunctionNr)
 {
     Locker lock(g_access);
 
@@ -192,8 +196,8 @@ void ConsoleRunner::printTestFunctionResult(const TestFunction &a_testFunction,
 bool ConsoleRunner::hasMessages(const TestFunction &a_testFunction)
 {
     for (auto it = a_testFunction.m_messages.begin();
-            it != a_testFunction.m_messages.end();
-            ++it)
+         it != a_testFunction.m_messages.end();
+         ++it)
     {
         const Message &message= *it;
 
@@ -212,8 +216,8 @@ void ConsoleRunner::printMessages(const TestFunction &a_testFunction)
 {
     // print messages
     for (auto it = a_testFunction.m_messages.begin();
-            it != a_testFunction.m_messages.end();
-            ++it)
+         it != a_testFunction.m_messages.end();
+         ++it)
     {
         const Message &message= *it;
 
@@ -241,8 +245,8 @@ void ConsoleRunner::printIncidents(const TestFunction &a_testFunction)
     bool pass = a_testFunction.m_pass;
 
     for (auto it = a_testFunction.m_incidents.begin();
-            it != a_testFunction.m_incidents.end();
-            ++it)
+         it != a_testFunction.m_incidents.end();
+         ++it)
     {
         const Incident &incident = *it;
 

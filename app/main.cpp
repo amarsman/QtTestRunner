@@ -18,19 +18,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <unistd.h>
 
 #include <QCommandLineParser>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDateTime>
 #include <QLoggingCategory>
 #include <QProcess>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQmlDebuggingEnabler>
 #include <QThread>
 #include <QTimer>
-
 
 #include "console_runner.h"
 #include "testmanager.h"
 #include "testsettings.h"
 
 Q_LOGGING_CATEGORY(LogQtTestRunner, "QtTestRunner")
+
+static const char SEARCHPATH[] = ".";
+
+QQmlDebuggingEnabler enabler;
 
 /******************************************************************************/
 void LogHandler(QtMsgType type,
@@ -110,6 +116,7 @@ static void parseCommandLineOptions(QCoreApplication &app,
     QCommandLineOption jhOption       (QStringList() << "jh",         "Disable JH extensions"                        );
     QCommandLineOption nocolorOption  (QStringList() << "c" << "no-color",   "Disabled color output"                        );
     QCommandLineOption verboseOption  (QStringList() << "V" << "verbosity",  "Set verbosity (default=1)",            "verb" );
+    QCommandLineOption guiOption      (QStringList() << "g" << "gui",        "Use GUI"                                      );
 
     QCommandLineParser parser;
     parser.addPositionalArgument("path", "Path or test executable. (default=cwd)");
@@ -122,6 +129,7 @@ static void parseCommandLineOptions(QCoreApplication &app,
     parser.addOption(jhOption);
     parser.addOption(verboseOption);
     parser.addOption(nocolorOption);
+    parser.addOption(guiOption);
     parser.addVersionOption();
     parser.addHelpOption();
     parser.process(app);
@@ -131,13 +139,14 @@ static void parseCommandLineOptions(QCoreApplication &app,
         parser.showHelp(-1);
     }
 
-    a_settings.basepath = (args.length() < 1) ? "." : args[0];
+    a_settings.basepath = (args.length() < 1) ? SEARCHPATH : args[0];
     a_settings.recursive = parser.isSet(recursiveOption);
     a_settings.debug = parser.isSet(debugOption);
     a_settings.shuffle = parser.isSet(shuffleOption);
     a_settings.isolated = parser.isSet(singleOption);
     a_settings.jhextensions = !parser.isSet(jhOption);
     a_settings.no_colors = parser.isSet(nocolorOption);
+    a_settings.graphical = parser.isSet(guiOption);
 
     bool valid=false;
     int nrjobs = parser.value(parallelOption).toInt(&valid);
@@ -156,14 +165,15 @@ static void parseCommandLineOptions(QCoreApplication &app,
     a_settings.verbosity = valid ? verbosity : 1;
     if (a_settings.debug)
     {
-        QLoggingCategory::setFilterRules("QtTestRunner.debug=true");
+        QLoggingCategory::setFilterRules("QtTestRunner.debug=true\n"
+                                         "QtTestRunnerCoreHandler.debug=false");
     }
 
     // Debug settings
     //a_settings.shuffle = true;
-    //a_settings.onebyone = true;
+    a_settings.isolated = true;
     //a_settings.repeat = 100;
-    //a_settings.nrjobs = 1;
+    a_settings.nrjobs = 1;
     //a_settings.jhextensions = false;
     //a_settings.verbosity = 2;
 
@@ -178,6 +188,7 @@ static void parseCommandLineOptions(QCoreApplication &app,
     qCDebug(LogQtTestRunner, "jhext     %s", a_settings.jhextensions ? "yes" : "no");
     qCDebug(LogQtTestRunner, "verbosity %d", a_settings.verbosity);
     qCDebug(LogQtTestRunner, "no colors %s", a_settings.no_colors ? "yes" : "no");
+    qCDebug(LogQtTestRunner, "gui       %s", a_settings.graphical ? "yes" : "no");
 }
 
 /******************************************************************************/
@@ -217,23 +228,41 @@ int main(int argc, char *argv[])
 {
     qInstallMessageHandler(LogHandler);
     QLoggingCategory::setFilterRules("QtTestRunner.debug=false\n"
-                                     "QtTestRunnerCore.debug=false");
+                                     "QtTestRunnerCore.debug=false\n"
+                                     "QtTestRunnerCoreHandler.debug=false");
 
-    QCoreApplication app(argc, argv);
+    QApplication app(argc, argv);
     app.setOrganizationName("Heidenhain");
     app.setApplicationName("QtTestRunner");
     app.setApplicationVersion("1.0");
+
+    TestManager test_manager;
 
     TestSettings test_settings;
     parseCommandLineOptions(app, test_settings);
     checkPreconditions(test_settings);
 
-    TestManager test_manager;
     ConsoleRunner runner(&test_manager, &test_settings);
-    QObject::connect(&runner, &ConsoleRunner::testingFinished,
-                     &app, &QCoreApplication::exit);
-    QTimer::singleShot(0, &runner, &ConsoleRunner::onRun);
-    return app.exec();
+
+    if (!test_settings.graphical)
+    {
+        QObject::connect(&runner, &ConsoleRunner::testingFinished,
+                         &app, &QApplication::exit);
+        QTimer::singleShot(0, &runner, &ConsoleRunner::onRun);
+        return app.exec();
+    }
+    else
+    {
+        //QObject::connect(&runner, &ConsoleRunner::testingFinished,
+        //                 &app, &QApplication::exit);
+        //QTimer::singleShot(0, &runner, &ConsoleRunner::onRun);
+
+        QQmlApplicationEngine engine;
+        engine.rootContext()->setContextProperty("ConsoleRunner", &runner);
+        engine.load(QUrl(QStringLiteral("qrc:/Main.qml")));
+
+        return app.exec();
+    }
 }
 
 /******************************************************************************/

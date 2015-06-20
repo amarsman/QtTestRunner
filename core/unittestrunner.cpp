@@ -98,20 +98,16 @@ void UnitTestRunner::run()
     handler->setUnitTestRunner(this);
 
     QScopedPointer<QProcess> process(new QProcess());
-    if (m_testFunctionName.isEmpty())
+    if (m_testCaseName.isEmpty())
     {
         process->start(m_testSuiteName, QStringList() << "-o" << "-,xml");
-    }
-    else if (m_testCaseName.isEmpty())
-    {
-        process->start(m_testSuiteName, QStringList() << "-o" << "-,xml" << m_testFunctionName);
     }
     else
     {
         process->start(m_testSuiteName, QStringList() << "-o" << "-,xml" << "-testcase" << m_testCaseName << m_testFunctionName);
     }
     process->waitForStarted();
-    while (process->waitForReadyRead())
+    while (process->waitForReadyRead(180000)) // 3 minutes
     {
         while (process->canReadLine())
         {
@@ -120,10 +116,7 @@ void UnitTestRunner::run()
         }
     }
 
-    if (!process->waitForFinished(180000)) // 3 minutes
-    {
-        process->kill();
-    }
+    qCDebug(LogQtTestRunnerCore, "Finished %s ", m_testSuiteName.toLatin1().data());
 
     bool result_ok = true;
     QProcess::ExitStatus status = process->exitStatus();

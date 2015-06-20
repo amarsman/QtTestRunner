@@ -59,6 +59,8 @@ public:
     TestManager();
     ~TestManager();
 
+    bool isRunning();
+
 public slots:
     /** \brief Start the test manager */
     void start(TestSettings *a_testSettings);
@@ -74,7 +76,7 @@ public slots:
 
 signals:
     /** \brief Report a new test suite */
-    void foundTestSuite(const QString &a_testSuiteName, unsigned int m_nrFoundTestFunctions);
+    void foundUnitTestTriple(const UnitTestTriple  &a_unitTestTriple);
 
     /** \brief Report test function done */
     void endTestFunction(const TestFunction &a_testFunction, unsigned int m_testFunctionNr);

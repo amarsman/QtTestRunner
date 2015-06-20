@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "unittestoutputhandler.h"
 
 class TestManager; //forward
+class UnitTestTriple;
 
 /******************************************************************************/
 /** \brief Class that uses the testmanager to run tests and report them in a console */
@@ -47,7 +48,7 @@ signals:
 
 private slots:
     /** \brief Report a new testsuite */
-    void onFoundTestSuite(const QString &a_testSuiteName, unsigned int a_nrTestFunctions);
+    void onFoundUnitTestTriple(const UnitTestTriple &a_unitTestTriple);
 
     /** \brief Report end test function */
     void onEndTestFunction(const TestFunction &a_testFunction, unsigned int a_testFunctionNr);
@@ -59,7 +60,6 @@ private slots:
     void onFinishedTesting();
 
 private:
-    void startCollecting();
     void printTestFunctionResult(const TestFunction &a_testFunction, unsigned int a_testFunctionNr);
     bool hasMessages(const TestFunction &a_testFunction);
     void printMessages(const TestFunction &a_testFunction);
@@ -70,7 +70,6 @@ private:
 
     unsigned int m_nrDots;
     QElapsedTimer m_elapsedTimer;
-
 };
 
 /******************************************************************************/

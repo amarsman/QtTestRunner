@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "unittestoutputhandler.h"
 #include "unittestrunner.h"
 
-Q_DECLARE_LOGGING_CATEGORY(LogQtTestRunnerCore)
+Q_LOGGING_CATEGORY(LogQtTestRunnerCoreHandler, "QtTestRunnerCoreHandler")
 
 QMutex g_access;
 
@@ -91,7 +91,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
         match = re_xml.match(a_line);
         if (match.hasMatch())
         {
-            qCDebug(LogQtTestRunnerCore, "---- XML ----");
+            qCDebug(LogQtTestRunnerCoreHandler, "---- XML ----");
             return;
         }
 
@@ -101,7 +101,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
         {
             QString name = match.captured(1);
 
-            qCDebug(LogQtTestRunnerCore, "---- TC: %s----",
+            qCDebug(LogQtTestRunnerCoreHandler, "---- TC: %s----",
                     match.captured(1).toLatin1().data());
             m_inTestCase = true;
 
@@ -122,7 +122,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
             if (match.hasMatch())
             {
                 m_inEnvironment = false;
-                qCDebug(LogQtTestRunnerCore, "---- ~ENV ----");
+                qCDebug(LogQtTestRunnerCoreHandler, "---- ~ENV ----");
                 return;
             }
 
@@ -138,7 +138,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     match = re_description_end.match(a_line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- DESC ----");
+                        qCDebug(LogQtTestRunnerCoreHandler, "---- DESC ----");
                         m_inDescription = false;
                         return;
                     }
@@ -151,7 +151,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     {
                         QString text = match.captured(1);
 
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                        qCDebug(LogQtTestRunnerCoreHandler, "---- DESC %s ----",
                                 match.captured(1).toLatin1().data());
 
                         m_message->m_description.append(text);
@@ -164,7 +164,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     if (match.hasMatch())
                     {
                         QString text = match.captured(1);
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                        qCDebug(LogQtTestRunnerCoreHandler, "---- DESC %s ----",
                                 match.captured(1).toLatin1().data());
                         m_inDescription = true;
 
@@ -176,7 +176,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     match = re_message_end.match(a_line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- ~MSG ----");
+                        qCDebug(LogQtTestRunnerCoreHandler, "---- ~MSG ----");
                         m_inMessage= false;
                         m_message->m_done = true;
                         return;
@@ -193,14 +193,14 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     {
                         QString text = match.captured(1);
 
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                        qCDebug(LogQtTestRunnerCoreHandler, "---- DESC %s ----",
                                 match.captured(1).toLatin1().data());
                         m_inDescription = false;
 
                         m_incident->m_description.append(text);
                         return;
                     }
-                    qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                    qCDebug(LogQtTestRunnerCoreHandler, "---- DESC %s ----",
                             a_line.toLatin1().data());
 
                     m_incident->m_description.append(a_line+"\n");
@@ -215,7 +215,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     {
                         QString text = match.captured(1);
                         m_incident->m_description.append(text);
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                        qCDebug(LogQtTestRunnerCoreHandler, "---- DESC %s ----",
                                 match.captured(1).toLatin1().data());
                         return;
                     }
@@ -225,7 +225,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     if (match.hasMatch())
                     {
                         QString text = match.captured(1);
-                        qCDebug(LogQtTestRunnerCore, "---- DESC %s ----",
+                        qCDebug(LogQtTestRunnerCoreHandler, "---- DESC %s ----",
                                 match.captured(1).toLatin1().data());
                         m_inDescription = true;
 
@@ -238,7 +238,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     if (match.hasMatch())
                     {
                         QString tag = match.captured(1);
-                        qCDebug(LogQtTestRunnerCore, "---- TAG %s ----",
+                        qCDebug(LogQtTestRunnerCoreHandler, "---- TAG %s ----",
                                 match.captured(1).toLatin1().data());
 
                         m_incident->m_datatag = tag;
@@ -248,7 +248,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     match = re_incident_end.match(a_line);
                     if (match.hasMatch())
                     {
-                        qCDebug(LogQtTestRunnerCore, "---- ~INC ----");
+                        qCDebug(LogQtTestRunnerCoreHandler, "---- ~INC ----");
                         m_inIncident = false;
 
                         m_incident->m_done = true;
@@ -264,7 +264,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                 if (match.hasMatch())
                 {
                     //m_testFunctionName = "";
-                    qCDebug(LogQtTestRunnerCore, "---- ~TF ----");
+                    qCDebug(LogQtTestRunnerCoreHandler, "---- ~TF ----");
                     m_inTestFunction = false;
 
                     m_testFunction->m_done = true;
@@ -285,7 +285,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     QString file = match.captured(2);
                     QString line = match.captured(3);
 
-                    qCDebug(LogQtTestRunnerCore, "---- MSG: %s ----",
+                    qCDebug(LogQtTestRunnerCoreHandler, "---- MSG: %s ----",
                             match.captured(1).toLatin1().data());
                     m_inMessage = true;
 
@@ -307,7 +307,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     QString file = match.captured(2);
                     QString line = match.captured(3);
 
-                    qCDebug(LogQtTestRunnerCore, "---- INC: %s ----",
+                    qCDebug(LogQtTestRunnerCoreHandler, "---- INC: %s ----",
                             match.captured(1).toLatin1().data());
 
                     Incident incident;
@@ -328,7 +328,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     QString file = match.captured(2);
                     QString line = match.captured(3);
 
-                    qCDebug(LogQtTestRunnerCore, "---- INC: %s ----",
+                    qCDebug(LogQtTestRunnerCoreHandler, "---- INC: %s ----",
                             match.captured(1).toLatin1().data());
                     m_inIncident = true;
 
@@ -351,7 +351,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                     QString value = match.captured(3);
                     QString iterations = match.captured(4);
 
-                    qCDebug(LogQtTestRunnerCore, "---- BENCH %s ----",
+                    qCDebug(LogQtTestRunnerCoreHandler, "---- BENCH %s ----",
                             match.captured(1).toLatin1().data());
 
                     Benchmark benchmark;
@@ -372,7 +372,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                 {
                     QString duration = match.captured(1);
 
-                    qCDebug(LogQtTestRunnerCore, "---- DUR %s ----",
+                    qCDebug(LogQtTestRunnerCoreHandler, "---- DUR %s ----",
                             match.captured(1).toLatin1().data());
 
                     m_testFunction->m_duration = duration;
@@ -387,7 +387,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
             if (match.hasMatch())
             {
                 m_inEnvironment = true;
-                qCDebug(LogQtTestRunnerCore, "---- ENV ----");
+                qCDebug(LogQtTestRunnerCoreHandler, "---- ENV ----");
                 return;
             }
 
@@ -398,7 +398,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
                 QString name = match.captured(1);
 
                 //m_testFunctionName = match.captured(1);
-                qCDebug(LogQtTestRunnerCore, "---- TF: %s ----",
+                qCDebug(LogQtTestRunnerCoreHandler, "---- TF: %s ----",
                         match.captured(1).toLatin1().data());
                 m_inTestFunction = true;
 
@@ -415,7 +415,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
             if (match.hasMatch())
             {
                 QString duration = match.captured(1);
-                qCDebug(LogQtTestRunnerCore, "---- Duration ----");
+                qCDebug(LogQtTestRunnerCoreHandler, "---- Duration ----");
 
                 m_testCase->m_duration = duration;
                 return;
@@ -426,7 +426,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
             if (match.hasMatch())
             {
                 //m_testCaseName = "";
-                qCDebug(LogQtTestRunnerCore, "---- ~TC ----");
+                qCDebug(LogQtTestRunnerCoreHandler, "---- ~TC ----");
                 m_inTestCase = false;
 
                 m_testCase->m_done = true;
@@ -437,7 +437,7 @@ void UnitTestOutputHandler::processXmlLine(const QString &a_line)
     }
 
     //not processed, log
-    //qCWarning(LogQtTestRunnerCore, "%s", line.toLatin1().data());
+    //qCWarning(LogQtTestRunnerCoreHandler, "%s", line.toLatin1().data());
 }
 
 /******************************************************************************/
@@ -449,7 +449,7 @@ const TestSuite &UnitTestOutputHandler::getTestSuite() const
 /******************************************************************************/
 void UnitTestOutputHandler::propagateResults()
 {
-    qCDebug(LogQtTestRunnerCore, "---- Propragate ----");
+    qCDebug(LogQtTestRunnerCoreHandler, "---- Propragate ----");
     Q_ASSERT(m_testFunction != nullptr);
     Q_ASSERT(m_testCase != nullptr);
     Q_ASSERT(m_testSuite != nullptr);

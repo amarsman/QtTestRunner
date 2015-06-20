@@ -362,7 +362,9 @@ void tst_outputhandler::test()
 /******************************************************************************/
 int main(int argc, char *argv[])
 {
-    QLoggingCategory::setFilterRules("QtTestRunnerCore.debug=false");
+    QLoggingCategory::setFilterRules("QtTestRunner.debug=false\n"
+                                     "QtTestRunnerCore.debug=false\n"
+                                     "QtTestRunnerCoreHandler.debug=false");
 
     JhTestSuite suite;
 

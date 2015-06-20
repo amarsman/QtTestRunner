@@ -36,6 +36,7 @@ struct TestSettings
         jhextensions = true;
         verbosity    = 1;
         no_colors    = false;
+        graphical    = true;
     }
 
     QString basepath;    /*!< \brief Basepath where to look for tests */
@@ -49,6 +50,7 @@ struct TestSettings
     bool jhextensions;   /*!< \brief Use JH extensions (multi testcases) */
     int  verbosity;      /*!< \brief Set verbosity level at n */
     bool no_colors;      /*!< \brief Do not produce colored output */
+    bool graphical;      /*!< \brief Use GUI */
 };
 
 /******************************************************************************/
