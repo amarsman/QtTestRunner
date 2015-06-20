@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
                                      "QtTestRunnerCoreHandler.debug=false");
 
     QApplication app(argc, argv);
-    app.setOrganizationName("Heidenhain");
+    app.setOrganizationName("Laaksoft");
     app.setApplicationName("QtTestRunner");
     app.setApplicationVersion("1.0");
 
