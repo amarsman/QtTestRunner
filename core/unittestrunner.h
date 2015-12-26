@@ -36,7 +36,7 @@ class UnitTestRunner : public QObject, public QRunnable
     Q_OBJECT
 public:
     /** \brief Create a test runner that clears a semaphore when done */
-    UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore);
+    explicit UnitTestRunner(QSharedPointer<QSemaphore> a_semaphore);
     ~UnitTestRunner();
 
     /** \brief Start a test */

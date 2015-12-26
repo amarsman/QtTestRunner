@@ -127,10 +127,10 @@ void ConsoleRunner::onFinishedTesting()
 
     bool all_ok = (nrPassedTestFunctions > 0) && (nrFoundTestFunctions == nrPassedTestFunctions);
     fprintf(stdout, "\n%.1lf seconds, ", elapsed/1000.0);
-    fprintf(stdout, "%d found, ",   nrFoundTestFunctions);
-    fprintf(stdout, "%d run, ",     nrRunTestFunctions);
-    fprintf(stdout, "%d passed, ",  nrPassedTestFunctions);
-    fprintf(stdout, "%d failed\n",  nrFailedTestFunctinos);
+    fprintf(stdout, "%u found, ",   nrFoundTestFunctions);
+    fprintf(stdout, "%u run, ",     nrRunTestFunctions);
+    fprintf(stdout, "%u passed, ",  nrPassedTestFunctions);
+    fprintf(stdout, "%u failed\n",  nrFailedTestFunctinos);
     fprintf(stdout, "%sFinal result: %s%s\n\n",
             all_ok ? STYLE_GREEN_BOLD : STYLE_RED_BOLD ,
             all_ok ? "OK" : "FAIL",
@@ -168,7 +168,7 @@ void ConsoleRunner::printTestFunctionResult(const TestFunction &a_testFunction,
             m_nrDots = 0;
         }
         char buf[32];
-        snprintf(buf,32,"%d/%d",
+        snprintf(buf,32,"%u/%u",
                  a_testFunctionNr,
                  m_testManager->getNrFoundTestFunctions());
 

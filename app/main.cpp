@@ -55,6 +55,15 @@ void LogHandler(QtMsgType type,
                 context.function,
                 msg.toStdString().c_str());
         break;
+    case QtInfoMsg:
+        fprintf(stdout, "%s %s.info  %s.%u %s %s\n",
+                QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toLatin1().data(),
+                context.category,
+                context.file,
+                context.line,
+                context.function,
+                msg.toStdString().c_str());
+        break;
     case QtWarningMsg:
         fprintf(stdout, "%s %s.warng  %s.%u %s %s\n",
                 QDateTime::currentDateTime().toString("HH:mm:ss.zzz").toLatin1().data(),

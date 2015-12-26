@@ -32,7 +32,7 @@ class Locker
 {
 public:
     /** \brief Create a locker object for a mutex */
-    Locker(QMutex &a_lock) : m_lock(a_lock)
+    explicit Locker(QMutex &a_lock) : m_lock(a_lock)
     {
         m_lock.lock();
     }
@@ -219,7 +219,7 @@ class UnitTestOutputHandler : public QObject
     Q_OBJECT
 public:
     /** \brief Create an output handler for a testsuite */
-    UnitTestOutputHandler(const QString &a_testSuiteName);
+    explicit UnitTestOutputHandler(const QString &a_testSuiteName);
     virtual ~UnitTestOutputHandler();
 
     /** \brief Set the test runner for reporting back */

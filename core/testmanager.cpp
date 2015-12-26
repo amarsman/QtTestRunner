@@ -29,7 +29,8 @@ Q_LOGGING_CATEGORY(LogQtTestRunnerCore, "QtTestRunnerCore")
 
 /******************************************************************************/
 TestManager::TestManager()
-    : m_stopRequested(false)
+    : m_testSettings(nullptr)
+    , m_stopRequested(false)
     , m_running(false)
     , m_nrFoundTestFunctions(0)
     , m_nrRunTestFunctions(0)
